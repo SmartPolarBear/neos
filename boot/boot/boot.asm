@@ -2,6 +2,8 @@ BITS 16
 ORG 0x7C00
 
 Entry:
+    CLI
+
     MOV AX, 0x0000
     MOV DS, AX
     MOV ES, AX
@@ -57,6 +59,5 @@ SPIN:
 
 
 WELCOME db "Starting NEOS...", 0
-
 TIMES 510 - ($ - $$) db 0
 DW 0xAA55

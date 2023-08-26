@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.15)
 
-add_executable(osldr loader.c loaderhead.S)
+add_executable(osldr loader.c loaderhead.S vesa16.c)
 
 set_property(SOURCE loaderhead.S PROPERTY LANGUAGE C)
 
 target_compile_options(osldr BEFORE
         PRIVATE -fno-pic
-        PRIVATE -m16
+        PRIVATE -m32
         PRIVATE -Os
         PRIVATE -nostdinc)
 
