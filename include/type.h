@@ -4,7 +4,7 @@
 
 #pragma once
 
-typedef void VOID
+typedef void VOID;
 typedef unsigned char BYTE;
 typedef unsigned short WORD;
 typedef unsigned long DWORD;
