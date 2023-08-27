@@ -3,8 +3,13 @@
 .code16
 .globl OSLoaderEntry
 OSLoaderEntry:
+    xor %ax, %ax
+    mov %ax, %ds
+    mov %ax, %es
+    mov %ax, %ss
+
     // set boot stack
-    mov $0x7c00, %sp
+    mov 0x7c00, %sp
 
     cli
     // print a message "..."
@@ -61,27 +66,17 @@ ContProbeMem:
     cmpl $0, %ebx
     jnz StartProbeMem
 FinishProbeMem:
-    // Copy VGA fonts to 0x9000
-    push %ds
-    push %es
-
-    mov $0x1130, %ax
-    mov $6, %bh
-    int $0x10
-
-    push %es
-    pop %ds
-    pop %es
-    mov %bp, %si
-    mov VGA_FONT_ADDR, %di
-    mov VGA_FONT_LEN, %cx
-    rep movsb
-    pop %ds
-
     // Initialize VESA
+    mov $vbeInfo, %di
+    mov $0x4f00, %ax
+    int $0x10
+    cmp $0x004f, %ax
+    jne FailSpin
     call InitializeVesa
-Spin:
+    xor %ax, %ax
+FailSpin:
+    mov $0x0e, %ah
+    mov $'F', %al
+    int $0x10
     hlt
-    jmp Spin
-
-
+    jmp FailSpin

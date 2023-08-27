@@ -7,14 +7,24 @@ set_property(SOURCE loaderhead.S PROPERTY LANGUAGE C)
 target_include_directories(osldr PRIVATE include)
 
 target_compile_options(osldr BEFORE
+        PRIVATE -ffreestanding
         PRIVATE -fno-pic
         PRIVATE -m32
-        PRIVATE -Os
-        PRIVATE -nostdinc)
+        PRIVATE -mno-red-zone
+        PRIVATE -O0
+        PRIVATE -static
+        PRIVATE -fno-builtin
+        PRIVATE -fno-builtin-memcpy
+        PRIVATE -fno-strict-aliasing
+        PRIVATE -nostdlib
+        PRIVATE -nodefaultlibs
+        PRIVATE -nostdinc
+)
 
 target_link_options(osldr BEFORE
-        PRIVATE -Wl,-N
+#        PRIVATE -Wl,-N
         PRIVATE -m32
+        PRIVATE -O0
         PRIVATE -nostdlib
         PRIVATE -static
         PRIVATE -Wl,--build-id=none
