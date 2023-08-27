@@ -1,3 +1,5 @@
+#include "defs.h"
+
 .code16
 .globl OSLoaderEntry
 OSLoaderEntry:
@@ -22,8 +24,8 @@ EnterMsg:
     mov $0x0d, %al
     int $0x10
 
-  # Physical address line A20 is tied to zero so that the first PCs
-  # with 2 MB would run software that assumed 1 MB.  Undo that.
+    // Physical address line A20 is tied to zero so that the first PCs
+    // with 2 MB would run software that assumed 1 MB.  Undo that.
 SetA20.1:
     inb     $0x64,%al               # Wait for not busy
     testb   $0x2,%al
@@ -40,9 +42,9 @@ SetA20.2:
     movb    $0xdf,%al               # 0xdf -> port 0x60
     outb    %al,$0x60
 
-// save memory map at 0x8000
+    // Save memory map at 0x8000
 ProbeMem:
-    movl $0, 0x8000
+    movl $0, MMAP_ADDR
     xorl %ebx, %ebx
     movw $0x8004, %di
 StartProbeMem:
@@ -59,11 +61,25 @@ ContProbeMem:
     cmpl $0, %ebx
     jnz StartProbeMem
 FinishProbeMem:
-    // initialize VESA
+    // Copy VGA fonts to 0x9000
+    push %ds
+    push %es
+
+    mov $0x1130, %ax
+    mov $6, %bh
+    int $0x10
+
+    push %es
+    pop %ds
+    pop %es
+    mov %bp, %si
+    mov VGA_FONT_ADDR, %di
+    mov VGA_FONT_LEN, %cx
+    rep movsb
+    pop %ds
+
+    // Initialize VESA
     call InitializeVesa
-
-
-
 Spin:
     hlt
     jmp Spin

@@ -1,8 +1,10 @@
 cmake_minimum_required(VERSION 3.15)
 
-add_executable(osldr loader.c loaderhead.S vesa16.c)
+add_executable(osldr loader.c loaderhead.S vesa.c vgafont.c)
 
 set_property(SOURCE loaderhead.S PROPERTY LANGUAGE C)
+
+target_include_directories(osldr PRIVATE include)
 
 target_compile_options(osldr BEFORE
         PRIVATE -fno-pic
