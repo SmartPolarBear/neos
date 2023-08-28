@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 
-add_executable(osldr loader.c loaderhead.S vesa.c vgafont.c)
+add_executable(osldr loader.c loaderhead.S vesa.c vgafont.c draw.c)
 
 set_property(SOURCE loaderhead.S PROPERTY LANGUAGE C)
 
@@ -22,7 +22,7 @@ target_compile_options(osldr BEFORE
 )
 
 target_link_options(osldr BEFORE
-#        PRIVATE -Wl,-N
+        PRIVATE -Wl,-N
         PRIVATE -m32
         PRIVATE -O0
         PRIVATE -nostdlib

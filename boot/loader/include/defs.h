@@ -7,3 +7,4 @@
 #define MMAP_ADDR 0x8000
 #define VGA_FONT_ADDR 0x9000
 #define VGA_FONT_LEN 1024 // 256 * 16 / 4
+#define VESA_MODEINFO_ADDR 0x7000

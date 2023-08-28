@@ -1,4 +1,6 @@
 #include "defs.h"
+#include "asm.h"
+#include "mmu.h"
 
 .code16
 .globl OSLoaderEntry
@@ -66,6 +68,20 @@ ContProbeMem:
     cmpl $0, %ebx
     jnz StartProbeMem
 FinishProbeMem:
+    // Copy VGA Font
+    push %ds
+    push %es
+    mov $0x1130, %ax
+    mov $6, %bh
+    int $0x10
+    push %es
+    pop %ds
+    pop %es
+    mov %bp, %si
+    mov VGA_FONT_LEN, %cx
+    rep movsd
+    pop %ds
+
     // Initialize VESA
     mov $vbeInfo, %di
     mov $0x4f00, %ax
@@ -74,9 +90,37 @@ FinishProbeMem:
     jne FailSpin
     call InitializeVesa
     xor %ax, %ax
+
+    // Switch to protected mode
+    lgdt GDTDesc
+    movl %cr0, %eax
+    orl $CR0_PE, %eax
+    movl %eax, %cr0
+    ljmp  $(SEG_KCODE<<3), $Entry32
+
+.code32
+Entry32:
+     movw    $(SEG_KDATA<<3), %ax    # Our data segment selector
+     movw    %ax, %ds                # -> DS: Data Segment
+     movw    %ax, %es                # -> ES: Extra Segment
+     movw    %ax, %ss                # -> SS: Stack Segment
+     movw    $0, %ax                 # Zero segments not ready for use
+     movw    %ax, %fs                # -> FS
+     movw    %ax, %gs                # -> GS
+
+
+
 FailSpin:
-    mov $0x0e, %ah
-    mov $'F', %al
-    int $0x10
     hlt
     jmp FailSpin
+
+# Bootstrap GDT
+.p2align 2                                # force 4 byte alignment
+GDT:
+  SEG_NULLASM                             # null seg
+  SEG_ASM(STA_X|STA_R, 0x0, 0xffffffff)   # code seg
+  SEG_ASM(STA_W, 0x0, 0xffffffff)         # data seg
+
+GDTDesc:
+  .word   (GDTDesc - GDT - 1)             # sizeof(gdt) - 1
+  .long   GDT                            # address gdt
