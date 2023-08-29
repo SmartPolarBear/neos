@@ -6,8 +6,8 @@
 
 #include "type.h"
 
-#define BOOTTIME_MIN_SCRN_WIDTH 640
-#define BOOTTIME_MIN_SCRN_HEIGHT 480
+#define BOOTTIME_MIN_SCRN_WIDTH 800
+#define BOOTTIME_MIN_SCRN_HEIGHT 600
 #define BOOTTIME_MIN_SCRN_BPP 16
 
 typedef struct

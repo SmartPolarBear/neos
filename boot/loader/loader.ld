@@ -4,9 +4,9 @@ ENTRY(OSLoaderEntry)
 
 SECTIONS
 {
-	. = 0x6000;
+	. = 0x1000;
 
-	.text : AT(0x6000) {
+	.text : AT(0x1000) {
 		*(.text)
 	}
 
