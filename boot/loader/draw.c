@@ -7,11 +7,4 @@
 #include "vga.h"
 #include "draw.h"
 
-void PutPixel16(DWORD color, INT x, INT y)
-{
-}
-
-void PutRect16(INT w, INT h, BYTE r, BYTE g, BYTE b)
-{
-}
 

@@ -91,36 +91,38 @@ FinishProbeMem:
     call InitializeVesa
     xor %ax, %ax
 
+
     // Switch to protected mode
     lgdt GDTDesc
     movl %cr0, %eax
     orl $CR0_PE, %eax
     movl %eax, %cr0
-    ljmp  $(SEG_KCODE<<3), $Entry32
+    ljmp  $(SEG_KCODE<<3), $OSLoaderEntry32
 
 .code32
-Entry32:
-     movw    $(SEG_KDATA<<3), %ax    # Our data segment selector
-     movw    %ax, %ds                # -> DS: Data Segment
-     movw    %ax, %es                # -> ES: Extra Segment
-     movw    %ax, %ss                # -> SS: Stack Segment
-     movw    $0, %ax                 # Zero segments not ready for use
-     movw    %ax, %fs                # -> FS
-     movw    %ax, %gs                # -> GS
+OSLoaderEntry32:
+    movw    $(SEG_KDATA<<3), %ax    # Our data segment selector
+    movw    %ax, %ds                # -> DS: Data Segment
+    movw    %ax, %es                # -> ES: Extra Segment
+    movw    %ax, %ss                # -> SS: Stack Segment
+    movw    $0, %ax                 # Zero segments not ready for use
+    movw    %ax, %fs                # -> FS
+    movw    %ax, %gs                # -> GS
 
-
+    call LoaderMain32
 
 FailSpin:
     hlt
     jmp FailSpin
 
-# Bootstrap GDT
+# Bootstrap GDT 32
 .p2align 2                                # force 4 byte alignment
 GDT:
-  SEG_NULLASM                             # null seg
-  SEG_ASM(STA_X|STA_R, 0x0, 0xffffffff)   # code seg
-  SEG_ASM(STA_W, 0x0, 0xffffffff)         # data seg
+    SEG_NULLASM                             # null seg
+    SEG_ASM(STA_X|STA_R, 0x0, 0xffffffff)   # code seg
+    SEG_ASM(STA_W, 0x0, 0xffffffff)         # data seg
 
 GDTDesc:
-  .word   (GDTDesc - GDT - 1)             # sizeof(gdt) - 1
-  .long   GDT                            # address gdt
+    .word   (GDTDesc - GDT - 1)             # sizeof(gdt) - 1
+    .long   GDT                            # address gdt
+

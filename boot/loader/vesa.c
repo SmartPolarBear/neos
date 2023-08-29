@@ -27,6 +27,7 @@ void InitializeVesa()
 		vbeInfo.signature[3] != 'A')
 		PanicVesa();
 
+
 	if (vbeInfo.version < 0x0200)
 		PanicVesa();
 
@@ -64,10 +65,11 @@ void InitializeVesa()
 		foundMode = TRUE;
 
 		// set vbe mode
-		__builtin_memcpy((void*)VESA_MODEINFO_ADDR, &vbeModeInfo, sizeof(VBEMODEINFO));
+//		__builtin_memcpy((void*)VESA_MODEINFO_ADDR, &vbeModeInfo, sizeof(VBEMODEINFO));
 		__asm__ __volatile__ ("int $0x10" : : "a" (0x4F02), "b" (*mode) : "memory");
 		break;
 	}
+
 
 	if (!foundMode)
 	{

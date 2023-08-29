@@ -43,11 +43,11 @@ Entry:
         MOV CL, 0x02     ; Sector 2
         MOV DH, 0x00     ; Head 0
         MOV DL, 0x80     ; Drive 0
-        MOV BX, 0x0500   ; Load to memory address 0x0500
+        MOV BX, 0x6000   ; Load to memory address
         INT 0x13         ; Call BIOS interrupt
 
-        ; Jump to stage 2 bootloader (0x9000)
-        JMP 0x0500
+        ; Jump to stage 2 bootloader (0x6000)
+        JMP 0x6000
 
         MOV AH, 0x0E
         MOV AL, 'F'
