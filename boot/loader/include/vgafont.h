@@ -4,11 +4,12 @@
 
 #pragma once
 
+typedef DWORD COLOR;
 
-void DrawCharacter(char c, INT x, INT y, WORD fgcolor);
+void DrawCharacter(char c, INT x, INT y, COLOR fgcolor);
 
-void DrawCharacterBackDrop(char c, INT x, INT y, WORD fgcolor, WORD bgcolor);
+void DrawCharacterBackDrop(char c, INT x, INT y, COLOR fgcolor, COLOR bgcolor);
 
-void DrawString(char* str, INT x, INT y, WORD fgcolor);
+void DrawString(char* str, INT x, INT y, COLOR fgcolor);
 
-void DrawStringBackDrop(char* str, INT x, INT y, WORD fgcolor, WORD bgcolor);
+void DrawStringBackDrop(char* str, INT x, INT y, COLOR fgcolor, COLOR bgcolor);

@@ -3,6 +3,7 @@
 //
 #include "ext.h"
 #include "draw.h"
+#include "terminal.h"
 #include "vgafont.h"
 
 // 32bit code
@@ -13,7 +14,8 @@ void NO_RETURN LoaderMain32()
 {
 	// Blue background
 	PutRect(0, 0, 800, 600, 0, 0, 255);
-	// Draw string
-	DrawString("OSLoader Built at", 0, 12, YELLOW);
+	// Boot-time terminal
+	InitializeTerminal();
+	TerminalWriteString("OS Loader (Built on " __DATE__ " " __TIME__ ")\n");
 	for (;;);
 }

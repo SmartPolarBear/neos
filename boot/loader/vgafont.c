@@ -13,7 +13,7 @@ __asm__(".code32");
 
 #define CHAR_BITMAP(c) (((volatile BYTE*)VGA_FONT_ADDR)+(((WORD)c)<<4))
 
-void DrawCharacterBackDrop(char c, int x, int y, WORD fgcolor, WORD bgcolor)
+void DrawCharacterBackDrop(char c, int x, int y, COLOR fgcolor, COLOR bgcolor)
 {
 	volatile BYTE* glyph = CHAR_BITMAP(c);
 
@@ -34,7 +34,7 @@ void DrawCharacterBackDrop(char c, int x, int y, WORD fgcolor, WORD bgcolor)
 	}
 }
 
-void DrawCharacter(char c, int x, int y, WORD fgcolor)
+void DrawCharacter(char c, int x, int y, COLOR fgcolor)
 {
 	volatile BYTE* glyph = CHAR_BITMAP(c);
 
@@ -51,7 +51,7 @@ void DrawCharacter(char c, int x, int y, WORD fgcolor)
 	}
 }
 
-void DrawString(char* str, int x, int y, WORD fgcolor)
+void DrawString(char* str, int x, int y, COLOR fgcolor)
 {
 	for (int i = 0; str[i] != 0; i++)
 	{
@@ -59,7 +59,7 @@ void DrawString(char* str, int x, int y, WORD fgcolor)
 	}
 }
 
-void DrawStringBackDrop(char* str, int x, int y, WORD fgcolor, WORD bgcolor)
+void DrawStringBackDrop(char* str, int x, int y, COLOR fgcolor, COLOR bgcolor)
 {
 	for (int i = 0; str[i] != 0; i++)
 	{

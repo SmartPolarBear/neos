@@ -6,6 +6,8 @@
 
 #include "type.h"
 
+void InitializeTerminal();
+
 void TerminalSetColor(WORD fgcolor, WORD bgcolor);
 
 void TerminalWriteCharacter(char c);
