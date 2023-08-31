@@ -4,7 +4,7 @@
 #include "ext.h"
 #include "defs.h"
 #include "vesa.h"
-#include "vga.h"
+#include "vgafont.h"
 #include "draw.h"
 
 // 16bit code

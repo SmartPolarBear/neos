@@ -72,13 +72,15 @@ FinishProbeMem:
     push %ds
     push %es
     mov $0x1130, %ax
-    mov $6, %bh
+    mov $0x06, %bh
     int $0x10
     push %es
     pop %ds
     pop %es
     mov %bp, %si
-    mov VGA_FONT_LEN, %cx
+    mov $VGA_FONT_ADDR, %di
+    mov $0x400, %cx // length: 256*16/4
+    cld
     rep movsd
     pop %ds
 
@@ -90,6 +92,10 @@ FinishProbeMem:
     jne FailSpin
     call InitializeVesa
     xor %ax, %ax
+
+
+
+
 
 
     // Switch to protected mode
