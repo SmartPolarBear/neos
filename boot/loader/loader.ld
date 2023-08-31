@@ -6,8 +6,12 @@ SECTIONS
 {
 	. = 0x1000;
 
+    # everything in .text for objcopy
 	.text : AT(0x1000) {
 		*(.text)
+		*(.data)
+        *(.rodata)
+        *(.bss)
 	}
 
 	/DISCARD/ : {

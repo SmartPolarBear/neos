@@ -13,7 +13,7 @@ __asm__(".code32");
 
 #define CHAR_BITMAP(c) (((volatile BYTE*)VGA_FONT_ADDR)+(((WORD)c)<<4))
 
-void DrawCharacter(char c, int x, int y, int fgcolor, int bgcolor)
+void DrawCharacterBackDrop(char c, int x, int y, int fgcolor, int bgcolor)
 {
 	volatile BYTE* glyph = CHAR_BITMAP(c);
 
@@ -24,17 +24,17 @@ void DrawCharacter(char c, int x, int y, int fgcolor, int bgcolor)
 		{
 			if (line & (1 << cx))
 			{
-				PutPixel(x + cx, y + cy - 12, R(fgcolor), G(fgcolor), B(fgcolor));
+				PutPixel(x + 7 - cx, y + cy - 12, R(fgcolor), G(fgcolor), B(fgcolor));
 			}
 			else
 			{
-				PutPixel(x + cx, y + cy - 12, R(bgcolor), G(bgcolor), B(bgcolor));
+				PutPixel(x + 7 - cx, y + cy - 12, R(bgcolor), G(bgcolor), B(bgcolor));
 			}
 		}
 	}
 }
 
-void DrawCharacterTransparent(char c, int x, int y, int fgcolor)
+void DrawCharacter(char c, int x, int y, int fgcolor)
 {
 	volatile BYTE* glyph = CHAR_BITMAP(c);
 
@@ -45,8 +45,25 @@ void DrawCharacterTransparent(char c, int x, int y, int fgcolor)
 		{
 			if (line & (1 << cx))
 			{
-				PutPixel(x + cx, y + cy - 12, R(fgcolor), G(fgcolor), B(fgcolor));
+				PutPixel(x + 7 - cx, y + cy - 12, R(fgcolor), G(fgcolor), B(fgcolor));
 			}
 		}
 	}
 }
+
+void DrawString(char* str, int x, int y, int fgcolor)
+{
+	for (int i = 0; str[i] != 0; i++)
+	{
+		DrawCharacter(str[i], x + i * 8, y, fgcolor);
+	}
+}
+
+void DrawStringBackDrop(char* str, int x, int y, int fgcolor, int bgcolor)
+{
+	for (int i = 0; str[i] != 0; i++)
+	{
+		DrawCharacterBackDrop(str[i], x + i * 8, y, fgcolor, bgcolor);
+	}
+}
+

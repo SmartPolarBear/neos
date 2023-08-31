@@ -5,6 +5,10 @@
 #pragma once
 
 
-void DrawCharacter(char c, int x, int y, int fgcolor, int bgcolor);
+void DrawCharacter(char c, int x, int y, int fgcolor);
 
-void DrawCharacterTransparent(char c, int x, int y, int fgcolor);
+void DrawCharacterBackDrop(char c, int x, int y, int fgcolor, int bgcolor);
+
+void DrawString(char* str, int x, int y, int fgcolor);
+
+void DrawStringBackDrop(char* str, int x, int y, int fgcolor, int bgcolor);
