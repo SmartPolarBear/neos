@@ -17,6 +17,8 @@
 #define GREEN 0x00ff00
 #define BLUE 0xff0000
 #define YELLOW 0x00ffff
+#define LIGHTGRAY 0xAAAAAA
+#define NOCOLOR ((WORD)-1)
 
 void PutRect(INT x, INT y, INT w, INT h, BYTE r, BYTE g, BYTE b);
 

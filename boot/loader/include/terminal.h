@@ -3,3 +3,15 @@
 //
 
 #pragma once
+
+#include "type.h"
+
+void TerminalSetColor(WORD fgcolor, WORD bgcolor);
+
+void TerminalWriteCharacter(char c);
+
+void TerminalWriteString(char* str);
+
+void TerminalMoveCursor(INT x, INT y);
+
+void TerminalClear();
