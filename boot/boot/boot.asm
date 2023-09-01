@@ -38,7 +38,7 @@ Entry:
     NEXT_WECL:
         ; Load stage 2 bootloader to memory address 0x1000
         MOV AH, 0x02     ; Read disk sectors
-        MOV AL, 0x08     ; Read 8 sectors (4K)
+        MOV AL, 0x10     ; Read 16 sectors (8K)
         MOV CH, 0x00     ; Cylinder 0
         MOV CL, 0x02     ; Sector 2
         MOV DH, 0x00     ; Head 0

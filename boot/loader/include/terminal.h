@@ -14,6 +14,8 @@ void TerminalWriteCharacter(char c);
 
 void TerminalWriteString(char* str);
 
+void TerminalPrintf(char* format, ...);
+
 void TerminalMoveCursor(INT x, INT y);
 
 void TerminalClear();

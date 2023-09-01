@@ -8,6 +8,7 @@ dd if=/dev/zero of=$DISK bs=1M count=128
 # create partitions
 parted $DISK mklabel msdos
 parted $DISK mkpart primary ext2 1MiB 100%
+parted $DISK set 1 boot on
 offset=$((1 * 1024 * 1024))
 mkfs.ext2 -F -L MYEXT2 -O ^has_journal -b 1024 -I 128 -E offset=$offset $DISK
 

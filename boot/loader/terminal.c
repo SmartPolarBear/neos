@@ -96,3 +96,102 @@ void TerminalClear()
 	bootTerm.row = bootTerm.col = 0;
 	PutRect(0, 0, modeInfo->width, modeInfo->height, 0, 0, 255);
 }
+
+// Custom implementation of itoa (integer to ASCII) function
+// Converts an integer to its ASCII representation
+static inline ALWAYS_INLINE void Itoa(int num, char* buffer, int base)
+{
+	int i = 0;
+	int isNegative = 0;
+
+	// Handle negative numbers for base 10
+	if (num < 0 && base == 10)
+	{
+		isNegative = 1;
+		num = -num;
+	}
+
+	// Handle the special case of 0
+	if (num == 0)
+	{
+		buffer[i++] = '0';
+	}
+	else
+	{
+		while (num != 0)
+		{
+			int remainder = num % base;
+			buffer[i++] = (remainder < 10) ? (remainder + '0') : (remainder - 10 + 'a');
+			num /= base;
+		}
+	}
+
+	// Add the negative sign for base 10 if necessary
+	if (isNegative && base == 10)
+	{
+		buffer[i++] = '-';
+	}
+
+	// Reverse the string
+	int left = 0;
+	int right = i - 1;
+	while (left < right)
+	{
+		char temp = buffer[left];
+		buffer[left] = buffer[right];
+		buffer[right] = temp;
+		left++;
+		right--;
+	}
+
+	// Null-terminate the string
+	buffer[i] = '\0';
+}
+
+void TerminalPrintf(char* format, ...)
+{
+	// Initialize the variable argument list using GCC's built-in macros
+	__builtin_va_list args;
+	__builtin_va_start(args, format);
+
+	// Iterate through the format string
+	for (int i = 0; format[i] != '\0'; ++i)
+	{
+		if (format[i] == '%')
+		{
+			++i;  // Move to the next character after '%'
+
+			// Check for format specifiers
+			if (format[i] == 'd')
+			{
+				// Handle %d (decimal integer)
+				int num = __builtin_va_arg(args, int);
+				char buffer[32];  // Adjust the size as needed for your environment
+				Itoa(num, buffer, 10);
+				TerminalWriteString(buffer);
+			}
+			else if (format[i] == 'x')
+			{
+				// Handle %x (hexadecimal integer)
+				int num = __builtin_va_arg(args, int);
+				char buffer[32];  // Adjust the size as needed for your environment
+				Itoa(num, buffer, 16);
+				TerminalWriteString(buffer);
+			}
+			else if (format[i] == 's')
+			{
+				// Handle %s (string)
+				char* str = __builtin_va_arg(args, char*);
+				TerminalWriteString(str);
+			}
+		}
+		else
+		{
+			// Regular character, not a format specifier
+			TerminalWriteCharacter(format[i]);
+		}
+	}
+
+	// Clean up the variable argument list
+	__builtin_va_end(args);
+}
