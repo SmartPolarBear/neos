@@ -21,3 +21,5 @@ typedef struct
 } PACKED PARTTABLEITEM;
 
 void InitializeBootFS();
+
+void LoadKernel(DWORD addr);

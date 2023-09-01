@@ -1,6 +1,7 @@
 //
 // Created by bear on 8/28/2023.
 //
+#include "defs.h"
 #include "ext.h"
 #include "draw.h"
 #include "terminal.h"
@@ -21,9 +22,16 @@ void NO_RETURN LoaderMain32()
 	TerminalWriteString("OS Loader (Built on " __DATE__ " " __TIME__ ")\n");
 
 	// Briefing the e820 mem map
+	BriefMemoryMap();
 
 	// Enumerate partition table and search for the kernel
 	InitializeBootFS();
+
+	// Load the kernel
+	LoadKernel(KERNEL_LOAD_ADDR);
+
+	// Jump to the kernel
+	__asm__ volatile ("jmp %0"::"r"(KERNEL_LOAD_ADDR));
 
 	// Not able to jump to kernel so report the error and spin
 	TerminalSetColor(RED, BLUE);

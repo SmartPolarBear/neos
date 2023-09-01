@@ -31,3 +31,8 @@ void InitializeBootFS()
 		activePartition = partitions[i];
 	}
 }
+
+void LoadKernel(DWORD addr)
+{
+	for (;;);
+}
