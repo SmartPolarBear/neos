@@ -7,3 +7,4 @@
 #define NO_RETURN __attribute__((noreturn))
 #define UNREACHABLE __builtin_unreachable()
 #define ALWAYS_INLINE __attribute__((always_inline))
+#define PACKED __attribute__((packed))

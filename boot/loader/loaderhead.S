@@ -91,12 +91,6 @@ FinishProbeMem:
     cmp $0x004f, %ax
     jne FailSpin
     call InitializeVesa
-    xor %ax, %ax
-
-
-
-
-
 
     // Switch to protected mode
     lgdt GDTDesc

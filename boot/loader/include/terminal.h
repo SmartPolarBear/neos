@@ -8,7 +8,7 @@
 
 void InitializeTerminal();
 
-void TerminalSetColor(WORD fgcolor, WORD bgcolor);
+void TerminalSetColor(DWORD fgcolor, DWORD bgcolor);
 
 void TerminalWriteCharacter(char c);
 

@@ -47,10 +47,10 @@ void InitializeTerminal()
 	bootTerm.bgColor = BLUE;
 
 	bootTerm.rowCount = modeInfo->height >> 4;
-	bootTerm.colCount = modeInfo->width >> 3 ;
+	bootTerm.colCount = modeInfo->width >> 3;
 }
 
-void TerminalSetColor(WORD fgcolor, WORD bgcolor)
+void TerminalSetColor(DWORD fgcolor, DWORD bgcolor)
 {
 	bootTerm.fgColor = fgcolor;
 	bootTerm.bgColor = bgcolor;
@@ -59,11 +59,16 @@ void TerminalSetColor(WORD fgcolor, WORD bgcolor)
 void TerminalWriteCharacter(char c)
 {
 	// check if c is displayable
-	if (c < 32 || c > 126)
+	if (c == '\n')
 	{
+		bootTerm.col = 0;
+		bootTerm.row++;
+		if (bootTerm.row >= bootTerm.rowCount)
+		{
+			bootTerm.row = 0;
+		}
 		return;
 	}
-
 
 	int x = 0, y = 0;
 	CursorToXY(&x, &y);
