@@ -28,10 +28,15 @@ void NO_RETURN LoaderMain32()
 	InitializeBootFS();
 
 	// Load the kernel
-	LoadKernel(KERNEL_LOAD_ADDR);
+	INT result = LoadKernel(KERNEL_LOAD_ADDR);
 
-	// Jump to the kernel
-	__asm__ volatile ("jmp %0"::"r"(KERNEL_LOAD_ADDR));
+	if (result > 0)
+	{
+		TerminalPrintf("Kernel sized %d loaded successfully.\n", result);
+
+		// Jump to the kernel
+		__asm__ volatile ("jmp %0"::"r"(KERNEL_LOAD_ADDR));
+	}
 
 	// Not able to jump to kernel so report the error and spin
 	TerminalSetColor(RED, BLUE);

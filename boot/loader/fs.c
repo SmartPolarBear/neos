@@ -32,7 +32,22 @@ void InitializeBootFS()
 	}
 }
 
-void LoadKernel(DWORD addr)
+INT LoadKernelLinuxNative(DWORD addr)
 {
-	for (;;);
+	// Read the first sector of the partition
+	return -1;
 }
+
+INT LoadKernel(DWORD addr)
+{
+//	switch (activePartition->SystemID)
+//	{
+//	case MBR_SYSID_LINUXNATIVE:
+//		return LoadKernelLinuxNative(addr);
+//	default:
+//		TerminalPrintf("Unsupported partition type: %d\n", activePartition->SystemID);
+//		return -1;
+//	}
+	return -1;
+}
+

@@ -22,4 +22,4 @@ typedef struct
 
 void InitializeBootFS();
 
-void LoadKernel(DWORD addr);
+INT LoadKernel(DWORD addr);

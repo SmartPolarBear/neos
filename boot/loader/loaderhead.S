@@ -68,6 +68,7 @@ ContProbeMem:
     cmpl $0, %ebx
     jnz StartProbeMem
 FinishProbeMem:
+
     // Copy VGA Font
     push %ds
     push %es

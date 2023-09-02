@@ -15,16 +15,16 @@
 void BriefMemoryMap(void)
 {
 	// Start by casting MMAP_ADDR to the correct pointer type
-	E820MEMMAP* e820Map = (E820MEMMAP*)MMAP_ADDR;
+	DWORD mmapCount = *(DWORD*)MMAP_ADDR;
+	E820MEMMAP* e820Map = (E820MEMMAP*)(MMAP_ADDR + sizeof(DWORD));
 
-	int entryCount = 0;  // Initialize the entry count to 0
 
 	// Iterate through the E820 memory map until we reach an entry with a length of 0
-	while (e820Map[entryCount].LengthLow != 0 || e820Map[entryCount].LengthHigh != 0)
+	for (int i = 0; i < mmapCount; i++)
 	{
 		char* typeStr;
 
-		switch (e820Map[entryCount].Type)
+		switch (e820Map[i].Type)
 		{
 		case MEM_TYPE_USABLE:
 			typeStr = "Usable RAM";
@@ -48,14 +48,12 @@ void BriefMemoryMap(void)
 
 		// Print the memory map entry using TerminalPrintf
 		TerminalPrintf("Memory Region #%d: Base=0x%x%x Length=0x%x%x Type=%d (%s)\n",
-				entryCount,
-				e820Map[entryCount].BaseAddrHigh,
-				e820Map[entryCount].BaseAddrLow,
-				e820Map[entryCount].LengthHigh,
-				e820Map[entryCount].LengthLow,
-				e820Map[entryCount].Type,
+				i,
+				e820Map[i].BaseAddrHigh,
+				e820Map[i].BaseAddrLow,
+				e820Map[i].LengthHigh,
+				e820Map[i].LengthLow,
+				e820Map[i].Type,
 				typeStr);
-
-		entryCount++;
 	}
 }
