@@ -35,12 +35,13 @@ void NO_RETURN LoaderMain32()
 		TerminalPrintf("Kernel sized %d loaded successfully.\n", result);
 
 		// Jump to the kernel
-		__asm__ volatile ("jmp %0"::"r"(KERNEL_LOAD_ADDR));
+		__asm__ volatile ("jmp *%0"::"r"(KERNEL_LOAD_ADDR));
 	}
+
 
 	// Not able to jump to kernel so report the error and spin
 	TerminalSetColor(RED, BLUE);
-	TerminalWriteString("Failed to load the kernel.\n");
+	TerminalWriteString("Unexpectedly failed to start.\n");
 	for (;;)
 		__asm__ volatile ("hlt");
 }

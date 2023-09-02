@@ -23,4 +23,4 @@ dd if=$STAGE1 of=$DISK conv=notrunc bs=1 count=2 skip=510 seek=510 # 55 AA mark
 echo "Copy stage 2 bootloader"
 STAGE2=$PREFIX/boot/loader/osldrbin
 stat $STAGE2
-dd if=$STAGE2 of=$DISK conv=notrunc bs=512 count=8 skip=0 seek=1
+dd if=$STAGE2 of=$DISK conv=notrunc bs=512 count=16 skip=0 seek=1

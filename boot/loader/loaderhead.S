@@ -110,6 +110,7 @@ OSLoaderEntry32:
     movw    %ax, %fs                # -> FS
     movw    %ax, %gs                # -> GS
 
+
     call LoaderMain32
 
 FailSpin:
