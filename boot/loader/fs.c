@@ -3,7 +3,9 @@
 //
 #include "defs.h"
 #include "fs.h"
+#include "ext2.h"
 #include "terminal.h"
+#include "disk.h"
 
 PARTTABLEITEM* activePartition;
 
@@ -34,8 +36,37 @@ void InitializeBootFS()
 
 static inline INT ALWAYS_INLINE LoadKernelLinuxNative(DWORD addr)
 {
-	// Read the first sector of the partition
-	return -1;
+	// Read the superblock
+
+	const DWORD lbaPartStart = activePartition->RelativeSector;
+	DWORD lbaSB = lbaPartStart + 2;
+
+	char* buffer = (char*)FS_BUFFER_START;
+
+	EXT2SB* superBlock = (EXT2SB*)buffer;
+	buffer += sizeof(EXT2SB);
+	ReadSects((void*)superBlock, lbaSB, 2);
+
+	if (superBlock->Magic != EXT2_SB_MAGIC)
+	{
+		TerminalPrintf("Invalid superblock magic: %x\n", superBlock->Magic);
+		return -1;
+	}
+
+	// dump basic info
+	TerminalWriteString("EXT2 filesystem detected.\n");
+	TerminalPrintf("Inode count: %d, ", superBlock->InodeCount);
+	TerminalPrintf("Block count: %d, ", superBlock->BlockCount);
+	TerminalPrintf("Reserved block count: %d, ", superBlock->ReservedBlockCount);
+	TerminalPrintf("Free block count: %d, ", superBlock->FreeBlockCount);
+	TerminalPrintf("Free inode count: %d, ", superBlock->FreeInodeCount);
+	TerminalPrintf("First data block: %d. ", superBlock->FirstDataBlock);
+	TerminalPrintf("Block size: %d, ", 1024 << superBlock->BlockSize);
+	TerminalPrintf("Fragment size: %d, ", 1024 << superBlock->FragmentSize);
+	TerminalPrintf("Blocks per group: %d. \n", superBlock->BlocksPerGroup);
+
+
+	return LoadKernelExt2(addr, superBlock, activePartition);
 }
 
 INT LoadKernel(DWORD addr)
