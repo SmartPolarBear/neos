@@ -1,5 +1,5 @@
-OUTPUT_FORMAT("elf32-i386", "elf32-i386", "elf32-i386")
-OUTPUT_ARCH(i386)
+OUTPUT_FORMAT("elf64-x86-64", "elf64-x86-64", "elf64-x86-64")
+OUTPUT_ARCH(i386:x86-64)
 ENTRY(OSLoaderEntry)
 
 SECTIONS
@@ -15,6 +15,6 @@ SECTIONS
 	}
 
 	/DISCARD/ : {
-		*(.eh_frame .note.GNU-stack .debug_* .comment)
+		*(.eh_frame .note.GNU-stack .note.gnu.property .debug_* .comment)
 	}
 }

@@ -110,8 +110,7 @@ OSLoaderEntry32:
     movw    %ax, %fs                # -> FS
     movw    %ax, %gs                # -> GS
 
-
-    call LoaderMain32
+    call LoaderMain32               # Different from other loaders, this **MAY** return, so use call instead of jmp
 
 FailSpin:
     hlt

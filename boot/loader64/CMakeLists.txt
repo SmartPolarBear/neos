@@ -10,9 +10,10 @@ target_include_directories(neldr PRIVATE include)
 target_compile_options(neldr BEFORE
         PRIVATE -ffreestanding
         PRIVATE -fno-pie
-        PRIVATE -m32
+        PRIVATE -m64
         PRIVATE -MD
         PRIVATE  -fno-common
+        PRIVATE -mcmodel=large
         PRIVATE -fno-omit-frame-pointer
         PRIVATE -mtls-direct-seg-refs
         PRIVATE -mno-red-zone
@@ -30,8 +31,6 @@ target_link_options(neldr BEFORE
         PRIVATE -Wl,-N
         PRIVATE -Wl,-z nodefaultlib
         PRIVATE -fno-pie
-        PRIVATE -O0
-        PRIVATE -m32
         PRIVATE -static
         PRIVATE -nostdlib
         PRIVATE -Wl,--build-id=none
