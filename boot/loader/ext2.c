@@ -2,6 +2,7 @@
 // Created by bear on 9/3/2023.
 //
 #include "defs.h"
+#include "entry.h"
 #include "ext2.h"
 #include "disk.h"
 #include "terminal.h"
@@ -10,36 +11,47 @@
 
 #define BLOCK_OFFSET(block) (BASE_OFFSET+(block-1)*blockSize)
 
+char* globalBuffer;
 
-INT LoadKernelExt2(DWORD addr, EXT2SB* sb, PARTTABLEITEM* part, char* buffer)
+static inline char* ALWAYS_INLINE AllocateBuffer(DWORD sizeInBytes)
 {
-	const DWORD blockSize = 1024 << sb->BlockSize;
-	const DWORD blockSec = blockSize / SEC_SIZE;
+	char* ret = globalBuffer;
+	globalBuffer += sizeInBytes;
+	return ret;
+}
 
-	const DWORD baseLBAOffset = part->RelativeSector + 2; // 2 reserved sectors
-	TerminalPrintf("Base LBA offset: %d\n", baseLBAOffset);
-	DWORD currentLBA = baseLBAOffset;
+INT LoadKernelExt2(DWORD addr, EXT2SB* sb, PARTTABLEITEM* part, char* buf)
+{
+	globalBuffer = buf;
+
+	const DWORD BG_COUNT = (sb->BlockCount / sb->BlocksPerGroup) + 1;
+	const DWORD BLOCK_SIZE = 1024 << sb->BlockSize;
+	const DWORD BLOCK_SECS = BLOCK_SIZE / SEC_SIZE;
+	const DWORD BASE_LBA = part->RelativeSector + 2; // 2 reserved sectors
+
+	TerminalPrintf("Base LBA offset: %d\n", BASE_LBA);
+	DWORD currentLBA = BASE_LBA;
 
 	// read group descriptor
-	currentLBA += blockSec; // skip superblock
-	EXT2BGDT* groupDesc = (EXT2BGDT*)buffer;
+	currentLBA += BLOCK_SECS; // skip superblock
+	EXT2BGDT* groupDesc = (EXT2BGDT*)AllocateBuffer(sizeof(EXT2BGDT) * BG_COUNT);
 	ReadSects((void*)groupDesc, currentLBA, 2);
 	TerminalPrintf("Group descriptor at LBA %d: %d, %d, %d, %d, %d, %d\n",
 			currentLBA, groupDesc->BlockUsageBitmap,
 			groupDesc->InodeUsageBitmap, groupDesc->InodeTableStart, groupDesc->FreeBlockCount,
 			groupDesc->FreeInodeCount, groupDesc->DirectoryCount);
-	buffer += sizeof(EXT2BGDT);
 
 	// read inode 2 (root directory)
-	currentLBA = baseLBAOffset + (groupDesc->InodeTableStart - 1) * blockSec;
-	// read the whole block. Because inode id is 2, so it must locate in the first block
-	ReadSects((void*)buffer, currentLBA, blockSec);
-	EXT2INODE* rootInode = (EXT2INODE*)(buffer + sizeof(EXT2INODE)); // skip inode 1 to get inode 2
+	currentLBA = BASE_LBA + (groupDesc->InodeTableStart - 1) * BLOCK_SECS;
+	// Read the Inode table.
+	// Because inode id is 2, so it must locate in the first block
+	char* inodeTable = AllocateBuffer(BLOCK_SIZE);
+	ReadSects((void*)inodeTable, currentLBA, BLOCK_SECS);
+	EXT2INODE* rootInode = (EXT2INODE*)(inodeTable + sizeof(EXT2INODE)); // skip inode 1 to get inode 2
 	TerminalPrintf("Root inode at LBA %d: 0x%x, %d, %d, %d, %d, %d\n",
 			currentLBA, rootInode->TypeAndPerms,
 			rootInode->UserID, rootInode->SizeLower, rootInode->LastAccessTime,
 			rootInode->CreationTime, rootInode->LastModificationTime);
-	buffer += blockSize;
 
 	if ((rootInode->TypeAndPerms & 0x4000) == 0)
 	{
@@ -48,16 +60,16 @@ INT LoadKernelExt2(DWORD addr, EXT2SB* sb, PARTTABLEITEM* part, char* buffer)
 		return -1;
 	}
 
-	// We assume the neldr should present in direct blocks
+	// We assume the neldr should present in direct blocks of root directory inode
 	EXT2DIRENT* dirent = NULL;
 	for (INT i = 0; i < 12; i++)
 	{
 		DWORD block = rootInode->DirectBlockPointers[i];
-		char* blockBuffer = buffer; // we use the same buffer
-		currentLBA = baseLBAOffset + (block - 1) * blockSec;
-		ReadSects((void*)blockBuffer, currentLBA, blockSec);
+		char* blockBuffer = (char*)AllocateBuffer(BLOCK_SIZE); // we use the same buffer
+		currentLBA = BASE_LBA + (block - 1) * BLOCK_SECS;
+		ReadSects((void*)blockBuffer, currentLBA, BLOCK_SECS);
 		char* p = blockBuffer;
-		while (p - blockBuffer < blockSize)
+		while (p - blockBuffer < BLOCK_SIZE)
 		{
 			dirent = (EXT2DIRENT*)p;
 			if (dirent->Inode == 0)
@@ -68,8 +80,7 @@ INT LoadKernelExt2(DWORD addr, EXT2SB* sb, PARTTABLEITEM* part, char* buffer)
 			{
 				if (MemCmp(dirent->Name, "neldr", 5) == 0)
 				{
-					TerminalPrintf("Found neldr Inode #%d\n", dirent->Inode);
-					goto found;
+					goto Found;
 				}
 			}
 			p += dirent->RecordLength;
@@ -78,13 +89,13 @@ INT LoadKernelExt2(DWORD addr, EXT2SB* sb, PARTTABLEITEM* part, char* buffer)
 	TerminalSetColor(RED, BLUE);
 	TerminalWriteString("neldr not found.\n");
 	return -1; // Not found
-found:
-	buffer += blockSize;
+Found:
+	TerminalPrintf("Found neldr Inode #%d\n", dirent->Inode);
 
 	// read the neldr inode
 	DWORD neldrBGDTIndex = (dirent->Inode - 1) / sb->InodesPerGroup;
 	DWORD neldrInodeIndex = (dirent->Inode - 1) % sb->InodesPerGroup;
-	DWORD neldrBlockIndex = (neldrInodeIndex * sb->InodeSize) / blockSize;
+	DWORD neldrBlockIndex = (neldrInodeIndex * sb->InodeSize) / BLOCK_SIZE;
 
 	//  groupDesc for neldr BGDT
 	EXT2BGDT* neldrBGDT = groupDesc + neldrBGDTIndex;
@@ -95,42 +106,65 @@ found:
 
 	// read in the neldr inode table
 	const DWORD inodeTableLenSec = (sb->InodeSize * sb->InodesPerGroup / SEC_SIZE) + 1;
-	currentLBA = baseLBAOffset + (neldrBGDT->InodeTableStart - 1) * blockSec;
-	ReadSects((void*)buffer, currentLBA, inodeTableLenSec); // read the whole Inode list
-	EXT2INODE* neldrInode = (EXT2INODE*)(buffer + sb->InodeSize * neldrInodeIndex);
-	TerminalPrintf("neldr inode at LBA %d: 0x%x, %d, %d, %d, %d, %d\n",
+	currentLBA = BASE_LBA + (neldrBGDT->InodeTableStart - 1) * BLOCK_SECS;
+	// This time cannot only read first block because neldr inode may locate in arbitrary block
+	char* fullInodeTable = AllocateBuffer(inodeTableLenSec * SEC_SIZE);
+	ReadSects((void*)fullInodeTable, currentLBA, inodeTableLenSec); // read the whole Inode list
+	EXT2INODE* neldrInode = (EXT2INODE*)(fullInodeTable + sb->InodeSize * neldrInodeIndex);
+	const DWORD neldrSize = neldrInode->SizeLower; //  neldr size must be less than 4GB, no size higher.
+	const DWORD neldrBlockCount = neldrSize / BLOCK_SIZE + 1;
+
+	TerminalPrintf("neldr inode at LBA %d: 0x%x, %d, %d, %d, %d, %d, size %d, bc %d\n",
 			currentLBA, neldrInode->TypeAndPerms,
 			neldrInode->UserID, neldrInode->SizeLower, neldrInode->LastAccessTime,
-			neldrInode->CreationTime, neldrInode->LastModificationTime);
+			neldrInode->CreationTime, neldrInode->LastModificationTime, neldrSize, neldrBlockCount);
 
-	const DWORD neldrSize = neldrInode->SizeLower; //  neldr size must be less than 4GB
-	const DWORD neldrBlockCount = neldrSize / blockSize + 1;
+	// Read in the neldr blocks.
+	// We assume only direct and l1 indirect blocks are used.
+	// Or we will report error
+	const DWORD MAX_SUPPORT_BC = 12 + sb->BlockSize / sizeof(DWORD);
+	if (neldrBlockCount >= MAX_SUPPORT_BC)
+	{
+		TerminalSetColor(RED, BLUE);
+		TerminalWriteString("neldr is too large.\n");
+		BootPanic();
+	}
 
-	// read in the neldr blocks
-	// TODO: read to buffer and copy to addr.!! First investigate the mkdisk tool.
 	for (DWORD i = 0; i < neldrBlockCount; i++)
 	{
 		if (i < 12)
 		{
-
-		}
-		else if (i < 12 + blockSec / sizeof(DWORD))
-		{
-
-		}
-		else if (i < 12 + blockSec / sizeof(DWORD) + blockSec / sizeof(DWORD) * blockSec / sizeof(DWORD))
-		{
-
+			DWORD block = neldrInode->DirectBlockPointers[i];
+			currentLBA = BASE_LBA + (block - 1) * BLOCK_SECS;
+			ReadSects((void*)addr, currentLBA, BLOCK_SECS);
+			addr += BLOCK_SIZE;
 		}
 		else
 		{
-			TerminalSetColor(RED, BLUE);
-			TerminalWriteString("neldr too large.\n");
-			return -1;
+			break;
+			// l1-indirect is handled next
 		}
 	}
 
+	if (neldrBlockIndex < 12)
+	{
+		goto Finish;
+	}
 
+	// l1-indirect
+	DWORD indirectBlock = neldrInode->SinglyIndirectBlockPointer;
+	DWORD* indirectBlocks = (DWORD*)AllocateBuffer(BLOCK_SIZE);
+	currentLBA = BASE_LBA + (indirectBlock - 1) * BLOCK_SECS;
+	ReadSects((void*)indirectBlocks, currentLBA, BLOCK_SECS);
+	for (INT i = 12; i < neldrBlockCount; i++)
+	{
+		DWORD block = indirectBlocks[i - 12];
+		currentLBA = BASE_LBA + (block - 1) * BLOCK_SECS;
+		ReadSects((void*)addr, currentLBA, BLOCK_SECS);
+		addr += BLOCK_SIZE;
+	}
+
+Finish:
 	for (;;);
 	return (INT)neldrSize;
 }
