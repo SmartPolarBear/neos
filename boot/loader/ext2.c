@@ -83,7 +83,55 @@ INT LoadKernelExt2(DWORD addr, EXT2SB* sb, PARTTABLEITEM* part, char* buffer)
 found:
 	buffer += blockSize;
 
-	for (;;);
+	// read the neldr inode
+	DWORD neldrBGDTIndex = (dirent->Inode - 1) / sb->InodesPerGroup;
+	DWORD neldrInodeIndex = (dirent->Inode - 1) % sb->InodesPerGroup;
+	DWORD neldrBlockIndex = (neldrInodeIndex * sb->InodeSize) / blockSize;
 
-	return 0;
+	//  groupDesc for neldr BGDT
+	EXT2BGDT* neldrBGDT = groupDesc + neldrBGDTIndex;
+	TerminalPrintf("neldr BGDT at index %d: %d, %d, %d, %d, %d, %d\n",
+			neldrBGDTIndex, groupDesc->BlockUsageBitmap,
+			groupDesc->InodeUsageBitmap, groupDesc->InodeTableStart, groupDesc->FreeBlockCount,
+			groupDesc->FreeInodeCount, groupDesc->DirectoryCount);
+
+	// read in the neldr inode table
+	currentLBA = baseLBAOffset + (neldrBGDT->InodeTableStart - 1) * blockSec;
+	ReadSects((void*)buffer, currentLBA, blockSec); // read the whole block
+	EXT2INODE* neldrInode = (EXT2INODE*)(buffer + sizeof(EXT2INODE) * neldrInodeIndex);
+	TerminalPrintf("neldr inode at LBA %d: 0x%x, %d, %d, %d, %d, %d\n",
+			currentLBA, neldrInode->TypeAndPerms,
+			neldrInode->UserID, neldrInode->SizeLower, neldrInode->LastAccessTime,
+			neldrInode->CreationTime, neldrInode->LastModificationTime);
+
+	const DWORD neldrSize = neldrInode->SizeLower; //  neldr size must be less than 4GB
+	const DWORD neldrBlockCount = neldrSize / blockSize + 1;
+
+	// read in the neldr blocks
+	// TODO: read to buffer and copy to addr.!! First investigate the mkdisk tool.
+	for (DWORD i = 0; i < neldrBlockCount; i++)
+	{
+		if (i < 12)
+		{
+
+		}
+		else if(i < 12 + blockSec / sizeof(DWORD))
+		{
+
+		}
+		else if (i < 12 + blockSec / sizeof(DWORD) + blockSec / sizeof(DWORD) * blockSec / sizeof(DWORD))
+		{
+
+		}
+		else
+		{
+			TerminalSetColor(RED, BLUE);
+			TerminalWriteString("neldr too large.\n");
+			return -1;
+		}
+	}
+
+
+	for (;;);
+	return (INT)neldrSize;
 }

@@ -24,3 +24,16 @@ echo "Copy stage 2 bootloader"
 STAGE2=$PREFIX/boot/loader/osldrbin
 stat $STAGE2
 dd if=$STAGE2 of=$DISK conv=notrunc bs=512 count=16 skip=0 seek=1
+
+# mount ext2 partition to copy neldr and kernel
+echo "Mount ext2 partition"
+MNTDIR=$PREFIX/mnt
+mkdir -p $MNTDIR
+sudo mount -o loop,offset=$offset $DISK $MNTDIR
+
+# create empty file neldr for testing
+echo "Create 4kb empty file neldr for testing"
+sudo dd if=/dev/zero of=$MNTDIR/neldr bs=1k count=4
+
+sudo umount $MNTDIR
+sudo rm -rf $MNTDIR
