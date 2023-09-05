@@ -1,13 +1,14 @@
 //
 // Created by bear on 8/31/2023.
 //
+#include "entry.h"
 #include "defs.h"
 #include "fs.h"
 #include "ext2.h"
 #include "terminal.h"
 #include "disk.h"
 
-PARTTABLEITEM* activePartition;
+PARTTABLEITEM* activePartition = NULL;
 
 void InitializeBootFS()
 {
@@ -31,6 +32,12 @@ void InitializeBootFS()
 
 		TerminalPrintf("Found bootable partition #%d.\n", i);
 		activePartition = partitions[i];
+	}
+
+	if (activePartition == NULL)
+	{
+		TerminalWriteString("No bootable partition found.\n");
+		BootPanic();
 	}
 }
 

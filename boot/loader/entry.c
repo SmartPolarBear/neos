@@ -2,6 +2,7 @@
 // Created by bear on 8/28/2023.
 //
 #include "defs.h"
+#include "entry.h"
 #include "ext.h"
 #include "draw.h"
 #include "terminal.h"
@@ -42,6 +43,5 @@ void NO_RETURN LoaderMain32()
 	// Not able to jump to kernel so report the error and spin
 	TerminalSetColor(RED, BLUE);
 	TerminalWriteString("Unexpectedly failed to start.\n");
-	for (;;)
-		__asm__ volatile ("hlt");
+	BootPanic();
 }

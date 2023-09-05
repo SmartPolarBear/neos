@@ -13,7 +13,8 @@ __asm__(".code16gcc");
 VBEINFO vbeInfo;
 VBEMODEINFO vbeModeInfo;
 
-void NO_RETURN PanicVesa(void)
+// In 16bit code, we cannot call BootPanic() directly, so we use this function to panic
+static inline void ALWAYS_INLINE NO_RETURN PanicVesa(void)
 {
 	__asm__ __volatile__ ("int $0x10" : : "a" (0x0E00 | 'F'), "b" (0x0007));
 	__asm__ __volatile__ ("int $0x10" : : "a" (0x0E00 | 'V'), "b" (0x0007));

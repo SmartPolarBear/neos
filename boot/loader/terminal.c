@@ -2,6 +2,7 @@
 // Created by bear on 8/31/2023.
 //
 #include "ext.h"
+#include "utils.h"
 #include "terminal.h"
 #include "vesa.h"
 #include "draw.h"
@@ -95,57 +96,6 @@ void TerminalClear()
 	VBEMODEINFO* modeInfo = (VBEMODEINFO*)VESA_MODEINFO_ADDR;
 	bootTerm.row = bootTerm.col = 0;
 	PutRect(0, 0, modeInfo->width, modeInfo->height, 0, 0, 255);
-}
-
-// Custom implementation of itoa (integer to ASCII) function
-// Converts an integer to its ASCII representation
-static inline ALWAYS_INLINE void Itoa(int num, char* buffer, int base)
-{
-	int i = 0;
-	int isNegative = 0;
-
-	// Handle negative numbers for base 10
-	if (num < 0 && base == 10)
-	{
-		isNegative = 1;
-		num = -num;
-	}
-
-	// Handle the special case of 0
-	if (num == 0)
-	{
-		buffer[i++] = '0';
-	}
-	else
-	{
-		while (num != 0)
-		{
-			int remainder = num % base;
-			buffer[i++] = (remainder < 10) ? (remainder + '0') : (remainder - 10 + 'a');
-			num /= base;
-		}
-	}
-
-	// Add the negative sign for base 10 if necessary
-	if (isNegative && base == 10)
-	{
-		buffer[i++] = '-';
-	}
-
-	// Reverse the string
-	int left = 0;
-	int right = i - 1;
-	while (left < right)
-	{
-		char temp = buffer[left];
-		buffer[left] = buffer[right];
-		buffer[right] = temp;
-		left++;
-		right--;
-	}
-
-	// Null-terminate the string
-	buffer[i] = '\0';
 }
 
 void TerminalPrintf(char* format, ...)

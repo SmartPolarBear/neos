@@ -4,6 +4,10 @@
 
 #pragma once
 
+#ifndef NULL
+#define NULL ((void*)0)
+#endif
+
 #define MMAP_ADDR 0x8000
 #define VGA_FONT_ADDR 0x5000
 #define VESA_MODEINFO_ADDR 0x9000
