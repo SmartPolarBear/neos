@@ -60,6 +60,7 @@ typedef struct
 	DWORD FirstMetaBG;
 	BYTE Reserved2[760];
 } PACKED EXT2SB;
+_Static_assert(sizeof(EXT2SB) == 1024, "EXT2SB size mismatch");
 
 #define EXT2_SB_MAGIC 0xEF53
 
@@ -120,4 +121,4 @@ typedef enum
 	EXT2DIRENT_TYPE_SYMLINK = 7,
 } EXT2DIRENT_TYPE;
 
-INT LoadKernelExt2(DWORD addr, EXT2SB* sb, PARTTABLEITEM* part);
+INT LoadKernelExt2(DWORD addr, EXT2SB* sb, PARTTABLEITEM* part, char* buffer);

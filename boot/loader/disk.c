@@ -6,7 +6,6 @@
 #include "type.h"
 #include "disk.h"
 
-#define SEC_SIZE 512
 
 static inline void ALWAYS_INLINE outb(WORD port, BYTE val)
 {
@@ -41,16 +40,17 @@ void ReadSects(void* dst, DWORD secno, DWORD secs)
 	// wait for disk to be ready
 	WaitDisk();
 
-	outb(0x1F2, secs);                         // count = 1
+	outb(0x1F2, (BYTE)(secs & 0xFF));                         // count = 1
 	outb(0x1F3, secno & 0xFF);
 	outb(0x1F4, (secno >> 8) & 0xFF);
 	outb(0x1F5, (secno >> 16) & 0xFF);
 	outb(0x1F6, ((secno >> 24) & 0xF) | 0xE0);
 	outb(0x1F7, 0x20);                      // cmd 0x20 - read sectors
 
-	// wait for disk to be ready
-	WaitDisk();
-
-	// read a sector
-	insl(0x1F0, dst, SEC_SIZE / 4);
+	for (int i = 0; i < secs; i++)
+	{
+		WaitDisk();
+		insl(0x1F0, dst, SEC_SIZE / 4);
+		dst += SEC_SIZE;
+	}
 }

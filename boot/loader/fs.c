@@ -37,15 +37,11 @@ void InitializeBootFS()
 static inline INT ALWAYS_INLINE LoadKernelLinuxNative(DWORD addr)
 {
 	// Read the superblock
-
-	const DWORD lbaPartStart = activePartition->RelativeSector;
-	DWORD lbaSB = lbaPartStart + 2;
-
 	char* buffer = (char*)FS_BUFFER_START;
 
 	EXT2SB* superBlock = (EXT2SB*)buffer;
 	buffer += sizeof(EXT2SB);
-	ReadSects((void*)superBlock, lbaSB, 2);
+	ReadSects((void*)superBlock, activePartition->RelativeSector + 2/*2 reserved sector*/, 2);
 
 	if (superBlock->Magic != EXT2_SB_MAGIC)
 	{
@@ -65,8 +61,7 @@ static inline INT ALWAYS_INLINE LoadKernelLinuxNative(DWORD addr)
 	TerminalPrintf("Fragment size: %d, ", 1024 << superBlock->FragmentSize);
 	TerminalPrintf("Blocks per group: %d. \n", superBlock->BlocksPerGroup);
 
-
-	return LoadKernelExt2(addr, superBlock, activePartition);
+	return LoadKernelExt2(addr, superBlock, activePartition, buffer);
 }
 
 INT LoadKernel(DWORD addr)

@@ -4,4 +4,6 @@
 
 #pragma once
 
+#define SEC_SIZE 512
+
 void ReadSects(void* dst, DWORD secno, DWORD secs);
