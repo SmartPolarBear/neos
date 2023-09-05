@@ -99,6 +99,7 @@ typedef struct
 	DWORD FragmentBlockAddress;
 	BYTE OSValue2[12];
 }PACKED EXT2INODE;
+_Static_assert(sizeof(EXT2INODE) == 128, "EXT2INODE size mismatch");
 
 typedef struct
 {

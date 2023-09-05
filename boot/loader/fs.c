@@ -58,15 +58,17 @@ static inline INT ALWAYS_INLINE LoadKernelLinuxNative(DWORD addr)
 
 	// dump basic info
 	TerminalWriteString("EXT2 filesystem detected.\n");
-	TerminalPrintf("Inode count: %d, ", superBlock->InodeCount);
-	TerminalPrintf("Block count: %d, ", superBlock->BlockCount);
-	TerminalPrintf("Reserved block count: %d, ", superBlock->ReservedBlockCount);
-	TerminalPrintf("Free block count: %d, ", superBlock->FreeBlockCount);
-	TerminalPrintf("Free inode count: %d, ", superBlock->FreeInodeCount);
+	TerminalPrintf("Inodes: %d, ", superBlock->InodeCount);
+	TerminalPrintf("Blocks: %d, ", superBlock->BlockCount);
+	TerminalPrintf("Reserved blocks: %d, ", superBlock->ReservedBlockCount);
+	TerminalPrintf("Free blocks: %d, ", superBlock->FreeBlockCount);
+	TerminalPrintf("Free inodes: %d, ", superBlock->FreeInodeCount);
 	TerminalPrintf("First data block: %d. ", superBlock->FirstDataBlock);
+	TerminalPrintf("Inode size: %d, ", superBlock->InodeSize);
 	TerminalPrintf("Block size: %d, ", 1024 << superBlock->BlockSize);
-	TerminalPrintf("Fragment size: %d, ", 1024 << superBlock->FragmentSize);
-	TerminalPrintf("Blocks per group: %d. \n", superBlock->BlocksPerGroup);
+	TerminalPrintf("B/G: %d. ", superBlock->BlocksPerGroup);
+	TerminalPrintf("I/G: %d. \n", superBlock->InodesPerGroup);
+
 
 	return LoadKernelExt2(addr, superBlock, activePartition, buffer);
 }

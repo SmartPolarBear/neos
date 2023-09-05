@@ -32,7 +32,8 @@ INT LoadKernelExt2(DWORD addr, EXT2SB* sb, PARTTABLEITEM* part, char* buffer)
 
 	// read inode 2 (root directory)
 	currentLBA = baseLBAOffset + (groupDesc->InodeTableStart - 1) * blockSec;
-	ReadSects((void*)buffer, currentLBA, blockSec); // read the whole block
+	// read the whole block. Because inode id is 2, so it must locate in the first block
+	ReadSects((void*)buffer, currentLBA, blockSec);
 	EXT2INODE* rootInode = (EXT2INODE*)(buffer + sizeof(EXT2INODE)); // skip inode 1 to get inode 2
 	TerminalPrintf("Root inode at LBA %d: 0x%x, %d, %d, %d, %d, %d\n",
 			currentLBA, rootInode->TypeAndPerms,
@@ -67,10 +68,7 @@ INT LoadKernelExt2(DWORD addr, EXT2SB* sb, PARTTABLEITEM* part, char* buffer)
 			{
 				if (MemCmp(dirent->Name, "neldr", 5) == 0)
 				{
-					TerminalPrintf("Found neldr on Inode %d\n", dirent->Inode);
-					// read the neldr
-					currentLBA = baseLBAOffset + (dirent->Inode - 1) * blockSec;
-					ReadSects((void*)addr, currentLBA, blockSec);
+					TerminalPrintf("Found neldr Inode #%d\n", dirent->Inode);
 					goto found;
 				}
 			}
@@ -90,15 +88,16 @@ found:
 
 	//  groupDesc for neldr BGDT
 	EXT2BGDT* neldrBGDT = groupDesc + neldrBGDTIndex;
-	TerminalPrintf("neldr BGDT at index %d: %d, %d, %d, %d, %d, %d\n",
+	TerminalPrintf("neldr BGDT at index %d: 0x%x, 0x%x, %d, %d, %d, %d\n",
 			neldrBGDTIndex, groupDesc->BlockUsageBitmap,
 			groupDesc->InodeUsageBitmap, groupDesc->InodeTableStart, groupDesc->FreeBlockCount,
 			groupDesc->FreeInodeCount, groupDesc->DirectoryCount);
 
 	// read in the neldr inode table
+	const DWORD inodeTableLenSec = (sb->InodeSize * sb->InodesPerGroup / SEC_SIZE) + 1;
 	currentLBA = baseLBAOffset + (neldrBGDT->InodeTableStart - 1) * blockSec;
-	ReadSects((void*)buffer, currentLBA, blockSec); // read the whole block
-	EXT2INODE* neldrInode = (EXT2INODE*)(buffer + sizeof(EXT2INODE) * neldrInodeIndex);
+	ReadSects((void*)buffer, currentLBA, inodeTableLenSec); // read the whole Inode list
+	EXT2INODE* neldrInode = (EXT2INODE*)(buffer + sb->InodeSize * neldrInodeIndex);
 	TerminalPrintf("neldr inode at LBA %d: 0x%x, %d, %d, %d, %d, %d\n",
 			currentLBA, neldrInode->TypeAndPerms,
 			neldrInode->UserID, neldrInode->SizeLower, neldrInode->LastAccessTime,
@@ -115,7 +114,7 @@ found:
 		{
 
 		}
-		else if(i < 12 + blockSec / sizeof(DWORD))
+		else if (i < 12 + blockSec / sizeof(DWORD))
 		{
 
 		}
