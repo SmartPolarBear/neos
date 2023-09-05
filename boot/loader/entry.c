@@ -33,8 +33,7 @@ void NO_RETURN LoaderMain32()
 
 	if (result > 0)
 	{
-		TerminalPrintf("Kernel sized %d loaded successfully.\n", result);
-
+		TerminalPrintf("Boot manager (%d bytes) loaded successfully.\n", result);
 		// Jump to the kernel
 		__asm__ volatile ("jmp *%0"::"r"(KERNEL_LOAD_ADDR));
 	}

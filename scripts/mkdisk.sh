@@ -31,9 +31,10 @@ MNTDIR=$PREFIX/mnt
 mkdir -p $MNTDIR
 sudo mount -o loop,offset=$offset $DISK $MNTDIR
 
-# create empty file neldr for testing
-echo "Create 4kb empty file neldr for testing"
-sudo dd if=/dev/zero of=$MNTDIR/neldr bs=1k count=4
-
+# neldr: OS boot manager
+NELDR=$PREFIX/boot/loader64/neldrbin
+echo "Copy neldrbin to neldr on ext2 partition"
+stat $NELDR
+sudo cp -p $NELDR $MNTDIR/neldr
 sudo umount $MNTDIR
 sudo rm -rf $MNTDIR

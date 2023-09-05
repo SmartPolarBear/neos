@@ -152,9 +152,8 @@ Found:
 	}
 
 	// l1-indirect
-	DWORD indirectBlock = neldrInode->SinglyIndirectBlockPointer;
+	currentLBA = BASE_LBA + (neldrInode->SinglyIndirectBlockPointer - 1) * BLOCK_SECS;
 	DWORD* indirectBlocks = (DWORD*)AllocateBuffer(BLOCK_SIZE);
-	currentLBA = BASE_LBA + (indirectBlock - 1) * BLOCK_SECS;
 	ReadSects((void*)indirectBlocks, currentLBA, BLOCK_SECS);
 	for (INT i = 12; i < neldrBlockCount; i++)
 	{
@@ -165,6 +164,5 @@ Found:
 	}
 
 Finish:
-	for (;;);
 	return (INT)neldrSize;
 }
