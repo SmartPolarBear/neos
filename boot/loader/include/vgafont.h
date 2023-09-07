@@ -3,8 +3,8 @@
 //
 
 #pragma once
+#include "boot/color.h"
 
-typedef DWORD COLOR;
 
 void DrawCharacter(char c, INT x, INT y, COLOR fgcolor);
 

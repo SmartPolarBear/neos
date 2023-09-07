@@ -11,6 +11,7 @@
 // 4) jmp to kernel entry
 void NO_RETURN LoaderMain64()
 {
+
 	for (;;)
 		__asm__ volatile("hlt");
 }

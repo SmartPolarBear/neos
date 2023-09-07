@@ -6,14 +6,6 @@
 
 #include "type.h"
 #include "ext.h"
-
-typedef struct
-{
-	DWORD BaseAddrLow;
-	DWORD BaseAddrHigh;
-	DWORD LengthLow;
-	DWORD LengthHigh;
-	DWORD Type;
-} PACKED E820MEMMAP;
+#include "boot/mem.h"
 
 void BriefMemoryMap();

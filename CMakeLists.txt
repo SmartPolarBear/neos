@@ -5,9 +5,11 @@ project(neos C CXX ASM)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 23)
 
+# common public headers
 include_directories(include)
 
 add_subdirectory(boot)
+add_subdirectory(kernel)
 
 add_custom_target(image
     COMMAND sh "${CMAKE_SOURCE_DIR}/scripts/mkdisk.sh"
