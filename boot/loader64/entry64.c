@@ -5,5 +5,6 @@
 
 void NO_RETURN LoaderMain64()
 {
-	for (;;);
+	for (;;)
+		__asm__ volatile("hlt");
 }

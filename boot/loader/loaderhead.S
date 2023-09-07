@@ -112,6 +112,13 @@ OSLoaderEntry32:
 
     call LoaderMain32               # Different from other loaders, this **MAY** return, so use call instead of jmp
 
+    // check return value of LoaderMain32
+    cmp $0, %eax
+    jne FailSpin
+
+    // jump to kernel
+    mov $KERNEL_LOAD_ADDR, %ebx
+    jmp *%ebx
 FailSpin:
     hlt
     jmp FailSpin

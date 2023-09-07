@@ -14,7 +14,7 @@
 __asm__(".code32");
 
 
-void NO_RETURN LoaderMain32()
+int LoaderMain32()
 {
 	// Blue background
 	PutRect(0, 0, 800, 600, 0, 0, 255);
@@ -34,10 +34,9 @@ void NO_RETURN LoaderMain32()
 	if (result > 0)
 	{
 		TerminalPrintf("Boot manager (%d bytes) loaded successfully.\n", result);
-		// Jump to the kernel
-		__asm__ volatile ("jmp *%0"::"r"(KERNEL_LOAD_ADDR));
+		// This lead to a jump to the kernel
+		return 0;
 	}
-
 
 	// Not able to jump to kernel so report the error and spin
 	TerminalSetColor(RED, BLUE);
