@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "type.h"
+
 typedef struct
 {
 	BYTE signature[4];    // must be "VESA" to indicate valid VBE support

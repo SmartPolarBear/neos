@@ -4,7 +4,7 @@
 
 #pragma once
 #include "boot/color.h"
-
+#include "boot/vgafont.h"
 
 void DrawCharacter(char c, INT x, INT y, COLOR fgcolor);
 

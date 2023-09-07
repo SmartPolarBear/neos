@@ -11,7 +11,6 @@
 __asm__(".code32");
 
 
-#define CHAR_BITMAP(c) (((volatile BYTE*)VGA_FONT_ADDR)+(((WORD)c)<<4))
 
 void DrawCharacterBackDrop(char c, int x, int y, COLOR fgcolor, COLOR bgcolor)
 {
