@@ -93,7 +93,9 @@ entry64high:
     mov %ax, %fs
     mov %ax, %gs
 
+    // It won't return, so jmp instead of call
     jmp LoaderMain64
 
 Spin:
+    hlt
     jmp Spin

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 
-add_executable(osldr loader.c loaderhead.S vesa.c vgafont.c draw.c entry.c terminal.c fs.c mem.c disk.c ext2.c utils.c)
+add_executable(osldr loaderhead.S vesa.c vgafont.c draw.c entry.c terminal.c fs.c mem.c disk.c ext2.c utils.c)
 
 set_property(SOURCE loaderhead.S PROPERTY LANGUAGE C)
 

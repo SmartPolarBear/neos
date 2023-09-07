@@ -110,6 +110,9 @@ OSLoaderEntry32:
     movw    %ax, %fs                # -> FS
     movw    %ax, %gs                # -> GS
 
+    // avoid disturb from previous eax values
+    mov $0xdeadbeef, %eax
+
     call LoaderMain32               # Different from other loaders, this **MAY** return, so use call instead of jmp
 
     // check return value of LoaderMain32

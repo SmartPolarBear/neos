@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-add_executable(neldr head64.S entry64.c)
+add_executable(neldr head64.S entry64.c draw.c terminal.c elf.c fs.c ext2.c utils.c)
 
 set_property(SOURCE loaderhead.S PROPERTY LANGUAGE C)
 
