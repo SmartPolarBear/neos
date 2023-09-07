@@ -5,6 +5,7 @@
 #include "entry.h"
 #include "ext.h"
 #include "draw.h"
+#include "vesa.h"
 #include "terminal.h"
 #include "mem.h"
 #include "fs.h"
@@ -16,11 +17,15 @@ __asm__(".code32");
 
 int LoaderMain32()
 {
+	VBEMODEINFO const* modeInfo = (VBEMODEINFO const*)VESA_MODEINFO_ADDR;
 	// Blue background
-	PutRect(0, 0, 800, 600, 0, 0, 255);
+	PutRect(0, 0, modeInfo->width, modeInfo->height, 0, 0, 255);
 	// Boot-time terminal
 	InitializeTerminal();
 	TerminalWriteString("OS Loader (Built on " __DATE__ " " __TIME__ ")\n");
+
+	// MAYBE 0xfd000000
+	TerminalPrintf("VBE framebuffer at %x,%x\n", modeInfo->framebuffer >> 16, modeInfo->framebuffer & 0x0000ffff);
 
 	// Briefing the e820 mem map
 	BriefMemoryMap();
@@ -34,6 +39,7 @@ int LoaderMain32()
 	if (result > 0)
 	{
 		TerminalPrintf("Boot manager (%d bytes) loaded successfully.\n", result);
+//		for (;;);
 		// This lead to a jump to the kernel
 		return 0;
 	}
