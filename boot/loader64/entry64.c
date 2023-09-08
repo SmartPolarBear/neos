@@ -11,8 +11,12 @@
 // 4) jmp to kernel entry
 void NO_RETURN LoaderMain64()
 {
-	// Black background
-	DrawRect(0, 0, 800, 600, 0, 0, 255);
+	// remap vbe framebuffer
+	InitializeGraphics();
+
+	VBEMODEINFO const* modeInfo = (VBEMODEINFO const*)VESA_MODEINFO_ADDR;
+	// Blue background
+	DrawRect(0, 0, modeInfo->width, modeInfo->height, 0, 0, 0);
 
 	for (;;)
 		__asm__ volatile("hlt");

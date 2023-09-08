@@ -3,20 +3,41 @@
 //
 #include "draw.h"
 
+#define FRAMEBUFFER_VADDR 0x90000
+
+void InitializeGraphics()
+{
+	VBEMODEINFO const* modeInfo = (VBEMODEINFO const*)VESA_MODEINFO_ADDR;
+	QWORD pa = modeInfo->framebuffer;
+
+	QWORD* pt = (QWORD*)0x4000;
+	QWORD i = 0;
+	for (; i < modeInfo->pitch * modeInfo->height; i += 0x1000)
+	{
+		// write though, no cache
+		pt[(FRAMEBUFFER_VADDR + i) / 0x1000] = pa | 0x9B;
+		pa += 0x1000;
+		__asm__ volatile("invlpg (%0)"::"r"(FRAMEBUFFER_VADDR + i):"memory");
+	}
+	pt[(FRAMEBUFFER_VADDR + i) / 0x1000] = pa | 0x83;
+	__asm__ volatile("invlpg (%0)"::"r"(FRAMEBUFFER_VADDR + i):"memory");
+}
+
 void DrawPixel(INT x, INT y, BYTE r, BYTE g, BYTE b)
 {
 	VBEMODEINFO const* modeInfo = (VBEMODEINFO const*)VESA_MODEINFO_ADDR;
+	VOID* fbAddr = (VOID*)FRAMEBUFFER_VADDR; // (VOID*)modeInfo->framebuffer;
 	switch (modeInfo->bpp)
 	{
 	case 32:
 	{
-		DWORD* frameBuffer = (DWORD*)modeInfo->framebuffer;
+		DWORD* frameBuffer = (DWORD*)fbAddr;
 		frameBuffer[x + y * modeInfo->pitch / 4] = (r << 16) | (g << 8) | b;
 		break;
 	}
 	case 24:
 	{
-		BYTE* frameBuffer = (BYTE*)modeInfo->framebuffer;
+		BYTE* frameBuffer = (BYTE*)fbAddr;
 		frameBuffer[x * 3 + y * modeInfo->pitch] = b;
 		frameBuffer[x * 3 + y * modeInfo->pitch + 1] = g;
 		frameBuffer[x * 3 + y * modeInfo->pitch + 2] = r;
@@ -24,18 +45,19 @@ void DrawPixel(INT x, INT y, BYTE r, BYTE g, BYTE b)
 	}
 	case 16:
 	{
-		WORD* frameBuffer = (WORD*)modeInfo->framebuffer;
+		WORD* frameBuffer = (WORD*)fbAddr;
 		frameBuffer[x + y * modeInfo->pitch / 2] = ((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3);
 		break;
 	}
 	case 15:
 	{
-		WORD* frameBuffer = (WORD*)modeInfo->framebuffer;
+		WORD* frameBuffer = (WORD*)fbAddr;
 		frameBuffer[x + y * modeInfo->pitch / 2] = ((r >> 3) << 10) | ((g >> 3) << 5) | (b >> 3);
 		break;
 	}
 	}
 }
+
 
 void DrawRect(INT x, INT y, INT w, INT h, BYTE r, BYTE g, BYTE b)
 {

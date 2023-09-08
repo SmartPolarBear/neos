@@ -7,7 +7,6 @@
 #include "vgafont.h"
 #include "draw.h"
 
-
 void PutRect(INT x, INT y, INT w, INT h, BYTE r, BYTE g, BYTE b)
 {
 	for (INT i = 0; i < h; i++)
