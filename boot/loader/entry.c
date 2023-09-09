@@ -25,7 +25,8 @@ int LoaderMain32()
 	TerminalWriteString("OS Loader (Built on " __DATE__ " " __TIME__ ")\n");
 
 	// MAYBE 0xfd000000
-	TerminalPrintf("VBE framebuffer at %x,%x\n", modeInfo->framebuffer >> 16, modeInfo->framebuffer & 0x0000ffff);
+	TerminalPrintf("VBE framebuffer at %x,%x\n", (modeInfo->framebuffer >> 16) & 0x0000ffff,
+			modeInfo->framebuffer & 0x0000ffff);
 
 	// Briefing the e820 mem map
 	BriefMemoryMap();

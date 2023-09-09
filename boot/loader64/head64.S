@@ -4,33 +4,37 @@ OSLoaderEntry:
     mov $0x7c00, %esp
 
     xor %eax, %eax
-# zero 4 pages for our bootstrap page tables
+# zero 5 pages for our bootstrap page tables
     xor %eax, %eax
     mov $0x1000, %edi
-    mov $0x5000, %ecx
+    mov $0x6000, %ecx
     rep stosb
 
 # P4ML[0] -> 0x2000 (PDPT-A)
     mov $(0x2000 | 3), %eax
     mov %eax, 0x1000
 
-# P4ML[511] -> 0x3000 (PDPT-B)
+# PDPT-A[0] -> 0x3000 (PD1)
     mov $(0x3000 | 3), %eax
-    mov %eax, 0x1FF8
-
-# PDPT-A[0] -> 0x4000 (PD)
-    mov $(0x4000 | 3), %eax
     mov %eax, 0x2000
 
-# PDPT-B[510] -> 0x4000 (PD)
+# PDPT-A[1] -> 0x4000 (PD2)
     mov $(0x4000 | 3), %eax
-    mov %eax, 0x3FF0
+    mov %eax, 0x2008
 
-# PD[0..511] -> 0..1022MB
-    mov $0x83, %eax
-    mov $0x4000, %ebx
+# PDPT-A[2] -> 0x5000 (PD3)
+    mov $(0x5000 | 3), %eax
+    mov %eax, 0x2010
 
-    mov $512, %ecx
+# PDPT-A[3] -> 0x6000 (PD4)
+    mov $(0x6000 | 3), %eax
+    mov %eax, 0x2018
+
+# Identity paging for first 4GB, no cache and write-through
+    mov $0x9B, %eax
+    mov $0x3000, %ebx
+
+    mov $(512*4), %ecx
 ptbl_loop:
     mov %eax, (%ebx)
     add $0x200000, %eax

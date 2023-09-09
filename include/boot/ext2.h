@@ -108,6 +108,7 @@ typedef struct
 	BYTE FileType;
 	char Name[0];
 }PACKED EXT2DIRENT;
+_Static_assert(sizeof(EXT2DIRENT) == 8, "EXT2DIRENT size mismatch");
 
 typedef enum
 {

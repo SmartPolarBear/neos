@@ -1,32 +1,18 @@
 //
 // Created by bear on 9/7/2023.
 //
+#include "type.h"
 #include "draw.h"
 
-#define FRAMEBUFFER_VADDR 0x90000
 
-void InitializeGraphics()
-{
-	VBEMODEINFO const* modeInfo = (VBEMODEINFO const*)VESA_MODEINFO_ADDR;
-	QWORD pa = modeInfo->framebuffer;
-
-	QWORD* pt = (QWORD*)0x4000;
-	QWORD i = 0;
-	for (; i < modeInfo->pitch * modeInfo->height; i += 0x1000)
-	{
-		// write though, no cache
-		pt[(FRAMEBUFFER_VADDR + i) / 0x1000] = pa | 0x9B;
-		pa += 0x1000;
-		__asm__ volatile("invlpg (%0)"::"r"(FRAMEBUFFER_VADDR + i):"memory");
-	}
-	pt[(FRAMEBUFFER_VADDR + i) / 0x1000] = pa | 0x83;
-	__asm__ volatile("invlpg (%0)"::"r"(FRAMEBUFFER_VADDR + i):"memory");
-}
+#define DEVSPACE 0xFE000000         // Other devices are at high addresses
+#define DEVBASE  0xFFFFFFFF40000000 // First device virtual address
+#define IO2V(a) ((((void *) (a)) - DEVSPACE) + DEVBASE )
 
 void DrawPixel(INT x, INT y, BYTE r, BYTE g, BYTE b)
 {
 	VBEMODEINFO const* modeInfo = (VBEMODEINFO const*)VESA_MODEINFO_ADDR;
-	VOID* fbAddr = (VOID*)FRAMEBUFFER_VADDR; // (VOID*)modeInfo->framebuffer;
+	VOID* fbAddr = (VOID*)(QWORD)modeInfo->framebuffer;
 	switch (modeInfo->bpp)
 	{
 	case 32:

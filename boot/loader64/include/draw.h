@@ -9,7 +9,6 @@
 #include "boot/color.h"
 #include "boot/vgafont.h"
 
-void InitializeGraphics();
 
 void DrawPixel(INT x, INT y, BYTE r, BYTE g, BYTE b);
 void DrawRect(INT x, INT y, INT w, INT h, BYTE r, BYTE g, BYTE b);

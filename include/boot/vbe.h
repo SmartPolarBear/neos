@@ -21,6 +21,7 @@ typedef struct
 	BYTE reserved[222];        // reserved for future expansion
 	BYTE oem_data[256];        // OEM BIOSes store their strings in this area
 } __attribute__ ((packed)) VBEINFO;
+_Static_assert(sizeof(VBEINFO) == 512, "VBEINFO size mismatch");
 
 typedef struct
 {
@@ -60,3 +61,4 @@ typedef struct
 	WORD off_screen_mem_size;    // size of memory in the framebuffer but not being displayed on the screen
 	BYTE reserved1[206];
 } __attribute__ ((packed)) VBEMODEINFO;
+_Static_assert(sizeof(VBEMODEINFO) == 256, "VBEMODEINFO size mismatch");

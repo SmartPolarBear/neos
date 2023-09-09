@@ -18,7 +18,6 @@ target_compile_options(neldr BEFORE
         PRIVATE -mtls-direct-seg-refs
         PRIVATE -mno-red-zone
         PRIVATE -fno-pic
-        PRIVATE -mno-red-zone
         PRIVATE -O0
         PRIVATE -static
         PRIVATE -fno-strict-aliasing
