@@ -44,7 +44,7 @@ void InitializeBootFS()
 static inline INT ALWAYS_INLINE LoadKernelLinuxNative(DWORD addr)
 {
 	// Read the superblock
-	char* buffer = (char*)FS_BUFFER_START;
+	char* buffer = (char*)BUFFER_START;
 
 	EXT2SB* superBlock = (EXT2SB*)buffer;
 	buffer += sizeof(EXT2SB);

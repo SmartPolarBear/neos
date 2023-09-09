@@ -1,39 +1,43 @@
+#include "defs.h"
+
 .code32
 .globl OSLoaderEntry
 OSLoaderEntry:
     mov $0x7c00, %esp
 
+# zero pages for our bootstrap page tables
     xor %eax, %eax
-# zero 5 pages for our bootstrap page tables
-    xor %eax, %eax
-    mov $0x1000, %edi
-    mov $0x6000, %ecx
+    mov $IDENTITY_PAGING_BASE, %edi
+    mov $IDENTITY_PAGING_SIZE, %ecx # PGDIR size
     rep stosb
+    mov $IDENTITY_PAGING_BASE, %edi
 
-# P4ML[0] -> 0x2000 (PDPT-A)
-    mov $(0x2000 | 3), %eax
-    mov %eax, 0x1000
+# reserve pml4t sapce
+    mov %edi, %edx      # edx is pointing to P4ML
+    add $0x1000, %edi   # edi is pointing to PDPT-A
 
-# PDPT-A[0] -> 0x3000 (PD1)
-    mov $(0x3000 | 3), %eax
-    mov %eax, 0x2000
+# P4ML[0] -> PDPT-A
+    mov %edi, %eax
+    or $0x3, %eax
+    mov %eax, (%edx)  # write to P4ML[0]
+    mov %edi, %edx    # now edx is pointing to PDPT-A
+    add $0x1000, %edi # edi is pointing to PD1
 
-# PDPT-A[1] -> 0x4000 (PD2)
-    mov $(0x4000 | 3), %eax
-    mov %eax, 0x2008
-
-# PDPT-A[2] -> 0x5000 (PD3)
-    mov $(0x5000 | 3), %eax
-    mov %eax, 0x2010
-
-# PDPT-A[3] -> 0x6000 (PD4)
-    mov $(0x6000 | 3), %eax
-    mov %eax, 0x2018
+# PDPT-A[0...4] -> PD1...PD4
+    push %edi
+    mov $4, %ecx
+FillPDPT:
+    mov %edi, %eax
+    or $0x3, %eax
+    mov %eax, (%edx)  # write to PDPT-A
+    add $0x1000, %edi # edi is pointing to next PD
+    add $0x8, %edx    # edx is pointing to next PDPT entry
+    loop FillPDPT
+    pop %edi
 
 # Identity paging for first 4GB, no cache and write-through
     mov $0x9B, %eax
-    mov $0x3000, %ebx
-
+    mov %edi, %ebx
     mov $(512*4), %ecx
 ptbl_loop:
     mov %eax, (%ebx)
@@ -42,10 +46,9 @@ ptbl_loop:
     dec %ecx
     jnz ptbl_loop
 
-# CR3 -> 0x1000 (P4ML)
-    mov $0x1000, %eax
+# CR3 -> P4ML
+    mov $BUFFER_START, %eax
     mov %eax, %cr3
-
 
     lgdt gdtr64
 
