@@ -20,6 +20,8 @@ typedef unsigned int UINT;
 typedef long LONG;
 typedef unsigned long ULONG;
 
+typedef unsigned long long UINT_PTR;
+
 typedef long BOOL;
 #define TRUE 1
 #define FALSE 0

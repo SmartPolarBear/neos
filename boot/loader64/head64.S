@@ -24,7 +24,7 @@ OSLoaderEntry:
     add $0x1000, %edi # edi is pointing to PD1
 
 # PDPT-A[0...4] -> PD1...PD4
-    push %edi
+    mov %edi, %esi # temporary save edi
     mov $4, %ecx
 FillPDPT:
     mov %edi, %eax
@@ -33,7 +33,8 @@ FillPDPT:
     add $0x1000, %edi # edi is pointing to next PD
     add $0x8, %edx    # edx is pointing to next PDPT entry
     loop FillPDPT
-    pop %edi
+    push %edi # save edi
+    mov %esi, %edi # restore edi
 
 # Identity paging for first 4GB, no cache and write-through
     mov $0x9B, %eax
@@ -67,6 +68,9 @@ ptbl_loop:
     mov %cr0, %eax
     bts $31, %eax
     mov %eax, %cr0
+
+    pop %edi # restore edi, and rdi will be first argument for C code
+    add $0x1000, %edi
 
 # shift to 64bit segment
     ljmp $8,$(entry64low)
