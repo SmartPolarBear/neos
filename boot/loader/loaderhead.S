@@ -5,6 +5,8 @@
 .code16
 .globl OSLoaderEntry
 OSLoaderEntry:
+    cli
+
     xor %ax, %ax
     mov %ax, %ds
     mov %ax, %es
@@ -13,7 +15,11 @@ OSLoaderEntry:
     // set boot stack
     mov 0x7c00, %sp
 
-    cli
+    // make BIOS happy: we are 32bit/64bit hybrid kernel
+    mov $0xec00, %ax
+    mov $0x3, %bl
+    int $0x15
+
     // print a message "..."
     mov $0x03, %si
 EnterMsg:
