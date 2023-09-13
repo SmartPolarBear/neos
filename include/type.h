@@ -22,6 +22,9 @@ typedef unsigned long ULONG;
 
 typedef unsigned long long UINT_PTR;
 
+typedef unsigned long long SIZE_T;
+typedef long long SSIZE_T;
+
 typedef long BOOL;
 #define TRUE 1
 #define FALSE 0

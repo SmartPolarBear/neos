@@ -53,6 +53,55 @@ void InitializeACPI(void)
 		Panic("ACPI RSDP is invalid.");
 	}
 
+
+	// Initialize LAI
 	lai_set_acpi_revision(gRSDP->Revision);
+	lai_create_namespace();
+}
+
+static inline void* ALWAYS_INLINE AcpiLocateTableRSDT(char* sig, SIZE_T n)
+{
+	ACPIRSDT* rsdt = (ACPIRSDT*)(UINT_PTR)gRSDP->RSDTAddress;
+	const SIZE_T entries = (rsdt->Header.Length - sizeof(ACPISDTHEADER)) / sizeof(DWORD);
+	int k = 0;
+	for (SIZE_T i = 0; i < entries; i++)
+	{
+		ACPISDTHEADER* header = (ACPISDTHEADER*)(UINT_PTR)rsdt->PointerToOtherSDT[i];
+		if (MemCmp(header->Signature, sig, 4) == 0)
+		{
+			if (k++ == n)
+			{
+				return header;
+			}
+		}
+	}
+	return NULL;
+}
+
+static inline void* ALWAYS_INLINE AcpiLocateTableXSDT(char* sig, SIZE_T n)
+{
+	ACPIXSDT* xsdt = (ACPIXSDT*)gRSDP->XSDTAddress;
+	const SIZE_T entries = (xsdt->Header.Length - sizeof(ACPISDTHEADER)) / sizeof(QWORD);
+	int k = 0;
+	for (SIZE_T i = 0; i < entries; i++)
+	{
+		ACPISDTHEADER* header = (ACPISDTHEADER*)xsdt->PointerToOtherSDT[i];
+		if (MemCmp(header->Signature, sig, 4) == 0)
+		{
+			if (k++ == n)
+			{
+				return header;
+			}
+		}
+	}
+	return NULL;
+}
+
+void* AcpiLocateTable(char* sig, SIZE_T n)
+{
+	if (gRSDP->Revision == 0)
+		return AcpiLocateTableRSDT(sig, n);
+	else
+		return AcpiLocateTableXSDT(sig, n);
 }
 

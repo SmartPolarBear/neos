@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "type.h"
 #include "boot/acpi.h"
 
 #define ACPI_EBDA_BASE 0x040E
@@ -18,3 +19,5 @@
 extern ACPIRSDP* gRSDP;
 
 void InitializeACPI(void);
+
+void* AcpiLocateTable(char* sig, SIZE_T n);

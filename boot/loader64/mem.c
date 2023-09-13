@@ -4,9 +4,12 @@
 
 #include "type.h"
 #include "defs.h"
+#include "terminal.h"
 #include "mem.h"
 
 BYTE* lowTop, * highTop;
+
+#define LOW_LIMIT 0x80000
 
 void InitializeMemory(VOID* low)
 {
@@ -16,12 +19,17 @@ void InitializeMemory(VOID* low)
 
 void* AllocateLow(int nPages)
 {
+	return AllocateLowBytes(nPages * PGSIZE);
+}
+
+void* AllocateLowBytes(SIZE_T nBytes)
+{
 	BYTE* ret = lowTop;
-	if (ret >= highTop)
+	if (ret >= (BYTE*)LOW_LIMIT)
 	{
 		return NULL;
 	}
-	lowTop += 0x1000 * nPages;
+	lowTop += nBytes;
 	return ret;
 }
 

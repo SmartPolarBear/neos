@@ -43,9 +43,7 @@ typedef struct
 	DWORD PointerToOtherSDT[0];
 }PACKED ACPIRSDT;
 
-typedef struct
-{
+typedef struct{
 	ACPISDTHEADER Header;
-	DWORD FirmwareCtrl;
-	DWORD Dsdt;
-}PACKED ACPIFADT;
+	QWORD PointerToOtherSDT[0];
+}PACKED ACPIXSDT;

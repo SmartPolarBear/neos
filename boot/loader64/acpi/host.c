@@ -6,8 +6,10 @@
 #include "terminal.h"
 #include "mem.h"
 #include "utils.h"
+#include "acpi.h"
 
 #include "lai/host.h"
+
 
 /* Logs a message. level can either be LAI_DEBUG_LOG for debugging info,
    or LAI_WARN_LOG for warnings */
@@ -34,12 +36,12 @@ __attribute__((noreturn)) void laihost_panic(const char* msg)
 /* Self-explanatory */
 void* laihost_malloc(size_t size)
 {
-	AllocateLow(PGROUNDUP(size));
+	return AllocateLowBytes(size);
 }
 
 void* laihost_realloc(void* oldptr, size_t newsize, size_t oldsize)
 {
-	AllocateLow(PGROUNDUP(newsize));
+	return AllocateLowBytes(newsize);
 }
 
 void laihost_free(void* ptr, size_t size)
@@ -60,3 +62,11 @@ void laihost_unmap(void* pointer, size_t count)
 {
 	// Do nothing.
 }
+
+/* Returns the (virtual) address of the n-th table that has the given signature,
+   or NULL when no such table was found. */
+void* laihost_scan(const char* sig, size_t index)
+{
+	return AcpiLocateTable((char*)sig, index);
+}
+

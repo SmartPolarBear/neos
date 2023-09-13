@@ -75,6 +75,7 @@ INT MemCmp(const void* ptr1, const void* ptr2, DWORD size)
 void NO_RETURN Panic(char* msg)
 {
 	TerminalSetColor(RED, BLACK);
+	TerminalWriteString("!Panicked:");
 	TerminalWriteString(msg);
 	for (;;)
 		__asm__ volatile ("hlt");

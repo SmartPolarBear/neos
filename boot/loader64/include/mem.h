@@ -13,4 +13,7 @@ void InitializeMemory(VOID* lowTop);
 
 void* AllocateLow(int nPages);
 
+// Do not enforce alignment on low memory, but enforce that shit on higher memory.
+void* AllocateLowBytes(SIZE_T nBytes);
+
 void* AllocateHigh(int nPages);
