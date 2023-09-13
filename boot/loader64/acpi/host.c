@@ -25,6 +25,7 @@ void laihost_log(int level, const char* msg)
 		break;
 	}
 	TerminalWriteString((char*)msg);
+	TerminalWriteCharacter('\n');
 }
 
 /* Reports a fatal error, and halts. */

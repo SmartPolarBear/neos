@@ -4,3 +4,4 @@ qemu-system-x86_64 -drive file=scripts/disk.img,if=ide \
     -no-shutdown \
     -no-reboot \
     -m 8G \
+    -smp 4 \

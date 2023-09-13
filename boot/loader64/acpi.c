@@ -4,6 +4,7 @@
 #include "defs.h"
 #include "acpi.h"
 #include "utils.h"
+#include "terminal.h"
 
 #include "lai/core.h"
 
@@ -53,6 +54,9 @@ void InitializeACPI(void)
 		Panic("ACPI RSDP is invalid.");
 	}
 
+	TerminalPrintf("ACPI(v%d) detected.\n", gRSDP->Revision);
+
+
 
 	// Initialize LAI
 	lai_set_acpi_revision(gRSDP->Revision);
@@ -67,8 +71,12 @@ static inline void* ALWAYS_INLINE AcpiLocateTableRSDT(char* sig, SIZE_T n)
 	for (SIZE_T i = 0; i < entries; i++)
 	{
 		ACPISDTHEADER* header = (ACPISDTHEADER*)(UINT_PTR)rsdt->PointerToOtherSDT[i];
+
 		if (MemCmp(header->Signature, sig, 4) == 0)
 		{
+			if (ACPIChecksum((BYTE*)header, header->Length) != 0)
+				Panic("ACPI table checksum is invalid.");
+
 			if (k++ == n)
 			{
 				return header;
@@ -99,9 +107,33 @@ static inline void* ALWAYS_INLINE AcpiLocateTableXSDT(char* sig, SIZE_T n)
 
 void* AcpiLocateTable(char* sig, SIZE_T n)
 {
-	if (gRSDP->Revision == 0)
+	// It is fucking special case because ACPIv1 won't give it a fuck publicity.
+	if (sig[0] == 'D' && sig[1] == 'S' && sig[2] == 'D' && sig[3] == 'T')
+	{
+		ACPIFADT* fadt = (ACPIFADT*)AcpiLocateTable("FACP", n);
+		if (!fadt)
+		{
+			return NULL;
+		}
+
+		if (gRSDP->Revision < 2)
+		{
+			return (void*)(UINT_PTR)fadt->Dsdt;
+		}
+		else
+		{
+			return (void*)fadt->XDsdt;
+		}
+	}
+
+
+	if (gRSDP->Revision < 2)
+	{
 		return AcpiLocateTableRSDT(sig, n);
+	}
 	else
+	{
 		return AcpiLocateTableXSDT(sig, n);
+	}
 }
 

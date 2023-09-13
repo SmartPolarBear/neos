@@ -19,7 +19,7 @@ void NO_RETURN LoaderMain64(UINT_PTR bufferTop)
 	// boot-time terminal
 	InitializeTerminal();
 	TerminalClear();
-	TerminalWriteString("NELOS is scanning hardware...\n");
+	TerminalWriteString("NELOS is scanning hardware...");
 
 	// boot-time memory allocator
 	InitializeMemory((BYTE*)bufferTop);
