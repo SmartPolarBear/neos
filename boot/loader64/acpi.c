@@ -5,6 +5,7 @@
 #include "acpi.h"
 #include "utils.h"
 
+
 ACPIRSDP* gRSDP = NULL;
 
 static inline BYTE ALWAYS_INLINE ACPIChecksum(BYTE* buf, DWORD len)
@@ -50,7 +51,6 @@ void InitializeACPI(void)
 	{
 		Panic("ACPI RSDP is invalid.");
 	}
-
 
 }
 

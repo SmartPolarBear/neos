@@ -1,0 +1,3 @@
+[submodule "libs/third-party/lai/lai"]
+	path = libs/third-party/lai/lai
+	url = https://github.com/managarm/lai.git

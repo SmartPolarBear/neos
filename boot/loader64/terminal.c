@@ -93,7 +93,7 @@ void TerminalClear()
 {
 	VBEMODEINFO* modeInfo = (VBEMODEINFO*)VESA_MODEINFO_ADDR;
 	bootTerm.row = bootTerm.col = 0;
-	DrawRect(0, 0, modeInfo->width, modeInfo->height, 0, 0, 255);
+	FillScreen(R(bootTerm.bgColor),G(bootTerm.bgColor),B(bootTerm.bgColor));
 }
 
 void TerminalPrintf(char* format, ...)

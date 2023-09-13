@@ -122,11 +122,11 @@ Found:
 	// Read in the neldr blocks.
 	// We assume only direct and l1 indirect blocks are used.
 	// Or we will report error
-	const DWORD MAX_SUPPORT_BC = 12 + sb->BlockSize / sizeof(DWORD);
+	const DWORD MAX_SUPPORT_BC = 12 + BLOCK_SIZE / sizeof(DWORD);
 	if (neldrBlockCount >= MAX_SUPPORT_BC)
 	{
 		TerminalSetColor(RED, BLUE);
-		TerminalWriteString("neldr is too large.\n");
+		TerminalPrintf("neldr of %d blocks is too large (%d at max).\n", neldrBlockCount, MAX_SUPPORT_BC);
 		BootPanic();
 	}
 

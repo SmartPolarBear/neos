@@ -1,11 +1,26 @@
 cmake_minimum_required(VERSION 3.20)
 
-add_executable(neldr head64.S entry64.c draw.c terminal.c elf.c fs.c ext2.c mem.c utils.c pci.c pcie.c acpi.c)
+add_executable(neldr
+        head64.S
+        entry64.c
+        draw.c
+        terminal.c
+        elf.c
+        fs.c
+        ext2.c
+        mem.c
+        utils.c
+        pci.c
+        pcie.c
+        acpi.c
+        $<TARGET_OBJECTS:LAI>
+)
 
 set_property(SOURCE loaderhead.S PROPERTY LANGUAGE C)
 
-target_include_directories(neldr PRIVATE include)
+add_subdirectory(acpi)
 
+target_include_directories(neldr PRIVATE include)
 
 target_compile_options(neldr BEFORE
         PRIVATE -ffreestanding
@@ -34,6 +49,8 @@ target_link_options(neldr BEFORE
         PRIVATE -nostdlib
         PRIVATE -Wl,--build-id=none
         PRIVATE -Wl,-T ${CMAKE_CURRENT_SOURCE_DIR}/loader64.ld)
+
+target_link_libraries(neldr PRIVATE LAI)
 
 add_custom_command(TARGET neldr POST_BUILD
         COMMAND objdump -S $<TARGET_FILE:neldr> > ${CMAKE_CURRENT_BINARY_DIR}/neldr.asm

@@ -16,12 +16,9 @@
 // 4) jmp to kernel entry
 void NO_RETURN LoaderMain64(UINT_PTR bufferTop)
 {
-	VBEMODEINFO const* modeInfo = (VBEMODEINFO const*)VESA_MODEINFO_ADDR;
-	// black background
-	FillScreen(0, 0, 0);
-
 	// boot-time terminal
 	InitializeTerminal();
+	TerminalClear();
 	TerminalWriteString("NELOS is scanning hardware...\n");
 
 	// boot-time memory allocator

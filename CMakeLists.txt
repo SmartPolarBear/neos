@@ -8,6 +8,8 @@ set(CMAKE_CXX_STANDARD 23)
 # common public headers
 include_directories(include)
 
+add_subdirectory(libs)
+
 add_subdirectory(boot)
 add_subdirectory(kernel)
 
