@@ -10,6 +10,7 @@
 #include "boot/vgafont.h"
 
 
+void FillScreen(BYTE r, BYTE g, BYTE b);
 void DrawPixel(INT x, INT y, BYTE r, BYTE g, BYTE b);
 void DrawRect(INT x, INT y, INT w, INT h, BYTE r, BYTE g, BYTE b);
 void DrawCharacterBackDrop(char c, int x, int y, COLOR fgcolor, COLOR bgcolor);

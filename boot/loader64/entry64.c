@@ -5,6 +5,8 @@
 #include "defs.h"
 #include "draw.h"
 #include "mem.h"
+#include "acpi.h"
+#include "terminal.h"
 
 // NELDR do following things:
 // 0) Initialize memory stuffs
@@ -16,11 +18,17 @@ void NO_RETURN LoaderMain64(UINT_PTR bufferTop)
 {
 	VBEMODEINFO const* modeInfo = (VBEMODEINFO const*)VESA_MODEINFO_ADDR;
 	// black background
-	DrawRect(0, 0, modeInfo->width, modeInfo->height, 0, 0, 0);
-	DrawString("NELDR", 100, 100, WHITE);
+	FillScreen(0, 0, 0);
+
+	// boot-time terminal
+	InitializeTerminal();
+	TerminalWriteString("NELOS is scanning hardware...\n");
 
 	// boot-time memory allocator
 	InitializeMemory((BYTE*)bufferTop);
+
+	// ACPI
+	InitializeACPI();
 
 	for (;;)
 		__asm__ volatile("hlt");

@@ -56,6 +56,36 @@ void DrawRect(INT x, INT y, INT w, INT h, BYTE r, BYTE g, BYTE b)
 	}
 }
 
+void FillScreen(BYTE r, BYTE g, BYTE b)
+{
+	VBEMODEINFO const* modeInfo = (VBEMODEINFO const*)VESA_MODEINFO_ADDR;
+	// fast fill
+	DWORD color = 0;
+	switch (modeInfo->bpp)
+	{
+	case 32:
+		color = (r << 16) | (g << 8) | b;
+		__asm__ __volatile__ ("rep stosl" : : "a" (color), "D" (modeInfo->framebuffer), "c" (modeInfo->pitch *
+																							 modeInfo->height / 4));
+		break;
+	case 24:
+		color = (r << 16) | (g << 8) | b;
+		__asm__ __volatile__ ("rep stosb" : : "a" (color), "D" (modeInfo->framebuffer), "c" (modeInfo->pitch *
+																							 modeInfo->height));
+		break;
+	case 16:
+		color = ((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3);
+		__asm__ __volatile__ ("rep stosw" : : "a" (color), "D" (modeInfo->framebuffer), "c" (modeInfo->pitch *
+																							 modeInfo->height / 2));
+		break;
+	case 15:
+		color = ((r >> 3) << 10) | ((g >> 3) << 5) | (b >> 3);
+		__asm__ __volatile__ ("rep stosw" : : "a" (color), "D" (modeInfo->framebuffer), "c" (modeInfo->pitch *
+																							 modeInfo->height / 2));
+		break;
+	}
+}
+
 void DrawCharacterBackDrop(char c, int x, int y, COLOR fgcolor, COLOR bgcolor)
 {
 	volatile BYTE* glyph = CHAR_BITMAP(c);
