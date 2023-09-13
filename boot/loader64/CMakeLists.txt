@@ -38,7 +38,6 @@ target_compile_options(neldr BEFORE
         PRIVATE -fno-strict-aliasing
         PRIVATE -nostdlib
         PRIVATE -nodefaultlibs
-        PRIVATE -nostdinc
 )
 
 target_link_options(neldr BEFORE

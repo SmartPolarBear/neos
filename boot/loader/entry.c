@@ -40,7 +40,6 @@ int LoaderMain32()
 	if (result > 0)
 	{
 		TerminalPrintf("Boot manager (%d bytes) loaded successfully.\n", result);
-//		for (;;);
 		// This lead to a jump to the kernel
 		return 0;
 	}

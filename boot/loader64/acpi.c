@@ -5,6 +5,7 @@
 #include "acpi.h"
 #include "utils.h"
 
+#include "lai/core.h"
 
 ACPIRSDP* gRSDP = NULL;
 
@@ -52,5 +53,6 @@ void InitializeACPI(void)
 		Panic("ACPI RSDP is invalid.");
 	}
 
+	lai_set_acpi_revision(gRSDP->Revision);
 }
 

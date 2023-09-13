@@ -114,10 +114,8 @@ Found:
 	const DWORD neldrSize = neldrInode->SizeLower; //  neldr size must be less than 4GB, no size higher.
 	const DWORD neldrBlockCount = neldrSize / BLOCK_SIZE + 1;
 
-	TerminalPrintf("neldr inode at LBA %d: 0x%x, %d, %d, %d, %d, %d, size %d, bc %d\n",
-			currentLBA, neldrInode->TypeAndPerms,
-			neldrInode->UserID, neldrInode->SizeLower, neldrInode->LastAccessTime,
-			neldrInode->CreationTime, neldrInode->LastModificationTime, neldrSize, neldrBlockCount);
+	TerminalPrintf("neldr inode at LBA %d: type 0x%x, size %d, bc %d\n",
+			currentLBA, neldrInode->TypeAndPerms, neldrInode->SizeLower, neldrBlockCount);
 
 	// Read in the neldr blocks.
 	// We assume only direct and l1 indirect blocks are used.
@@ -130,23 +128,15 @@ Found:
 		BootPanic();
 	}
 
-	for (DWORD i = 0; i < neldrBlockCount; i++)
+	for (DWORD i = 0; i < 12 && i < neldrBlockCount; i++)
 	{
-		if (i < 12)
-		{
-			DWORD block = neldrInode->DirectBlockPointers[i];
-			currentLBA = BASE_LBA + (block - 1) * BLOCK_SECS;
-			ReadSects((void*)addr, currentLBA, BLOCK_SECS);
-			addr += BLOCK_SIZE;
-		}
-		else
-		{
-			break;
-			// l1-indirect is handled next
-		}
+		DWORD block = neldrInode->DirectBlockPointers[i];
+		currentLBA = BASE_LBA + (block - 1) * BLOCK_SECS;
+		ReadSects((void*)addr, currentLBA, BLOCK_SECS);
+		addr += BLOCK_SIZE;
 	}
 
-	if (neldrBlockIndex < 12)
+	if (neldrBlockCount < 12)
 	{
 		goto Finish;
 	}
