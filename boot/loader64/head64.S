@@ -4,6 +4,7 @@
 .globl OSLoaderEntry
 OSLoaderEntry:
     mov $0x7c00, %esp
+    push %ebx # save active partition
 
 # zero pages for our bootstrap page tables
     xor %eax, %eax
@@ -71,6 +72,8 @@ ptbl_loop:
 
     pop %edi # restore edi, and rdi will be first argument for C code
     add $0x1000, %edi
+
+    pop %esi # restore esi, and rsi will be second argument for C code
 
 # shift to 64bit segment
     ljmp $8,$(entry64low)

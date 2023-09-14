@@ -8,14 +8,20 @@
 #include "acpi.h"
 #include "terminal.h"
 
+#include "boot/fs.h"
+
+PARTTABLEITEM* activePartition = NULL;
+
 // NELDR do following things:
 // 0) Initialize memory stuffs
 // 1) first, load kernel binaries, as well as smp initialization code
 // 2) place physical memory pages just after kernel binaries
 // 3) scan hardware and place information after pages
 // 4) jmp to kernel entry
-void NO_RETURN LoaderMain64(UINT_PTR bufferTop)
+void NO_RETURN LoaderMain64(UINT_PTR bufferTop, UINT_PTR activePartAddr)
 {
+	activePartition = (PARTTABLEITEM*)activePartAddr;
+
 	// boot-time terminal
 	InitializeTerminal();
 	TerminalClear();
@@ -26,6 +32,7 @@ void NO_RETURN LoaderMain64(UINT_PTR bufferTop)
 
 	// ACPI
 	InitializeAcpi();
+
 
 	for (;;)
 		__asm__ volatile("hlt");

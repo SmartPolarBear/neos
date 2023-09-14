@@ -126,8 +126,8 @@ OSLoaderEntry32:
     jne FailSpin
 
     // jump to kernel
-    mov $KERNEL_LOAD_ADDR, %ebx
-    jmp *%ebx
+    mov $KERNEL_LOAD_ADDR, %ecx
+    jmp *%ecx
 FailSpin:
     hlt
     jmp FailSpin

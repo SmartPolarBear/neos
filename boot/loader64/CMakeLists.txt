@@ -11,7 +11,6 @@ add_executable(neldr
         mem.c
         utils.c
         pci.c
-        pcie.c
         acpi.c
         $<TARGET_OBJECTS:LAI>
 )

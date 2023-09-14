@@ -14,6 +14,7 @@
 // 32bit code
 __asm__(".code32");
 
+extern PARTTABLEITEM* activePartition;
 
 int LoaderMain32()
 {
@@ -42,6 +43,8 @@ int LoaderMain32()
 		TerminalPrintf("Boot manager (%d bytes) loaded successfully.\n", result);
 		// This lead to a jump to the kernel
 //		for(;;);
+		// save active partition address to ebx
+		__asm__ volatile("movl %0, %%ebx" : : "r"(activePartition));
 		return 0;
 	}
 
