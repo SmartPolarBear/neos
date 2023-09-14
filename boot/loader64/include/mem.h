@@ -17,3 +17,9 @@ void* AllocateLow(int nPages);
 void* AllocateLowBytes(SIZE_T nBytes);
 
 void* AllocateHigh(int nPages);
+
+// Initialize memory pages
+void InitializeMemoryPages();
+
+// Fill some sentinel values for the sake of debugging
+void PostInitializeMemory();

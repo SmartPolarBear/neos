@@ -157,3 +157,8 @@ INT AcpiEnumerateDevices(AcpiEnumerationEnterFunction beforeNode, AcpiEnumeratio
 	lai_nsnode_t* root = lai_ns_get_root();
 	return AcpiEnumerateDeviceNode(root, 0, beforeNode, afterNode);
 }
+
+void AcpiLoadDriverForDevices()
+{
+
+}

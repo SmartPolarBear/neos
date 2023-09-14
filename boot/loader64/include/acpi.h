@@ -30,4 +30,5 @@ typedef void (* AcpiEnumerationLeftFunction)(INT depth, INT childCount, lai_nsno
 
 INT AcpiEnumerateDevices(AcpiEnumerationEnterFunction beforeNode, AcpiEnumerationLeftFunction afterNode);
 
+void AcpiLoadDriverForDevices();
 

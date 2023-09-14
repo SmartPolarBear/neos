@@ -39,3 +39,12 @@ void* AllocateHigh(int nPages)
 	highTop += 0x1000 * nPages;
 	return ret;
 }
+
+void InitializeMemoryPages()
+{
+}
+
+void PostInitializeMemory()
+{
+// todo: Fill some sentinel values for the sake of debugging
+}
