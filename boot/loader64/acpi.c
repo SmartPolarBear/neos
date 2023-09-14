@@ -10,7 +10,7 @@
 
 ACPIRSDP* gRSDP = NULL;
 
-static inline BYTE ALWAYS_INLINE ACPIChecksum(BYTE* buf, DWORD len)
+static inline BYTE ALWAYS_INLINE ACPIChecksum(const BYTE* buf, DWORD len)
 {
 	BYTE sum = 0;
 	for (const BYTE* p = (BYTE*)buf; p < ((BYTE*)buf) + len; p++)
@@ -20,8 +20,7 @@ static inline BYTE ALWAYS_INLINE ACPIChecksum(BYTE* buf, DWORD len)
 	return sum;
 }
 
-
-void InitializeACPI(void)
+void InitializeAcpi(void)
 {
 	// Scan memory for RSDP
 
@@ -55,8 +54,6 @@ void InitializeACPI(void)
 	}
 
 	TerminalPrintf("ACPI(v%d) detected.\n", gRSDP->Revision);
-
-
 
 	// Initialize LAI
 	lai_set_acpi_revision(gRSDP->Revision);
@@ -137,3 +134,26 @@ void* AcpiLocateTable(char* sig, SIZE_T n)
 	}
 }
 
+static inline INT AcpiEnumerateDeviceNode(lai_nsnode_t* n,
+		INT depth,
+		AcpiEnumerationEnterFunction bn,
+		AcpiEnumerationLeftFunction an)
+{
+	bn(depth, n);
+
+	INT children = 0;
+	struct lai_ns_child_iterator iter = LAI_NS_CHILD_ITERATOR_INITIALIZER(n);
+	for (lai_nsnode_t* p = lai_ns_child_iterate(&iter); p; p = lai_ns_child_iterate(&iter))
+	{
+		children += AcpiEnumerateDeviceNode(p, depth + 1, bn, an);
+	}
+	an(depth, children, n);
+
+	return children;
+}
+
+INT AcpiEnumerateDevices(AcpiEnumerationEnterFunction beforeNode, AcpiEnumerationLeftFunction afterNode)
+{
+	lai_nsnode_t* root = lai_ns_get_root();
+	return AcpiEnumerateDeviceNode(root, 0, beforeNode, afterNode);
+}

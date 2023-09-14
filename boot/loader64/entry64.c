@@ -25,7 +25,7 @@ void NO_RETURN LoaderMain64(UINT_PTR bufferTop)
 	InitializeMemory((BYTE*)bufferTop);
 
 	// ACPI
-	InitializeACPI();
+	InitializeAcpi();
 
 	for (;;)
 		__asm__ volatile("hlt");
