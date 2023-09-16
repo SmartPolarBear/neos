@@ -8,6 +8,7 @@
 #include "disk.h"
 #include "terminal.h"
 #include "utils.h"
+#include "error.h"
 
 EXT2SB superBlock;
 EXT2BGDT* groupDescs;
@@ -218,21 +219,25 @@ SSIZE_T LoadKernelExt2(PARTTABLEITEM* part, BYTE** binary)
 	EXT2INODE* inode = FindInode(KERNEL_PATH);
 	if (!inode)
 	{
-		Panic("neosknl is missing.");
+		TerminalWriteString("neosknl is missing.");
+		return -E_NOT_FOUND;
 	}
 //	DebugDumpInode(inode);
 	// Also ignore upper size
 	BYTE* kernBinary = AllocateHighBytes(inode->SizeLower);
 	if (!kernBinary)
 	{
-		Panic("Cannot allocate memory for the kernel binary");
+		TerminalWriteString("Cannot allocate memory for the kernel binary");
+		return -E_MEMORY;
 	}
-	if (ReadInode(inode, kernBinary) < 0)
+	SSIZE_T realSize = ReadInode(inode, kernBinary);
+	if (realSize < 0)
 	{
-		Panic("Cannot read the kernel binary.");
+		TerminalWriteString("Cannot read the kernel binary.");
+		return -E_IO;
 	}
 	*binary = kernBinary;
-	return 0;
+	return realSize;
 }
 
 SSIZE_T LoadDriverExt2(PARTTABLEITEM* part, const char* name, BYTE** binary)
@@ -240,20 +245,24 @@ SSIZE_T LoadDriverExt2(PARTTABLEITEM* part, const char* name, BYTE** binary)
 	EXT2INODE* inode = FindInode(name);
 	if (!inode)
 	{
-		Panic("A device driver is missing.");
+		TerminalPrintf("Device driver %s is missing.", name);
+		return -E_NOT_FOUND;
 	}
 //	DebugDumpInode(inode);
 	BYTE* drvBinary = AllocateHighBytes(inode->SizeLower);
 	if (!drvBinary)
 	{
-		Panic("Cannot allocate memory for the driver binary");
+		TerminalPrintf("Cannot allocate memory of %d bytes for the driver %s.", inode->SizeLower, name);
+		return -E_MEMORY;
 	}
-	if (ReadInode(inode, drvBinary) < 0)
+	SSIZE_T realSize = ReadInode(inode, drvBinary);
+	if (realSize < 0)
 	{
-		Panic("Cannot read the driver binary.");
+		TerminalPrintf("Cannot read the driver %s.", name);
+		return -E_IO;
 	}
 	*binary = drvBinary;
-	return 0;
+	return realSize;
 }
 
 BOOTFS ext2Fs = {

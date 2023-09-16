@@ -8,6 +8,7 @@
 #include "utils.h"
 #include "elf.h"
 #include "mem.h"
+#include "terminal.h"
 
 PARTTABLEITEM* activePartition = NULL;
 
@@ -44,13 +45,15 @@ void LoadKernel()
 	}
 	loadMemory += ret;
 	loadMemory = (BYTE*)PGROUNDUP((UINT_PTR)loadMemory);
+
+	TerminalPrintf("Loaded neosknl kernel (%d bytes).\n", size);
 }
 
 void LoadDriver(const char* name)
 {
 	BYTE* binary = NULL;
-	fs->LoadDriver(activePartition, name, &binary);
-	if (!binary)
+	SSIZE_T size = fs->LoadDriver(activePartition, name, &binary);
+	if (size < 0)
 	{
 		Panic("Cannot load device driver.");
 	}
@@ -61,4 +64,6 @@ void LoadDriver(const char* name)
 	}
 	loadMemory += ret;
 	loadMemory = (BYTE*)PGROUNDUP((UINT_PTR)loadMemory);
+
+	TerminalPrintf("Loaded device driver %s (%d bytes).\n", name, size);
 }
