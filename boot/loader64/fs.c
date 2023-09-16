@@ -6,10 +6,13 @@
 #include "fs.h"
 #include "ext2.h"
 #include "utils.h"
+#include "elf.h"
+#include "mem.h"
 
 PARTTABLEITEM* activePartition = NULL;
 
 BOOTFS* fs = NULL;
+BYTE* loadMemory = (BYTE*)KERNEL_LOAD_ADDR;
 
 void InitializeBootFs(PARTTABLEITEM* ap)
 {
@@ -26,12 +29,36 @@ void InitializeBootFs(PARTTABLEITEM* ap)
 	fs->Initialize(ap);
 }
 
-SSIZE_T LoadKernel()
+void LoadKernel()
 {
-	return fs->LoadKernel(activePartition);
+	BYTE* binary = NULL;
+	SSIZE_T size = fs->LoadKernel(activePartition, &binary);
+	if (size < 0)
+	{
+		Panic("Cannot load kernel.");
+	}
+	SSIZE_T ret = LoadKernelElf(binary);
+	if (ret < 0)
+	{
+		Panic("Invalid kernel format.");
+	}
+	loadMemory += ret;
+	loadMemory = (BYTE*)PGROUNDUP((UINT_PTR)loadMemory);
 }
 
-SSIZE_T LoadDriver(const char* name)
+void LoadDriver(const char* name)
 {
-	return fs->LoadDriver(activePartition, name);
+	BYTE* binary = NULL;
+	fs->LoadDriver(activePartition, name, &binary);
+	if (!binary)
+	{
+		Panic("Cannot load device driver.");
+	}
+	SSIZE_T ret = LoadModuleElf(binary, (UINT_PTR)loadMemory);
+	if (ret < 0)
+	{
+		Panic("Invalid driver executable format.");
+	}
+	loadMemory += ret;
+	loadMemory = (BYTE*)PGROUNDUP((UINT_PTR)loadMemory);
 }

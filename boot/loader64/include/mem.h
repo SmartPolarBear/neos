@@ -20,8 +20,6 @@ void* AllocateLowBytes(SIZE_T nBytes);
 
 void* AllocateHighBytes(SIZE_T nBytes);
 
-void * AllocateKernelLoad(int nPages);
-
 // Initialize memory pages
 void InitializeMemoryPages();
 

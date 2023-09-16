@@ -16,4 +16,4 @@ add_subdirectory(kernel)
 add_custom_target(image
     COMMAND sh "${CMAKE_SOURCE_DIR}/scripts/mkdisk.sh"
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/scripts"
-    DEPENDS bootsector osldr neldr)
+    DEPENDS bootsector osldr neldr neosknl)

@@ -27,7 +27,6 @@ void* AllocateLowBytes(SIZE_T nBytes)
 	BYTE* ret = lowTop;
 	if (ret >= (BYTE*)LOW_LIMIT)
 	{
-		TerminalPrintf("Out of low memory, requested %d bytes from 0x%x.\n", nBytes, (DWORD)ret);
 		return NULL;
 	}
 	lowTop += nBytes;
@@ -47,6 +46,8 @@ void* AllocateHighBytes(SIZE_T nBytes)
 	highTop += nBytes;
 	return ret;
 }
+
+
 
 void InitializeMemoryPages()
 {

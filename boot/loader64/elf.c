@@ -19,3 +19,15 @@
 // - which is always a Good Thing (tm).
 // See:
 // https://wiki.osdev.org/ELF#Relocation
+
+#include "elf.h"
+
+SSIZE_T LoadKernelElf(BYTE* binary)
+{
+	return 0;
+}
+
+SSIZE_T LoadModuleElf(BYTE* binary, UINT_PTR base)
+{
+	return 0;
+}

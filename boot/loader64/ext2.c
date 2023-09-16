@@ -190,7 +190,7 @@ static EXT2INODE* FindInode(const char* path)
 
 				if (dirent->FileType == EXT2DIRENT_TYPE_DIRECTORY)
 				{
-					TerminalPrintf("Found directory %s, inode %d\n", dirent->Name, dirent->Inode);
+//					TerminalPrintf("Found directory %s, inode %d\n", dirent->Name, dirent->Inode);
 //					DebugDumpInode(node);
 					ReadInode(node, (BYTE*)buf);
 				}
@@ -213,7 +213,7 @@ static EXT2INODE* FindInode(const char* path)
 	return NULL;
 }
 
-SSIZE_T LoadKernelExt2(PARTTABLEITEM* part)
+SSIZE_T LoadKernelExt2(PARTTABLEITEM* part, BYTE** binary)
 {
 	EXT2INODE* inode = FindInode(KERNEL_PATH);
 	if (!inode)
@@ -221,11 +221,21 @@ SSIZE_T LoadKernelExt2(PARTTABLEITEM* part)
 		Panic("neosknl is missing.");
 	}
 //	DebugDumpInode(inode);
-
+	// Also ignore upper size
+	BYTE* kernBinary = AllocateHighBytes(inode->SizeLower);
+	if (!kernBinary)
+	{
+		Panic("Cannot allocate memory for the kernel binary");
+	}
+	if (ReadInode(inode, kernBinary) < 0)
+	{
+		Panic("Cannot read the kernel binary.");
+	}
+	*binary = kernBinary;
 	return 0;
 }
 
-SSIZE_T LoadDriverExt2(PARTTABLEITEM* part, const char* name)
+SSIZE_T LoadDriverExt2(PARTTABLEITEM* part, const char* name, BYTE** binary)
 {
 	EXT2INODE* inode = FindInode(name);
 	if (!inode)
@@ -233,6 +243,16 @@ SSIZE_T LoadDriverExt2(PARTTABLEITEM* part, const char* name)
 		Panic("A device driver is missing.");
 	}
 //	DebugDumpInode(inode);
+	BYTE* drvBinary = AllocateHighBytes(inode->SizeLower);
+	if (!drvBinary)
+	{
+		Panic("Cannot allocate memory for the driver binary");
+	}
+	if (ReadInode(inode, drvBinary) < 0)
+	{
+		Panic("Cannot read the driver binary.");
+	}
+	*binary = drvBinary;
 	return 0;
 }
 

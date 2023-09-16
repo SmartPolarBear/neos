@@ -15,13 +15,13 @@ typedef struct
 {
 	void (* Initialize)(PARTTABLEITEM* part);
 
-	SSIZE_T (* LoadKernel)(PARTTABLEITEM* part);
+	SSIZE_T (* LoadKernel)(PARTTABLEITEM* part, BYTE** binary);
 
-	SSIZE_T (* LoadDriver)(PARTTABLEITEM* part, const char*);
+	SSIZE_T (* LoadDriver)(PARTTABLEITEM* part, const char*, BYTE** binary);
 } BOOTFS;
 
 void InitializeBootFs(PARTTABLEITEM* ap);
 
-SSIZE_T LoadKernel();
+void LoadKernel();
 
-SSIZE_T LoadDriver(const char* name);
+void LoadDriver(const char* name);

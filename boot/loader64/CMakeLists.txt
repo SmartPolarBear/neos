@@ -5,7 +5,6 @@ add_executable(neldr
         entry64.c
         draw.c
         terminal.c
-        elf.c
         fs.c
         disk.c
         ext2.c
@@ -13,6 +12,7 @@ add_executable(neldr
         utils.c
         pci.c
         acpi.c
+        elf.c
         $<TARGET_OBJECTS:LAI>
 )
 

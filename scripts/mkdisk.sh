@@ -38,10 +38,12 @@ stat $NELDR
 sudo cp -p $NELDR $MNTDIR/neldr
 
 # kernel
+NEOSKNL=$PREFIX/kernel/neosknl
 echo "Copy kernel to neos/neosknl on ext2 partition"
+stat $NEOSKNL
 sudo mkdir -p $MNTDIR/neos
-# use random data for placeholder
-sudo dd if=/dev/urandom of=$MNTDIR/neos/neosknl bs=1M count=1
+sudo cp -p $NEOSKNL $MNTDIR/neos/neosknl
+
 
 echo "Final Results:"
 sudo ls -R $MNTDIR
