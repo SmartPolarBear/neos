@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "ext.h"
 #include "type.h"
 
 #define SUPERBLOCK_OFFSET 1024

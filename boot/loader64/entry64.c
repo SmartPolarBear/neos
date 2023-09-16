@@ -11,18 +11,15 @@
 
 #include "boot/fs.h"
 
-extern PARTTABLEITEM* activePartition;
 
 // NELDR do following things:
 // 0) Initialize memory stuffs
 // 1) first, load kernel binaries, as well as smp initialization code
-// 2) place physical memory pages just after kernel binaries
+// 2) place physical memory pages just after kernel binaries. Also initialize other processors.
 // 3) scan hardware and place information after pages with ACPI
 // 4) jmp to kernel entry
 void NO_RETURN LoaderMain64(UINT_PTR bufferTop, UINT_PTR activePartAddr)
 {
-	activePartition = (PARTTABLEITEM*)activePartAddr;
-
 	// boot-time terminal
 	InitializeTerminal();
 	TerminalClear();
@@ -31,11 +28,11 @@ void NO_RETURN LoaderMain64(UINT_PTR bufferTop, UINT_PTR activePartAddr)
 	// boot-time memory allocator
 	InitializeMemory((BYTE*)bufferTop);
 
+	// Boot-time file system
+	InitializeBootFs((PARTTABLEITEM*)activePartAddr);
+
 	// ACPI
 	InitializeAcpi();
-
-	// Boot-time file system
-	InitializeBootFs();
 
 	// Load kernel
 	LoadKernel();
@@ -45,6 +42,8 @@ void NO_RETURN LoaderMain64(UINT_PTR bufferTop, UINT_PTR activePartAddr)
 
 	// Load drivers based on ACPI information
 	AcpiLoadDriverForDevices();
+	// Initialize other processors, but not start them, leaving works to kernel.
+	AcpiInitializeProcessors();
 
 	// Memory post-initialization
 	PostInitializeMemory();

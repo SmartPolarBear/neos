@@ -36,7 +36,7 @@ int LoaderMain32()
 	InitializeBootFS();
 
 	// Load the kernel
-	INT result = LoadKernel(KERNEL_LOAD_ADDR);
+	INT result = LoadKernel(NELDR_LOAD_ADDR);
 
 	if (result > 0)
 	{

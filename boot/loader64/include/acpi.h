@@ -32,3 +32,5 @@ INT AcpiEnumerateDevices(AcpiEnumerationEnterFunction beforeNode, AcpiEnumeratio
 
 void AcpiLoadDriverForDevices();
 
+void AcpiInitializeProcessors();
+

@@ -17,3 +17,5 @@
 // or do a symbol lookup, or just return a success error code.
 //Once you can relocate ELF objects you'll be able to have drivers loaded when needed instead of at startup
 // - which is always a Good Thing (tm).
+// See:
+// https://wiki.osdev.org/ELF#Relocation

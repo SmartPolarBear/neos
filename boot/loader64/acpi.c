@@ -162,3 +162,8 @@ void AcpiLoadDriverForDevices()
 {
 
 }
+
+void AcpiInitializeProcessors()
+{
+	
+}

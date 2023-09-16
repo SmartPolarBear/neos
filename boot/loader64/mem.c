@@ -14,7 +14,7 @@ BYTE* lowTop, * highTop;
 void InitializeMemory(VOID* low)
 {
 	lowTop = (BYTE*)PGROUNDUP((UINT_PTR)low);
-	highTop = (BYTE*)KERNEL_REAL_ADDR;
+	highTop = (BYTE*)NELDR_HIGH_BUFFER;
 }
 
 void* AllocateLow(int nPages)
@@ -27,6 +27,7 @@ void* AllocateLowBytes(SIZE_T nBytes)
 	BYTE* ret = lowTop;
 	if (ret >= (BYTE*)LOW_LIMIT)
 	{
+		TerminalPrintf("Out of low memory, requested %d bytes from 0x%x.\n", nBytes, (DWORD)ret);
 		return NULL;
 	}
 	lowTop += nBytes;
@@ -37,6 +38,13 @@ void* AllocateHigh(int nPages)
 {
 	BYTE* ret = highTop;
 	highTop += 0x1000 * nPages;
+	return ret;
+}
+
+void* AllocateHighBytes(SIZE_T nBytes)
+{
+	BYTE* ret = highTop;
+	highTop += nBytes;
 	return ret;
 }
 

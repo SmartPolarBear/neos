@@ -4,20 +4,34 @@
 
 #include "defs.h"
 #include "fs.h"
+#include "ext2.h"
+#include "utils.h"
 
 PARTTABLEITEM* activePartition = NULL;
 
-void InitializeBootFs()
-{
+BOOTFS* fs = NULL;
 
+void InitializeBootFs(PARTTABLEITEM* ap)
+{
+	activePartition = ap;
+	switch (ap->SystemID)
+	{
+	case MBR_SYSID_LINUXNATIVE:
+		fs = &ext2Fs;
+		break;
+	default:
+		Panic("Unknown file system");
+	}
+
+	fs->Initialize(ap);
 }
 
-void LoadKernel()
+SSIZE_T LoadKernel()
 {
-
+	return fs->LoadKernel(activePartition);
 }
 
-void LoadDriver(const char* name)
+SSIZE_T LoadDriver(const char* name)
 {
-
+	return fs->LoadDriver(activePartition, name);
 }

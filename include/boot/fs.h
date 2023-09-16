@@ -20,3 +20,5 @@ typedef struct
 	DWORD RelativeSector;
 	DWORD TotalSector;
 } PACKED PARTTABLEITEM;
+
+#define MBR_SYSID_LINUXNATIVE 0x83

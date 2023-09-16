@@ -9,8 +9,17 @@
 
 extern PARTTABLEITEM* activePartition;
 
-void InitializeBootFs();
+typedef struct
+{
+	void (*Initialize)(PARTTABLEITEM* part);
 
-void LoadKernel();
+	SSIZE_T (* LoadKernel)(PARTTABLEITEM* part);
 
-void LoadDriver(const char *name);
+	SSIZE_T (* LoadDriver)(PARTTABLEITEM* part, const char*);
+} BOOTFS;
+
+void InitializeBootFs(PARTTABLEITEM* ap);
+
+SSIZE_T LoadKernel();
+
+SSIZE_T LoadDriver(const char* name);

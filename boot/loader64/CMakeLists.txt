@@ -7,6 +7,7 @@ add_executable(neldr
         terminal.c
         elf.c
         fs.c
+        disk.c
         ext2.c
         mem.c
         utils.c
