@@ -2,6 +2,7 @@
 // Created by bear on 9/7/2023.
 //
 #include "defs.h"
+#include "fs.h"
 #include "ext2.h"
 #include "mem.h"
 #include "disk.h"
@@ -10,9 +11,11 @@
 
 EXT2SB superBlock;
 EXT2BGDT* groupDescs;
-BYTE* inodeTable = NULL;
 EXT2DIRENT* rootDir = NULL;
 BYTE* l1IndirectBuf = NULL, * l2IndirectBuf = NULL;
+BYTE* dirBuf = NULL;
+BYTE* inodeTableBuf = NULL;
+
 
 DWORD BG_COUNT = 0;
 DWORD BLOCK_SIZE = 0;
@@ -93,6 +96,7 @@ Finish:
 	return result;
 }
 
+
 void InitializeExt2()
 {
 	ReadSects((void*)&superBlock, activePartition->RelativeSector + 2/*2 reserved sector*/, 2);
@@ -116,16 +120,16 @@ void InitializeExt2()
 	const SIZE_T groupDescSecs = (sizeof(EXT2BGDT) * BG_COUNT + BLOCK_SIZE - 1) / BLOCK_SIZE;
 	ReadSects((void*)groupDescs, BASE_LBA + BLOCK_SECS, groupDescSecs);
 
-	inodeTable = AllocateLowBytes(BLOCK_SIZE);
-	if (inodeTable == NULL)
+	inodeTableBuf = AllocateLowBytes(BLOCK_SIZE);
+	if (inodeTableBuf == NULL)
 	{
 		Panic("Cannot allocate memory for inode table");
 	}
 
 	const DWORD inodeTableAddr = BASE_LBA + (groupDescs->InodeTableStart - 1) * BLOCK_SECS;
-	ReadSects((void*)inodeTable, inodeTableAddr, BLOCK_SECS);
+	ReadSects((void*)inodeTableBuf, inodeTableAddr, BLOCK_SECS);
 
-	EXT2INODE* rootInode = (EXT2INODE*)(inodeTable + sizeof(EXT2INODE)); // skip inode 1 to get inode 2
+	EXT2INODE* rootInode = (EXT2INODE*)(inodeTableBuf + sizeof(EXT2INODE)); // skip inode 1 to get inode 2
 	if ((rootInode->TypeAndPerms & 0x4000) == 0)
 	{
 		Panic("Invalid root inode.");
@@ -143,19 +147,92 @@ void InitializeExt2()
 
 	// Ignore upper size. Should not be so big.
 	rootDir = AllocateLowBytes(rootInode->SizeLower);
+	__builtin_memset(rootDir, 0, rootInode->SizeLower);
 	if (ReadInode(rootInode, (BYTE*)rootDir) < 0)
 	{
 		Panic("Cannot read root directory.");
 	}
 }
 
+static EXT2INODE* FindInode(const char* path)
+{
+	EXT2DIRENT* buf = AllocateLowBytes(BLOCK_SIZE);
+	if (!buf)
+	{
+		Panic("Cannot allocate memory for dirent buffer");
+	}
+
+	__builtin_memcpy(buf, rootDir, BLOCK_SIZE);
+
+	char* p = (char*)path;
+	while (p && *p)
+	{
+		char* name = p;
+		while (p && *p && *p != '/')
+		{
+			p++;
+		}
+//		TerminalPrintf("Searching for %s %s\n", name, p);
+		EXT2DIRENT* dirent = buf;
+		while (dirent->Inode != 0 && dirent->RecordLength != 0)
+		{
+//			TerminalPrintf("Ent %s %d %d\n", dirent->Name, dirent->NameLength, dirent->RecordLength);
+			if (dirent->NameLength == p - name && MemCmp(dirent->Name, name, p - name) == 0)
+			{
+				const DWORD blockGroup = (dirent->Inode - 1) / superBlock.InodesPerGroup;
+				const DWORD inodeIndex = (dirent->Inode - 1) % superBlock.InodesPerGroup;
+
+				// read corresponding inode table
+				const DWORD inodeTableAddr = BASE_LBA + (groupDescs[blockGroup].InodeTableStart - 1) * BLOCK_SECS;
+				ReadSects((void*)inodeTableBuf, inodeTableAddr, BLOCK_SECS);
+
+				EXT2INODE* node = (EXT2INODE*)(inodeTableBuf + inodeIndex * sizeof(EXT2INODE));
+
+				if (dirent->FileType == EXT2DIRENT_TYPE_DIRECTORY)
+				{
+					TerminalPrintf("Found directory %s, inode %d\n", dirent->Name, dirent->Inode);
+//					DebugDumpInode(node);
+					ReadInode(node, (BYTE*)buf);
+				}
+				else if (dirent->FileType == EXT2DIRENT_TYPE_REGULAR && *p == 0)
+				{
+					return node;
+				}
+
+				break;
+			}
+
+			dirent = (EXT2DIRENT*)((char*)dirent + dirent->RecordLength);
+		}
+
+		if (*p == '/')
+		{
+			p++;
+		}
+	}
+	return NULL;
+}
+
 SSIZE_T LoadKernelExt2(PARTTABLEITEM* part)
 {
+	EXT2INODE* inode = FindInode(KERNEL_PATH);
+	if (!inode)
+	{
+		Panic("neosknl is missing.");
+	}
+//	DebugDumpInode(inode);
+
 	return 0;
 }
 
 SSIZE_T LoadDriverExt2(PARTTABLEITEM* part, const char* name)
 {
+	EXT2INODE* inode = FindInode(name);
+	if (!inode)
+	{
+		Panic("A device driver is missing.");
+	}
+//	DebugDumpInode(inode);
 	return 0;
 }
 

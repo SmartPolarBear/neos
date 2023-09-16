@@ -36,5 +36,14 @@ NELDR=$PREFIX/boot/loader64/neldrbin
 echo "Copy neldrbin to neldr on ext2 partition"
 stat $NELDR
 sudo cp -p $NELDR $MNTDIR/neldr
+
+# kernel
+echo "Copy kernel to neos/neosknl on ext2 partition"
+sudo mkdir -p $MNTDIR/neos
+# use random data for placeholder
+sudo dd if=/dev/urandom of=$MNTDIR/neos/neosknl bs=1M count=1
+
+echo "Final Results:"
+sudo ls -R $MNTDIR
 sudo umount $MNTDIR
 sudo rm -rf $MNTDIR

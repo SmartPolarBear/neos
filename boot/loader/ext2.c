@@ -72,7 +72,7 @@ INT LoadKernelExt2(DWORD addr, EXT2SB* sb, PARTTABLEITEM* part, char* buf)
 		while (p - blockBuffer < BLOCK_SIZE)
 		{
 			dirent = (EXT2DIRENT*)p;
-			if (dirent->Inode == 0)
+			if (dirent->Inode == 0 || dirent->RecordLength == 0)
 			{
 				break;
 			}

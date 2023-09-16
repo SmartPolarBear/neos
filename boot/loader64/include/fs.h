@@ -9,9 +9,11 @@
 
 extern PARTTABLEITEM* activePartition;
 
+#define KERNEL_PATH "neos/neosknl"
+
 typedef struct
 {
-	void (*Initialize)(PARTTABLEITEM* part);
+	void (* Initialize)(PARTTABLEITEM* part);
 
 	SSIZE_T (* LoadKernel)(PARTTABLEITEM* part);
 
