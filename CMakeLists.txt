@@ -12,8 +12,9 @@ add_subdirectory(libs)
 
 add_subdirectory(boot)
 add_subdirectory(kernel)
+add_subdirectory(hal)
 
 add_custom_target(image
     COMMAND sh "${CMAKE_SOURCE_DIR}/scripts/mkdisk.sh"
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/scripts"
-    DEPENDS bootsector osldr neldr neosknl)
+    DEPENDS bootsector osldr neldr neosknl halx8664)

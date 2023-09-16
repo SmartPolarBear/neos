@@ -31,19 +31,23 @@ MNTDIR=$PREFIX/mnt
 mkdir -p $MNTDIR
 sudo mount -o loop,offset=$offset $DISK $MNTDIR
 
+CopyToExt2() {
+    echo "$3"
+    stat $1
+    sudo cp -p $1 $MNTDIR/$2
+}
+
 # neldr: OS boot manager
-NELDR=$PREFIX/boot/loader64/neldrbin
-echo "Copy neldrbin to neldr on ext2 partition"
-stat $NELDR
-sudo cp -p $NELDR $MNTDIR/neldr
+CopyToExt2 $NELDR neldr "Copy neldr to neldr2 on ext2 partition"
 
 # kernel
 NEOSKNL=$PREFIX/kernel/neosknl
-echo "Copy kernel to neos/neosknl on ext2 partition"
-stat $NEOSKNL
 sudo mkdir -p $MNTDIR/neos
-sudo cp -p $NEOSKNL $MNTDIR/neos/neosknl
+CopyToExt2 $NEOSKNL neos/neosknl "Copy kernel to neos/neosknl on ext2 partition"
 
+# hal: hardware abstraction layer
+HAL=$PREFIX/hal/x8664/halx8664
+CopyToExt2 $HAL neos/hal.sys "Copy x86-64 hal to halx8664 on ext2 partition"
 
 echo "Final Results:"
 sudo ls -R $MNTDIR
