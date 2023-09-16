@@ -18,7 +18,7 @@
 // 2) place physical memory pages just after kernel binaries. Also initialize other processors.
 // 3) scan hardware and place information after pages with ACPI
 // 4) jmp to kernel entry
-void NO_RETURN LoaderMain64(UINT_PTR bufferTop, UINT_PTR activePartAddr)
+UINT_PTR LoaderMain64(UINT_PTR bufferTop, UINT_PTR activePartAddr)
 {
 	// boot-time terminal
 	InitializeTerminal();
@@ -35,7 +35,7 @@ void NO_RETURN LoaderMain64(UINT_PTR bufferTop, UINT_PTR activePartAddr)
 	InitializeAcpi();
 
 	// Load kernel
-	LoadKernel();
+	UINT_PTR kernEntry = LoadKernel();
 
 	// Place memory pages
 	InitializeMemoryPages();
@@ -48,5 +48,11 @@ void NO_RETURN LoaderMain64(UINT_PTR bufferTop, UINT_PTR activePartAddr)
 	// Memory post-initialization
 	PostInitializeMemory();
 
+	// kernel entry point will be saved to register rax, where head64.S will jmp to.
+	return kernEntry;
+}
+
+void NO_RETURN FailToGotoKernel()
+{
 	Panic("Cannot jump to kernel.");
 }

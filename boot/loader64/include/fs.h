@@ -22,6 +22,6 @@ typedef struct
 
 void InitializeBootFs(PARTTABLEITEM* ap);
 
-void LoadKernel();
+UINT_PTR LoadKernel();
 
 void LoadDriver(const char* name);

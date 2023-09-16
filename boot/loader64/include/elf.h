@@ -7,6 +7,6 @@
 #include "type.h"
 #include "boot/elf.h"
 
-SSIZE_T LoadKernelElf(BYTE* binary);
+SSIZE_T LoadKernelElf(BYTE* binary, UINT_PTR* entry);
 
 SSIZE_T LoadModuleElf(BYTE* binary, UINT_PTR base);

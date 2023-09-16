@@ -30,7 +30,7 @@ void InitializeBootFs(PARTTABLEITEM* ap)
 	fs->Initialize(ap);
 }
 
-void LoadKernel()
+UINT_PTR LoadKernel()
 {
 	BYTE* binary = NULL;
 	SSIZE_T size = fs->LoadKernel(activePartition, &binary);
@@ -38,7 +38,8 @@ void LoadKernel()
 	{
 		Panic("Cannot load kernel.");
 	}
-	SSIZE_T ret = LoadKernelElf(binary);
+	UINT_PTR kernEntryPoint = 0;
+	SSIZE_T ret = LoadKernelElf(binary, &kernEntryPoint);
 	if (ret < 0)
 	{
 		Panic("Invalid kernel format.");
@@ -47,6 +48,7 @@ void LoadKernel()
 	loadMemory = (BYTE*)PGROUNDUP((UINT_PTR)loadMemory);
 
 	TerminalPrintf("Loaded neosknl kernel (%d bytes).\n", size);
+	return kernEntryPoint;
 }
 
 void LoadDriver(const char* name)

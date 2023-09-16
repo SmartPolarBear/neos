@@ -5,7 +5,7 @@ add_executable(neosknl
         kernmain.c
 )
 
-set_property(SOURCE kernhead.S PROPERTY LANGUAGE C)
+#set_property(SOURCE kernhead.S PROPERTY LANGUAGE C)
 
 target_include_directories(neosknl PRIVATE include)
 

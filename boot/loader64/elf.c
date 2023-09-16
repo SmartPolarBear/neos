@@ -20,11 +20,58 @@
 // See:
 // https://wiki.osdev.org/ELF#Relocation
 
+#include "ext.h"
 #include "elf.h"
+#include "error.h"
 
-SSIZE_T LoadKernelElf(BYTE* binary)
+static inline ERRORCODE ALWAYS_INLINE CheckElfCommon(ELFHEADER64* header)
 {
-	return 0;
+	if (header->Magic != ELF_MAGIC)
+	{
+		return -E_INVALID;
+	}
+	if (header->Bit != ELF_BIT_64) // 64-bit
+	{
+		return -E_INVALID;
+	}
+	if (header->Endian != 1) // little endian
+	{
+		return -E_INVALID;
+	}
+	if (header->Machine != ELFMACHINE_X8664)
+	{
+		return -E_INVALID;
+	}
+	return E_SUCCESS;
+}
+
+SSIZE_T LoadKernelElf(BYTE* binary, UINT_PTR* entry)
+{
+	ELFHEADER64* header = (ELFHEADER64*)binary;
+
+	SSIZE_T ret = CheckElfCommon(header);
+	if (ret < 0)
+	{
+		return ret;
+	}
+
+	if (header->Type != ELFTYPE_EXEC)
+	{
+		return -E_INVALID;
+	}
+
+	ELFPROGRAMHEADER64* ph = (ELFPROGRAMHEADER64*)(binary + header->ProgramHeaderOffset);
+	for (QWORD i = 0; i < header->ProgramHeaderCount; i++)
+	{
+		if (ph[i].Type == ELFPROG_LOAD)
+		{
+			__builtin_memcpy((BYTE*)ph[i].VirtualAddress, binary + ph[i].Offset, ph[i].FileSize);
+			__builtin_memset((BYTE*)ph[i].VirtualAddress + ph[i].FileSize, 0, ph[i].MemorySize - ph[i].FileSize);
+		}
+	}
+
+	*entry = header->Entry;
+	return E_SUCCESS;
 }
 
 SSIZE_T LoadModuleElf(BYTE* binary, UINT_PTR base)

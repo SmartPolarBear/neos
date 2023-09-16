@@ -17,22 +17,37 @@ OSLoaderEntry:
     mov %edi, %edx      # edx is pointing to P4ML
     add $0x1000, %edi   # edi is pointing to PDPT-A
 
-# P4ML[0] -> PDPT-A
+# PML4[0] -> PDPT-A
     mov %edi, %eax
     or $0x3, %eax
     mov %eax, (%edx)  # write to P4ML[0]
+    mov %edx, %ecx    # ecx is pointing to P4ML[0]
+    add $0xFF8, %ecx  # ecx is pointing to P4ML[511]
     mov %edi, %edx    # now edx is pointing to PDPT-A
+    add $0x1000, %edi # edi is pointing to PDPT-B
+
+# PML4[511] -> PDPT-B
+    mov %edi, %eax
+    or $0x3, %eax
+    mov %eax, (%ecx)  # write to P4ML[511]
+    mov %edi, %ebx    # now ebx is pointing to PDPT-B
+    add $0xFF0, %ebx  # ebx is pointing to PDPT-B[510]
     add $0x1000, %edi # edi is pointing to PD1
 
-# PDPT-A[0...4] -> PD1...PD4
+# PDPT-A[0...4] -> PD1...PD4; PDPT-B[510..511] -> PD1...PD2
     mov %edi, %esi # temporary save edi
     mov $4, %ecx
 FillPDPT:
     mov %edi, %eax
     or $0x3, %eax
     mov %eax, (%edx)  # write to PDPT-A
+    cmp $2, %ecx      # write to PDPT-B for first 2 PD
+    jle NextPDPTB
+    mov %eax, (%ebx)
+    add $0x8, %ebx    # ebx is pointing to next PDPT-B entry
+NextPDPTB:
     add $0x1000, %edi # edi is pointing to next PD
-    add $0x8, %edx    # edx is pointing to next PDPT entry
+    add $0x8, %edx    # edx is pointing to next PDPT-A entry
     loop FillPDPT
     push %edi # save edi
     mov %esi, %edi # restore edi
@@ -48,7 +63,9 @@ ptbl_loop:
     dec %ecx
     jnz ptbl_loop
 
-# CR3 -> P4ML
+
+
+# CR3 -> PML4
     mov $BUFFER_START, %eax
     mov %eax, %cr3
 
@@ -108,8 +125,14 @@ entry64high:
     mov %ax, %fs
     mov %ax, %gs
 
-    // It won't return, so jmp instead of call
-    jmp LoaderMain64
+    mov $0xdeadbeef, %rax
+    call LoaderMain64
+
+// if not do this silly thing, gcc will fucking complian "operand size mismatch"
+    mov $0xdeadbeef, %rbx
+    cmp %rbx, %rax
+    je FailToGotoKernel
+    jmp *%rax // jmp to kernel entry point
 
 Spin:
     hlt
