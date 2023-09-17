@@ -268,6 +268,6 @@ SSIZE_T LoadDriverExt2(PARTTABLEITEM* part, const char* name, BYTE** binary)
 BOOTFS ext2Fs = {
 		.Initialize=InitializeExt2,
 		.LoadKernel = LoadKernelExt2,
-		.LoadDriver=LoadDriverExt2
+		.LoadModule=LoadDriverExt2
 };
 

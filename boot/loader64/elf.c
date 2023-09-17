@@ -23,8 +23,10 @@
 #include "ext.h"
 #include "elf.h"
 #include "error.h"
+#include "defs.h"
+#include "terminal.h"
 
-static inline ERRORCODE ALWAYS_INLINE CheckElfCommon(ELFHEADER64* header)
+static inline ERRORCODE ALWAYS_INLINE CheckElfCommon(const ELFHEADER64* header)
 {
 	if (header->Magic != ELF_MAGIC)
 	{
@@ -49,7 +51,7 @@ SSIZE_T LoadKernelElf(BYTE* binary, UINT_PTR* entry)
 {
 	ELFHEADER64* header = (ELFHEADER64*)binary;
 
-	SSIZE_T ret = CheckElfCommon(header);
+	ERRORCODE ret = CheckElfCommon(header);
 	if (ret < 0)
 	{
 		return ret;
@@ -61,8 +63,15 @@ SSIZE_T LoadKernelElf(BYTE* binary, UINT_PTR* entry)
 	}
 
 	ELFPROGRAMHEADER64* ph = (ELFPROGRAMHEADER64*)(binary + header->ProgramHeaderOffset);
+	SSIZE_T size = 0;
 	for (QWORD i = 0; i < header->ProgramHeaderCount; i++)
 	{
+		SIZE_T loadSize = ph[i].VirtualAddress + ph[i].MemorySize;
+		if (ph[i].VirtualAddress > KERNEL_LINK_ADDR)
+		{
+			loadSize -= KERNEL_LINK_ADDR;
+		}
+		size = MAX(size, (SSIZE_T)loadSize);
 		if (ph[i].Type == ELFPROG_LOAD)
 		{
 			__builtin_memcpy((BYTE*)ph[i].VirtualAddress, binary + ph[i].Offset, ph[i].FileSize);
@@ -71,7 +80,7 @@ SSIZE_T LoadKernelElf(BYTE* binary, UINT_PTR* entry)
 	}
 
 	*entry = header->Entry;
-	return E_SUCCESS;
+	return size;
 }
 
 SSIZE_T LoadModuleElf(BYTE* binary, UINT_PTR base)

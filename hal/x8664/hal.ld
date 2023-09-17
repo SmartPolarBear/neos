@@ -4,8 +4,8 @@ ENTRY(HalEntry)
 
 SECTIONS
 {
-	/* Link the kernel at this address: "." means the current address */
-    /* Must be equal to KERNLINK */
+	/* Link the HAL at this address: "." means the current address */
+    /* Must be equal to HALLINK */
 	. = 0xffffffff8A000000;
 
 	.text : AT(0xA000000) {

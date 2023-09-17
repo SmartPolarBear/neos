@@ -38,6 +38,7 @@ CopyToExt2() {
 }
 
 # neldr: OS boot manager
+NELDR=$PREFIX/boot/loader64/neldrbin
 CopyToExt2 $NELDR neldr "Copy neldr to neldr2 on ext2 partition"
 
 # kernel

@@ -29,8 +29,8 @@ target_compile_options(halx8664 BEFORE
 target_link_options(halx8664 BEFORE
         PRIVATE -Wl,-N
         PRIVATE -Wl,-z nodefaultlib
-        PRIVATE -Wl,-q
-#        PRIVATE -Wl,-r
+#        PRIVATE -Wl,-q
+        PRIVATE -Wl,-r
         PRIVATE -fno-pie
         PRIVATE -static
         PRIVATE -nostdlib

@@ -33,28 +33,47 @@ void InitializeBootFs(PARTTABLEITEM* ap)
 UINT_PTR LoadKernel()
 {
 	BYTE* binary = NULL;
-	SSIZE_T size = fs->LoadKernel(activePartition, &binary);
-	if (size < 0)
+
+	// Load kernel binary
+	SSIZE_T fileSize = fs->LoadKernel(activePartition, &binary);
+	if (fileSize < 0)
 	{
 		Panic("Cannot load kernel.");
 	}
 	UINT_PTR kernEntryPoint = 0;
-	SSIZE_T ret = LoadKernelElf(binary, &kernEntryPoint);
-	if (ret < 0)
+	SSIZE_T loadSize = LoadKernelElf(binary, &kernEntryPoint);
+	if (loadSize < 0)
 	{
 		Panic("Invalid kernel format.");
 	}
-	loadMemory += ret;
+	loadMemory += loadSize;
 	loadMemory = (BYTE*)PGROUNDUP((UINT_PTR)loadMemory);
 
-	TerminalPrintf("Loaded neosknl kernel (%d bytes).\n", size);
+	TerminalPrintf("Loaded kernel " KERNEL_PATH " (%d bytes in file, %d bytes in mem).\n", fileSize, loadSize);
+
+	// Load HAL
+	fileSize = fs->LoadModule(activePartition, HAL_PATH, &binary);
+	if (fileSize < 0)
+	{
+		Panic("Cannot load the HAL.");
+	}
+	loadSize = LoadModuleElf(binary, (UINT_PTR)loadMemory);
+	if (loadSize < 0)
+	{
+		Panic("Invalid HAL format.");
+	}
+	loadMemory += loadSize;
+	loadMemory = (BYTE*)PGROUNDUP((UINT_PTR)loadMemory);
+
+	TerminalPrintf("Loaded HAL " HAL_PATH " (%d bytes, %d bytes in mem).\n", fileSize, loadSize);
+
 	return kernEntryPoint;
 }
 
 void LoadDriver(const char* name)
 {
 	BYTE* binary = NULL;
-	SSIZE_T size = fs->LoadDriver(activePartition, name, &binary);
+	SSIZE_T size = fs->LoadModule(activePartition, name, &binary);
 	if (size < 0)
 	{
 		Panic("Cannot load device driver.");

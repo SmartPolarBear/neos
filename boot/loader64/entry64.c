@@ -8,9 +8,14 @@
 #include "mem.h"
 #include "acpi.h"
 #include "terminal.h"
+#include "param.h"
 
 #include "boot/fs.h"
 
+void MakeKernelBootParams()
+{
+	// make kernel boot parameters and save it to register rdi as the first parameter.
+}
 
 // NELDR do following things:
 // 0) Initialize memory stuffs
@@ -48,11 +53,14 @@ UINT_PTR LoaderMain64(UINT_PTR bufferTop, UINT_PTR activePartAddr)
 	// Memory post-initialization
 	PostInitializeMemory();
 
+	// Make kernel boot parameters
+	MakeKernelBootParams();
+
 	// kernel entry point will be saved to register rax, where head64.S will jmp to.
 	return kernEntry;
 }
 
-void NO_RETURN FailToGotoKernel()
+void NO_RETURN FailToGotoKernel() // will be called by head64.S if kernel loading failed.
 {
 	Panic("Cannot jump to kernel.");
 }

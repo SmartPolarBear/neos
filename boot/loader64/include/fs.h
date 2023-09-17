@@ -10,6 +10,7 @@
 extern PARTTABLEITEM* activePartition;
 
 #define KERNEL_PATH "neos/neosknl"
+#define HAL_PATH "neos/hal.sys"
 
 typedef struct
 {
@@ -17,7 +18,7 @@ typedef struct
 
 	SSIZE_T (* LoadKernel)(PARTTABLEITEM* part, BYTE** binary);
 
-	SSIZE_T (* LoadDriver)(PARTTABLEITEM* part, const char*, BYTE** binary);
+	SSIZE_T (* LoadModule)(PARTTABLEITEM* part, const char*, BYTE** binary);
 } BOOTFS;
 
 void InitializeBootFs(PARTTABLEITEM* ap);
