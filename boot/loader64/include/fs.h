@@ -23,6 +23,6 @@ typedef struct
 
 void InitializeBootFs(PARTTABLEITEM* ap);
 
-UINT_PTR LoadKernel();
+SSIZE_T BootFsLoadKernel(OUT VOID* buf);
 
-void LoadDriver(const char* name);
+SSIZE_T BootFsLoadModule(const char* name, OUT VOID* buf);

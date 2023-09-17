@@ -28,7 +28,7 @@ Entry:
     MOV SI, WELCOME
 
     WECL:
-        LODSB            ; Load the next byte of the string into AL
+        LODSB            ; NeosExecutive the next byte of the string into AL
         TEST AL, AL      ; Check if AL (the current character) is null (end of string)
         JZ NEXT_WECL     ; If it's null, exit the loop
         MOV AH, 0x0E     ; Teletype output
@@ -36,14 +36,14 @@ Entry:
         JMP WECL         ; Repeat the loop for the next character
 
     NEXT_WECL:
-        ; Load stage 2 bootloader to memory address 0x1000
+        ; NeosExecutive stage 2 bootloader to memory address 0x1000
         MOV AH, 0x02     ; Read disk sectors
         MOV AL, 0x10     ; Read 16 sectors (8K)
         MOV CH, 0x00     ; Cylinder 0
         MOV CL, 0x02     ; Sector 2
         MOV DH, 0x00     ; Head 0
         MOV DL, 0x80     ; Drive 0
-        MOV BX, 0x1000   ; Load to memory address
+        MOV BX, 0x1000   ; NeosExecutive to memory address
         INT 0x13         ; Call BIOS interrupt
 
         ; Jump to stage 2 bootloader (0x1000)

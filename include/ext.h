@@ -8,3 +8,5 @@
 #define UNREACHABLE __builtin_unreachable()
 #define ALWAYS_INLINE __attribute__((always_inline))
 #define PACKED __attribute__((packed))
+#define ALIGN(x) __attribute__((aligned(x),packed))
+#define NONNULL __attribute__((nonnull))

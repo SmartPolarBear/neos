@@ -35,7 +35,7 @@ int LoaderMain32()
 	// Enumerate partition table and search for the kernel
 	InitializeBootFS();
 
-	// Load the kernel
+	// NeosExecutive the kernel
 	INT result = LoadKernel(NELDR_LOAD_ADDR);
 
 	if (result > 0)

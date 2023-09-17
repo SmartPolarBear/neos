@@ -9,12 +9,23 @@
 #include "acpi.h"
 #include "terminal.h"
 #include "param.h"
+#include "loader.h"
 
 #include "boot/fs.h"
 
+BOOTPARAMBUF gBootParamBuf;
+_Static_assert(((VOID*)&gBootParamBuf.BootParamBuf) == ((VOID*)&gBootParamBuf.BootParam),
+		"BootParamBuf and BootParam are not at the same address.");
+
 void MakeKernelBootParams()
 {
-	// make kernel boot parameters and save it to register rdi as the first parameter.
+	// Save it to register rdi as the first parameter.
+	__asm__ volatile (
+			"movq %0, %%rdi\n\t"
+			:
+			: "r"(&gBootParam)
+			: "rdi"
+			);
 }
 
 // NELDR do following things:
@@ -39,13 +50,13 @@ UINT_PTR LoaderMain64(UINT_PTR bufferTop, UINT_PTR activePartAddr)
 	// ACPI
 	InitializeAcpi();
 
-	// Load kernel
+	// NeosExecutive kernel
 	UINT_PTR kernEntry = LoadKernel();
 
 	// Place memory pages
 	InitializeMemoryPages();
 
-	// Load drivers based on ACPI information
+	// NeosExecutive drivers based on ACPI information
 	AcpiLoadDriverForDevices();
 	// Initialize other processors, but not start them, leaving works to kernel.
 	AcpiInitializeProcessors();

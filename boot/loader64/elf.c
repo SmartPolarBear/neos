@@ -87,3 +87,8 @@ SSIZE_T LoadModuleElf(BYTE* binary, UINT_PTR base)
 {
 	return 0;
 }
+
+UINT_PTR LocateSymbolElf(BYTE* binary, const char* name)
+{
+	return 0;
+}

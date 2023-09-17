@@ -10,3 +10,5 @@
 SSIZE_T LoadKernelElf(BYTE* binary, UINT_PTR* entry);
 
 SSIZE_T LoadModuleElf(BYTE* binary, UINT_PTR base);
+
+UINT_PTR LocateSymbolElf(BYTE* binary, const char* name);

@@ -12,6 +12,9 @@
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #endif
 
+#define IN
+#define OUT
+
 #define MMAP_ADDR 0x8000
 #define VGA_FONT_ADDR 0x6000
 #define VESA_MODEINFO_ADDR 0x9000
@@ -21,6 +24,10 @@
 
 // 16MB, to give all low memory to the stupid DMA devices.
 #define KERNEL_LOAD_ADDR 0x1000000
+
+// just to avoid they are accidentally load to the same address.
 #define KERNEL_LINK_ADDR 0xffffffff81000000
 #define HAL_LINK_ADDR 0xffffffff8a000000
+#define DRIVER_LINK_ADDR 0xffffffff8a000000
+
 

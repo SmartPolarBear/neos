@@ -13,6 +13,7 @@ add_executable(neldr
         pci.c
         acpi.c
         elf.c
+        loader.c
         $<TARGET_OBJECTS:LAI>
 )
 
