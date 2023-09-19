@@ -56,6 +56,8 @@ void Itoa(int num, char* buffer, int base)
 }
 
 
+
+
 INT MemCmp(const void* ptr1, const void* ptr2, DWORD size)
 {
 	const BYTE* p1 = (const BYTE*)ptr1;

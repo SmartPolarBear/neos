@@ -111,4 +111,105 @@ typedef struct
 } PACKED ELFSECTIONHEADER64;
 _Static_assert(sizeof(ELFSECTIONHEADER64) == 64, "ELFSECTIONHEADER64 size mismatch");
 
+typedef enum
+{
+	SHT_NULL = 0,
+	SHT_PROGBITS = 1,
+	SHT_SYMTAB = 2,
+	SHT_STRTAB = 3,
+	SHT_RELA = 4,
+	SHT_HASH = 5,
+	SHT_DYNAMIC = 6,
+	SHT_NOTE = 7,
+	SHT_NOBITS = 8,
+	SHT_REL = 9,
+	SHT_SHLIB = 10,
+	SHT_DYNSYM = 11,
+	SHT_LOPROC = 0x70000000,
+	SHT_HIPROC = 0x7fffffff,
+	SHT_LOUSER = 0x80000000,
+	SHT_HIUSER = 0xffffffff,
+} ELFSHTYPE;
+
+typedef enum
+{
+	SHF_WRITE = 1,
+	SHF_ALLOC = 2,
+	SHF_EXECINSTR = 4,
+	SHF_MERGE = 0x10,
+	SHF_STRINGS = 0x20,
+	SHF_INFO_LINK = 0x40,
+	SHF_LINK_ORDER = 0x80,
+	SHF_OS_NONCONFORMING = 0x100,
+	SHF_GROUP = 0x200,
+	SHF_TLS = 0x400,
+	SHF_MASKOS = 0x0ff00000,
+	SHF_MASKPROC = 0xf0000000,
+} ELFSHFLAGS;
+
+typedef enum
+{
+	SHN_UNDEF = 0,
+	SHN_LOPROC = 0xff00,
+	SHN_HIOPROC = 0xff1f,
+	SHN_LOOS = 0xff20,
+	SHN_HIOS = 0xff3f,
+	SHN_ABS = 0xfff1,
+	SHN_COMMON = 0xfff2,
+} ELFSHINDEX;
+
+
+typedef struct
+{
+	QWORD Offset;
+	QWORD Info;
+}PACKED ELFREL64;
+
+typedef struct
+{
+	QWORD Offset;
+	QWORD Info;
+	LONGLONG Addend;
+}PACKED ELFRELA64;
+
+typedef struct
+{
+	DWORD Name;
+	BYTE Info;
+	BYTE Other;
+	WORD SectionIndex;
+	QWORD Value;
+	QWORD Size;
+}PACKED ELFSYMBOL64;
+
+
+
+typedef enum
+{
+	R_X86_64_NONE = 0,
+	R_X86_64_64 = 1,
+	R_X86_64_PC32 = 2,
+	R_X86_64_GOT32 = 3,
+	R_X86_64_PLT32 = 4,
+	R_X86_64_COPY = 5,
+	R_X86_64_GLOB_DAT = 6,
+	R_X86_64_JUMP_SLOT = 7,
+	R_X86_64_RELATIVE = 8,
+	R_X86_64_GOTPCREL = 9,
+	R_X86_64_32 = 10,
+	R_X86_64_32S = 11,
+	R_X86_64_16 = 12,
+	R_X86_64_PC16 = 13,
+	R_X86_64_8 = 14,
+	R_X86_64_PC8 = 15,
+	R_X86_64_PC64 = 24,
+	R_X86_64_GOTOFF64 = 25,
+	R_X86_64_GOTPC32 = 26,
+	R_X86_64_SIZE32 = 32,
+	R_X86_64_SIZE64 = 33,
+} ELFRELTYPE64;
+
+#define ELF64_R_SYM(i)((i) >> 32)
+#define ELF64_R_TYPE(i)((i) & 0xffffffffL)
+#define ELF64_R_INFO(s, t)(((s) << 32) + ((t) & 0xffffffffL))
 

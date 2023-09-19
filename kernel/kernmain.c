@@ -6,6 +6,7 @@
 
 #include "boot/param.h"
 
+
 void NO_RETURN KernelMain(
 		BOOTPARAM* bootParam
 )

@@ -19,6 +19,8 @@ typedef int INT;
 typedef unsigned int UINT;
 typedef long LONG;
 typedef unsigned long ULONG;
+typedef long long LONGLONG;
+typedef unsigned long long ULONGLONG;
 
 typedef unsigned long long UINT_PTR;
 

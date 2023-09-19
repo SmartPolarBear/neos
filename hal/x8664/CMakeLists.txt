@@ -29,8 +29,8 @@ target_compile_options(halx8664 BEFORE
 target_link_options(halx8664 BEFORE
         PRIVATE -Wl,-N
         PRIVATE -Wl,-z nodefaultlib
-#        PRIVATE -Wl,-q
-        PRIVATE -Wl,-r
+        PRIVATE -Wl,-q
+#        PRIVATE -Wl,-r
         PRIVATE -fno-pie
         PRIVATE -static
         PRIVATE -nostdlib
@@ -39,6 +39,7 @@ target_link_options(halx8664 BEFORE
 
 add_custom_command(TARGET halx8664 POST_BUILD
         COMMAND objdump -S $<TARGET_FILE:halx8664> > ${CMAKE_CURRENT_BINARY_DIR}/halx8664.asm
-        BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/halx8664.asm
+        COMMAND readelf -a $<TARGET_FILE:halx8664> > ${CMAKE_CURRENT_BINARY_DIR}/halx8664.txt
+        BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/halx8664.asm ${CMAKE_CURRENT_BINARY_DIR}/halx8664.txt
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )

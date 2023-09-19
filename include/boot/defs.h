@@ -25,9 +25,10 @@
 // 16MB, to give all low memory to the stupid DMA devices.
 #define KERNEL_LOAD_ADDR 0x1000000
 
-// just to avoid they are accidentally load to the same address.
 #define KERNEL_LINK_ADDR 0xffffffff81000000
-#define HAL_LINK_ADDR 0xffffffff8a000000
-#define DRIVER_LINK_ADDR 0xffffffff8a000000
+#define MODULE_LINK_ADDR 0xffffffff8a000000
+// just to avoid they are accidentally load to the same address as kernel itself.
+#define HAL_LINK_ADDR MODULE_LINK_ADDR
+#define DRIVER_LINK_ADDR MODULE_LINK_ADDR
 
 

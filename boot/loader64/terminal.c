@@ -93,14 +93,17 @@ void TerminalClear()
 {
 	VBEMODEINFO* modeInfo = (VBEMODEINFO*)VESA_MODEINFO_ADDR;
 	bootTerm.row = bootTerm.col = 0;
-	FillScreen(R(bootTerm.bgColor),G(bootTerm.bgColor),B(bootTerm.bgColor));
+	FillScreen(R(bootTerm.bgColor), G(bootTerm.bgColor), B(bootTerm.bgColor));
 }
+
+static char hex[] = "0123456789abcdef";
 
 void TerminalPrintf(char* format, ...)
 {
 	// Initialize the variable argument list using GCC's built-in macros
 	__builtin_va_list args;
 	__builtin_va_start(args, format);
+	char buffer[32];  // Adjust the size as needed for your environment
 
 	// Iterate through the format string
 	for (int i = 0; format[i] != '\0'; ++i)
@@ -114,7 +117,7 @@ void TerminalPrintf(char* format, ...)
 			{
 				// Handle %d (decimal integer)
 				int num = __builtin_va_arg(args, int);
-				char buffer[32];  // Adjust the size as needed for your environment
+				__builtin_memset(buffer, 0, 32);
 				Itoa(num, buffer, 10);
 				TerminalWriteString(buffer);
 			}
@@ -122,9 +125,17 @@ void TerminalPrintf(char* format, ...)
 			{
 				// Handle %x (hexadecimal integer)
 				int num = __builtin_va_arg(args, int);
-				char buffer[32];  // Adjust the size as needed for your environment
+				__builtin_memset(buffer, 0, 32);
 				Itoa(num, buffer, 16);
 				TerminalWriteString(buffer);
+			}
+			else if (format[i] == 'p')
+			{
+				UINT_PTR num = __builtin_va_arg(args, UINT_PTR);
+				for (int i = 0; i < (sizeof(UINT_PTR) << 1); i++, num <<= 4)
+				{
+					TerminalWriteCharacter(hex[(num >> ((sizeof(UINT_PTR) << 3) - 4)) & 0xf]);
+				}
 			}
 			else if (format[i] == 's')
 			{
