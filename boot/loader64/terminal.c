@@ -1,6 +1,7 @@
 //
 // Created by bear on 9/7/2023.
 //
+#include "param.h"
 #include "ext.h"
 #include "utils.h"
 #include "terminal.h"
@@ -47,6 +48,10 @@ void InitializeTerminal()
 
 	bootTerm.rowCount = modeInfo->height >> 4;
 	bootTerm.colCount = modeInfo->width >> 3;
+
+	gBootParam.BootService.TerminalService.TerminalClear = TerminalClear;
+	gBootParam.BootService.TerminalService.TerminalPrintf = TerminalPrintf;
+	gBootParam.BootService.TerminalService.TerminalWriteString = TerminalWriteString;
 }
 
 void TerminalSetColor(DWORD fgcolor, DWORD bgcolor)

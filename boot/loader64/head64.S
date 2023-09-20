@@ -132,7 +132,8 @@ entry64high:
     mov $0xdeadbeef, %rbx
     cmp %rbx, %rax
     je FailToGotoKernel
-    jmp *%rax // jmp to kernel entry point
+    lea gBootParamBuf, %rdi
+    call *%rax // jmp to kernel entry point
 
 Spin:
     hlt

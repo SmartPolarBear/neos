@@ -17,16 +17,17 @@ BOOTPARAMBUF gBootParamBuf;
 _Static_assert(((VOID*)&gBootParamBuf.BootParamBuf) == ((VOID*)&gBootParamBuf.BootParam),
 		"BootParamBuf and BootParam are not at the same address.");
 
+void ExitBootServices()
+{
+	TerminalWriteString("Exiting boot services...");
+}
+
+
 void MakeKernelBootParams()
 {
-	// Save it to register rdi as the first parameter.
-	__asm__ volatile (
-			"movq %0, %%rdi\n\t"
-			:
-			: "r"(&gBootParam)
-			: "rdi"
-			);
+	gBootParam.BootService.ExitBootServices = ExitBootServices;
 }
+
 
 // NELDR do following things:
 // 0) Initialize memory stuffs
@@ -67,7 +68,12 @@ UINT_PTR LoaderMain64(UINT_PTR bufferTop, UINT_PTR activePartAddr)
 	// Make kernel boot parameters
 	MakeKernelBootParams();
 
+	TerminalPrintf("Kernel entry will be %p\n", kernEntry);
+
+	TerminalPrintf("%p\n", &gBootParamBuf);
+
 	// kernel entry point will be saved to register rax, where head64.S will jmp to.
+	// head64.S will also save the address of boot parameters to register rdi.
 	return kernEntry;
 }
 

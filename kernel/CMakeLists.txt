@@ -1,11 +1,10 @@
 cmake_minimum_required(VERSION 3.20)
 
 add_executable(neosknl
-        kernhead.S
         kernmain.c
 )
 
-#set_property(SOURCE kernhead.S PROPERTY LANGUAGE C)
+set_property(SOURCE kernhead.S PROPERTY LANGUAGE C)
 
 target_include_directories(neosknl PRIVATE include)
 
@@ -15,7 +14,7 @@ target_compile_options(neosknl BEFORE
         PRIVATE -m64
         PRIVATE -MD
         PRIVATE  -fno-common
-        PRIVATE -mcmodel=large
+        PRIVATE -mcmodel=kernel
         PRIVATE -fno-omit-frame-pointer
         PRIVATE -mtls-direct-seg-refs
         PRIVATE -mno-red-zone
@@ -38,6 +37,7 @@ target_link_options(neosknl BEFORE
 
 add_custom_command(TARGET neosknl POST_BUILD
         COMMAND objdump -S $<TARGET_FILE:neosknl> > ${CMAKE_CURRENT_BINARY_DIR}/neosknl.asm
-        BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/neosknl.asm
+        COMMAND readelf -a $<TARGET_FILE:neosknl> > ${CMAKE_CURRENT_BINARY_DIR}/neosknl.dump
+        BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/neosknl.asm ${CMAKE_CURRENT_BINARY_DIR}/neosknl.dump
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )

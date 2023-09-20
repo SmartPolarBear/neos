@@ -44,6 +44,20 @@ typedef struct
 		QWORD Misc[8];
 	} BootVideo;
 
+	struct
+	{
+		struct
+		{
+			void (* TerminalPrintf)(char* format, ...);
+
+			void (* TerminalWriteString)(char* str);
+
+			void (* TerminalClear)(void);
+		} TerminalService;
+
+		void (* ExitBootServices)();
+	} BootService;
+
 	DRIVERLOAD DriverLoad[0];
 } ALIGN(8) BOOTPARAM;
 

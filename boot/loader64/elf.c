@@ -179,7 +179,11 @@ SSIZE_T LoadKernelElf(BYTE* binary, UINT_PTR* entry)
 		if (ph[i].Type == ELFPROG_LOAD)
 		{
 			__builtin_memcpy((BYTE*)ph[i].VirtualAddress, binary + ph[i].Offset, ph[i].FileSize);
-			__builtin_memset((BYTE*)ph[i].VirtualAddress + ph[i].FileSize, 0, ph[i].MemorySize - ph[i].FileSize);
+
+			if (ph[i].FileSize < ph[i].MemorySize)
+			{
+				__builtin_memset((BYTE*)ph[i].VirtualAddress + ph[i].FileSize, 0, ph[i].MemorySize - ph[i].FileSize);
+			}
 		}
 	}
 
