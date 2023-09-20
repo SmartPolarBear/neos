@@ -81,6 +81,7 @@ static void RelocateElf(BYTE* binary, UINT_PTR* bases)
 	ELFHEADER64* header = (ELFHEADER64*)binary;
 	ELFSECTIONHEADER64* sh = (ELFSECTIONHEADER64*)(binary + header->SectionHeaderOffset);
 
+	// process rela/rel sections
 	for (QWORD i = 0; i < header->SectionHeaderCount; i++)
 	{
 		if (sh[i].Type != SHT_RELA && sh[i].Type != SHT_REL)
@@ -97,6 +98,7 @@ static void RelocateElf(BYTE* binary, UINT_PTR* bases)
 		ELFSECTIONHEADER64* targetSec = &sh[sh[i].Info];
 		ELFSECTIONHEADER64* targetSecSymTbl = &sh[sh[i].Link];
 		BYTE* targetSecCode = (BYTE*)bases[sh[i].Info];
+		BYTE* targetSecBinary = binary + targetSec->Offset;
 		ELFSYMBOL64* symbol = (ELFSYMBOL64*)(binary + targetSecSymTbl->Offset);
 
 //		TerminalPrintf("Relocating for section %d\n", sh[i].Info);
@@ -106,7 +108,7 @@ static void RelocateElf(BYTE* binary, UINT_PTR* bases)
 			 p += sh[i].EntrySize)
 		{
 			ELFRELA64* rela = (ELFRELA64*)p;
-			const ELFSYMBOL64* sym = &symbol[ELF64_R_SYM(rela->Info)];
+			ELFSYMBOL64* sym = &symbol[ELF64_R_SYM(rela->Info)];
 			if (sym->SectionIndex == SHN_UNDEF)
 			{
 				// TODO: handle undefined symbol by looking up in kernel symbol table
@@ -119,12 +121,14 @@ static void RelocateElf(BYTE* binary, UINT_PTR* bases)
 			}
 
 			BYTE* target = targetSecCode + rela->Offset;
+			BYTE* targetInBinary = targetSecBinary + rela->Offset;
 
 			const QWORD A = sh[i].Type == SHT_RELA ? rela->Addend : 0;
 			// Spec says: for relocatable files, symbol value is the offset from the beginning of the section
 			const QWORD S = sym->Value - sh[sym->SectionIndex].Offset + bases[sym->SectionIndex];
 			const QWORD P = (QWORD)target;
 
+			// patch the targets
 			switch (ELF64_R_TYPE(rela->Info))
 			{
 			case R_X86_64_NONE:
@@ -132,24 +136,76 @@ static void RelocateElf(BYTE* binary, UINT_PTR* bases)
 				break;
 			case R_X86_64_64:
 				*(QWORD*)target = (QWORD)(A + S);
+				*(QWORD*)targetInBinary = (QWORD)(A + S);
 				break;
 			case R_X86_64_PC64:
 				*(QWORD*)target = (QWORD)(A + S - P);
+				*(QWORD*)targetInBinary = (QWORD)(A + S - P);
 				break;
 			case R_X86_64_PC32:
 				*(DWORD*)target = (DWORD)(A + S - P);
+				*(DWORD*)targetInBinary = (DWORD)(A + S - P);
 				break;
 			case R_X86_64_32:
 				*(DWORD*)target = (DWORD)(A + S);
+				*(DWORD*)targetInBinary = (DWORD)(A + S);
 				break;
 			case R_X86_64_32S:
 				*(INT*)target = (INT)(A + S);
+				*(INT*)targetInBinary = (INT)(A + S);
 				break;
 			default:
 				TerminalPrintf("Unknown relocation type %d\n", ELF64_R_TYPE(rela->Info));
 				Panic("Unable to load module.");
 				break;
 			}
+		}
+	}
+
+	// process symbol tables
+	for (QWORD i = 0; i < header->SectionHeaderCount; i++)
+	{
+		if (sh[i].Type != SHT_SYMTAB)
+		{
+			continue;
+		}
+
+		ELFSYMBOL64* symbol = (ELFSYMBOL64*)(binary + sh[i].Offset);
+
+		for (QWORD j = 0; j < sh[i].Size / sh[i].EntrySize; j++)
+		{
+			if (symbol[j].SectionIndex == SHN_UNDEF)
+			{
+				continue;
+			}
+
+			if (ELF64_ST_BIND(symbol[j].Info) != STB_GLOBAL)
+			{
+				continue;
+			}
+
+			if (!bases[symbol[j].SectionIndex])
+			{
+				Panic("Unexpected symbol section index from unloaded section.");
+			}
+
+			symbol[j].Value = symbol[j].Value - sh[symbol[j].SectionIndex].Offset + bases[symbol[j].SectionIndex];
+		}
+	}
+
+	// process the entry point
+	// find the section that contains the entry point, then calculate the new entry point
+	for (QWORD i = 0; i < header->SectionHeaderCount; i++)
+	{
+		if (sh[i].Type != SHT_PROGBITS)
+		{
+			continue;
+		}
+
+		if (sh[i].VirtualAddress <= header->Entry && header->Entry < sh[i].VirtualAddress + sh[i].Size)
+		{
+			header->Entry = header->Entry - sh[i].VirtualAddress + bases[i];
+			break;
 		}
 	}
 }

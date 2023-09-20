@@ -7,6 +7,7 @@
 #include "terminal.h"
 #include "draw.h"
 #include "defs.h"
+#include "x86.h"
 
 struct
 {
@@ -25,6 +26,10 @@ inline void ALWAYS_INLINE IncreaseCursor()
 		if (bootTerm.row >= bootTerm.rowCount)
 		{
 			bootTerm.row = 0;
+			// just clear the screen.
+			// we output everything to serial, so it records everything.
+			// and we thus do not need something like scrolling
+			TerminalClear();
 		}
 	}
 }
@@ -62,9 +67,14 @@ void TerminalSetColor(DWORD fgcolor, DWORD bgcolor)
 
 void TerminalWriteCharacter(char c)
 {
+	// in qemu, this fucking cheesy way outputs bytes to serial even without any setups.
+	outb(0x3f8, c);
+
 	// check if c is displayable
 	if (c == '\n')
 	{
+		outb(0x3f8, '\r'); // make serial output look better
+
 		bootTerm.col = 0;
 		bootTerm.row++;
 		if (bootTerm.row >= bootTerm.rowCount)
@@ -74,9 +84,11 @@ void TerminalWriteCharacter(char c)
 		return;
 	}
 
+	// print to screen
 	int x = 0, y = 0;
 	CursorToXY(&x, &y);
 	DrawCharacterBackDrop(c, x, y, bootTerm.fgColor, bootTerm.bgColor);
+
 	IncreaseCursor();
 }
 
