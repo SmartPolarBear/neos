@@ -74,6 +74,22 @@ INT MemCmp(const void* ptr1, const void* ptr2, DWORD size)
 	return 0;
 }
 
+INT StrCmp(const char* str1, const char* str2)
+{
+	while (*str1 != '\0' && *str2 != '\0')
+	{
+		if (*str1 != *str2)
+		{
+			return *str1 - *str2;
+		}
+
+		str1++;
+		str2++;
+	}
+
+	return *str1 - *str2;
+}
+
 void NO_RETURN Panic(char* msg)
 {
 	TerminalSetColor(RED, BLACK);

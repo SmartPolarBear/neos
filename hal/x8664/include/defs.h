@@ -5,3 +5,5 @@
 #pragma once
 
 #include "boot/defs.h"
+#include "boot/param.h"
+extern BOOTPARAM *gBootParam;

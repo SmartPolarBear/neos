@@ -55,18 +55,29 @@ UINT_PTR LoadKernel()
 		Panic("Cannot load the HAL.");
 	}
 	BYTE* halLoadAddress = GetLoadAddr();
-	loadSize = LoadModuleElf(binary, (UINT_PTR)halLoadAddress);
+	UINT_PTR halEntryPoint = 0;
+	loadSize = LoadModuleElf(binary, (UINT_PTR)halLoadAddress, &halEntryPoint);
 	if (loadSize < 0)
 	{
 		Panic("Invalid HAL format.");
 	}
+	ELFSYMBOL64* halOpsSymbol = LocateSymbolElf(binary, "HalOps", STB_GLOBAL, STT_OBJECT);
+	if (!halOpsSymbol)
+	{
+		Panic("Invalid HAL format: HalOps is missing.");
+	}
 	gBootParam.NeosExecutive.HalLoadAddr = (UINT_PTR)halLoadAddress;
-	gBootParam.NeosExecutive.HalOpAddr = LocateSymbolElf(binary, "HalOps");
+	gBootParam.NeosExecutive.HalOpAddr = halOpsSymbol->Value;
+	gBootParam.NeosExecutive.HalEntryAddr = halEntryPoint;
 	gBootParam.NeosExecutive.HalMemSize = loadSize;
 	gBootParam.NeosExecutive.HalFileSize = fileSize;
 	AllocateLoadMemory(loadSize);
 
-	TerminalPrintf("Loaded HAL " HAL_PATH " (%d bytes, %d bytes in mem).\n", fileSize, loadSize);
+	TerminalPrintf("Loaded HAL " HAL_PATH " (%d bytes, %d bytes in mem). HALOPS is at %p. Hal entry point is at %p.\n",
+			fileSize, loadSize,
+			halOpsSymbol->Value,
+			halEntryPoint);
+
 
 	return kernEntryPoint;
 }
@@ -84,7 +95,8 @@ void LoadDriver(const char* name)
 	{
 		Panic("Cannot load device driver.");
 	}
-	SSIZE_T ret = LoadModuleElf(binary, (UINT_PTR)loadMemory);
+	UINT_PTR driverEntryPoint = 0;
+	SSIZE_T ret = LoadModuleElf(binary, (UINT_PTR)loadMemory, &driverEntryPoint);
 	if (ret < 0)
 	{
 		Panic("Invalid driver executable format.");

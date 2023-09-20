@@ -93,10 +93,13 @@ static void RelocateElf(BYTE* binary, UINT_PTR* bases)
 			continue;
 		}
 
-		ELFSYMBOL64* symbol = (ELFSYMBOL64*)(binary + sh[i].Link);
-		ELFSECTIONHEADER64* targetSec = &sh[sh[i].Info];
-		BYTE* targetSecCode = (BYTE*)bases[sh[i].Info];
 
+		ELFSECTIONHEADER64* targetSec = &sh[sh[i].Info];
+		ELFSECTIONHEADER64* targetSecSymTbl = &sh[sh[i].Link];
+		BYTE* targetSecCode = (BYTE*)bases[sh[i].Info];
+		ELFSYMBOL64* symbol = (ELFSYMBOL64*)(binary + targetSecSymTbl->Offset);
+
+//		TerminalPrintf("Relocating for section %d\n", sh[i].Info);
 
 		for (BYTE* p = binary + sh[i].Offset;
 			 p < binary + sh[i].Offset + sh[i].Size;
@@ -151,7 +154,7 @@ static void RelocateElf(BYTE* binary, UINT_PTR* bases)
 	}
 }
 
-SSIZE_T LoadKernelElf(BYTE* binary, UINT_PTR* entry)
+SSIZE_T LoadKernelElf(BYTE* binary, OUT UINT_PTR* entry)
 {
 	ELFHEADER64* header = (ELFHEADER64*)binary;
 
@@ -178,11 +181,11 @@ SSIZE_T LoadKernelElf(BYTE* binary, UINT_PTR* entry)
 		size = MAX(size, (SSIZE_T)loadSize);
 		if (ph[i].Type == ELFPROG_LOAD)
 		{
-			__builtin_memcpy((BYTE*)ph[i].VirtualAddress, binary + ph[i].Offset, ph[i].FileSize);
+			MemCpy((BYTE*)ph[i].VirtualAddress, binary + ph[i].Offset, ph[i].FileSize);
 
 			if (ph[i].FileSize < ph[i].MemorySize)
 			{
-				__builtin_memset((BYTE*)ph[i].VirtualAddress + ph[i].FileSize, 0, ph[i].MemorySize - ph[i].FileSize);
+				MemSet((BYTE*)ph[i].VirtualAddress + ph[i].FileSize, 0, ph[i].MemorySize - ph[i].FileSize);
 			}
 		}
 	}
@@ -191,11 +194,11 @@ SSIZE_T LoadKernelElf(BYTE* binary, UINT_PTR* entry)
 	return size;
 }
 
-SSIZE_T LoadModuleElf(BYTE* binary, UINT_PTR base)
+SSIZE_T LoadModuleElf(BYTE* binary, UINT_PTR base, OUT UINT_PTR* entry)
 {
 	ELFHEADER64* header = (ELFHEADER64*)binary;
 	UINT_PTR bases[header->SectionHeaderCount];
-	__builtin_memset(bases, 0, sizeof(bases));
+	MemSet(bases, 0, sizeof(bases));
 
 	ERRORCODE ret = CheckElfCommon(header);
 	if (ret < 0)
@@ -230,11 +233,11 @@ SSIZE_T LoadModuleElf(BYTE* binary, UINT_PTR base)
 
 		if (sh[i].Type == SHT_NOBITS)
 		{
-			__builtin_memset(loadMemory, 0, sh[i].Size);
+			MemSet(loadMemory, 0, sh[i].Size);
 		}
 		else if (sh[i].Type == SHT_PROGBITS)
 		{
-			__builtin_memcpy(loadMemory, binary + sh[i].Offset, sh[i].Size);
+			MemCpy(loadMemory, binary + sh[i].Offset, sh[i].Size);
 		}
 
 		bases[i] = (UINT_PTR)loadMemory;
@@ -243,10 +246,52 @@ SSIZE_T LoadModuleElf(BYTE* binary, UINT_PTR base)
 	}
 
 	RelocateElf(binary, bases);
+
+	*entry = header->Entry;
 	return size;
 }
 
-UINT_PTR LocateSymbolElf(BYTE* binary, const char* name)
+ELFSYMBOL64* LocateSymbolElf(BYTE* binary, const char* name, ELFSYMBOLBINDING bind, ELFSYMBOLTYPE type)
 {
-	return 0;
+	ELFHEADER64* header = (ELFHEADER64*)binary;
+	ELFSECTIONHEADER64* sh = (ELFSECTIONHEADER64*)(binary + header->SectionHeaderOffset);
+
+	for (QWORD i = 0; i < header->SectionHeaderCount; i++)
+	{
+		if (sh[i].Type != SHT_SYMTAB)
+		{
+			continue;
+		}
+
+		ELFSECTIONHEADER64* strtab = &sh[sh[i].Link];
+		BYTE* strtabData = binary + strtab->Offset;
+
+		ELFSYMBOL64* symbol = (ELFSYMBOL64*)(binary + sh[i].Offset);
+		for (QWORD j = 0; j < sh[i].Size / sh[i].EntrySize; j++)
+		{
+			if (symbol[j].Name == 0)
+			{
+				continue;
+			}
+
+			const char* symbolName = (const char*)(strtabData + symbol[j].Name);
+
+			if (ELF64_ST_BIND(symbol[j].Info) != bind)
+			{
+				continue;
+			}
+
+			if (ELF64_ST_TYPE(symbol[j].Info) != type)
+			{
+				continue;
+			}
+
+			if (StrCmp(name, symbolName) == 0)
+			{
+				return &symbol[j];
+			}
+		}
+	}
+
+	return NULL;
 }

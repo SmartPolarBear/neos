@@ -68,10 +68,6 @@ UINT_PTR LoaderMain64(UINT_PTR bufferTop, UINT_PTR activePartAddr)
 	// Make kernel boot parameters
 	MakeKernelBootParams();
 
-	TerminalPrintf("Kernel entry will be %p\n", kernEntry);
-
-	TerminalPrintf("%p\n", &gBootParamBuf);
-
 	// kernel entry point will be saved to register rax, where head64.S will jmp to.
 	// head64.S will also save the address of boot parameters to register rdi.
 	return kernEntry;

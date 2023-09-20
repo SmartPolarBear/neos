@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 3.20)
 
 add_executable(halx8664
         halmain.c
+        ops.c
 )
 
 target_include_directories(halx8664 PRIVATE include)

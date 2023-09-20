@@ -27,6 +27,7 @@ typedef struct
 		SIZE_T KernelMemSize;
 		UINT_PTR HalLoadAddr;
 		UINT_PTR HalOpAddr;
+		UINT_PTR HalEntryAddr;
 		SIZE_T HalFileSize;
 		SIZE_T HalMemSize;
 		SIZE_T DriverCount;

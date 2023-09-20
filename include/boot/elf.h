@@ -182,7 +182,31 @@ typedef struct
 	QWORD Size;
 }PACKED ELFSYMBOL64;
 
+typedef enum{
+	STB_LOCAL = 0,
+	STB_GLOBAL = 1,
+	STB_WEAK = 2,
+	STB_LOOS = 10,
+	STB_HIOS = 12,
+	STB_LOPROC = 13,
+	STB_HIPROC = 15,
+}ELFSYMBOLBINDING;
 
+typedef enum
+{
+	STT_NOTYPE = 0,
+	STT_OBJECT = 1,
+	STT_FUNC = 2,
+	STT_SECTION = 3,
+	STT_FILE = 4,
+	STT_LOOS = 10,
+	STT_HIOS = 12,
+	STT_LOPROC = 13,
+	STT_HIPROC = 15,
+}ELFSYMBOLTYPE;
+
+#define ELF64_ST_BIND(i)((i) >> 4)
+#define ELF64_ST_TYPE(i)((i) & 0xf)
 
 typedef enum
 {

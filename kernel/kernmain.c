@@ -15,11 +15,11 @@ void NO_RETURN KernelMain(
 {
 	gBootParam = bootParam;
 
+//	gBootParam->BootService.TerminalService.TerminalClear();
+
 	bootParam->BootService.TerminalService.TerminalPrintf("Hello, world!\n");
 
 	gBootParam->BootService.ExitBootServices();
-//	gBootParam->BootService.TerminalService.TerminalClear();
 
-//	gBootParam->BootService.ExitBootServices();
 	for (;;);
 }

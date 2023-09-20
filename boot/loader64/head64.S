@@ -132,8 +132,10 @@ entry64high:
     mov $0xdeadbeef, %rbx
     cmp %rbx, %rax
     je FailToGotoKernel
+
+    // boot parameter as the first parameter
     lea gBootParamBuf, %rdi
-    call *%rax // jmp to kernel entry point
+    jmp *%rax // **jmp** to kernel entry point. No return, no call!
 
 Spin:
     hlt
