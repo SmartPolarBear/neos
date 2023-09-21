@@ -27,6 +27,7 @@
 #include "defs.h"
 #include "mem.h"
 #include "terminal.h"
+#include "log.h"
 #include "utils.h"
 
 static inline ERRORCODE ALWAYS_INLINE CheckElfCommon(const ELFHEADER64* header)
@@ -125,7 +126,7 @@ static void ResolveExternalSymbolAgainstSource(BYTE* binary, BYTE* source)
 			symbol[j].Value = sourceSymbol->Value;
 			symbol[j].Info = sourceSymbol->Info;
 
-			TerminalPrintf("Resolved symbol %s to %p\n", symbolName, symbol[j].Value);
+			LogDebug("Resolved symbol %s to %p\n", symbolName, symbol[j].Value);
 		}
 	}
 }
@@ -155,7 +156,7 @@ static void PatchRelocatableElf(BYTE* binary, const UINT_PTR* bases)
 		BYTE* targetSecBinary = binary + targetSec->Offset;
 		ELFSYMBOL64* symbol = (ELFSYMBOL64*)(binary + targetSecSymTbl->Offset);
 
-//		TerminalPrintf("Relocating for section %d\n", sh[i].Info);
+//		LogDebug("Relocating for section %d\n", sh[i].Info);
 
 		for (BYTE* p = binary + sh[i].Offset;
 			 p < binary + sh[i].Offset + sh[i].Size;
@@ -163,9 +164,9 @@ static void PatchRelocatableElf(BYTE* binary, const UINT_PTR* bases)
 		{
 			ELFRELA64* rela = (ELFRELA64*)p;
 			ELFSYMBOL64* sym = &symbol[ELF64_R_SYM(rela->Info)];
-			if (sym->SectionIndex != SHN_UNDEF &&!bases[sym->SectionIndex])
+			if (sym->SectionIndex != SHN_UNDEF && !bases[sym->SectionIndex])
 			{
-				Panic("Unexpected symbol section index from unloaded section.");
+				Panic("Unexpected symbol section index %d from unloaded section.", sym->SectionIndex);
 			}
 
 
@@ -178,7 +179,7 @@ static void PatchRelocatableElf(BYTE* binary, const UINT_PTR* bases)
 
 			A += bases[sym->SectionIndex];
 
-			TerminalPrintf("Patch symbol %s, type %d, A %p, S %p, P %p\n",
+			LogDebug("Patch symbol %s, type %d, A %p, S %p, P %p\n",
 					binary + targetSecSymStrTbl->Offset + sym->Name, ELF64_R_TYPE(rela->Info), A, S, P);
 
 			// patch the targets
@@ -203,8 +204,7 @@ static void PatchRelocatableElf(BYTE* binary, const UINT_PTR* bases)
 				*(INT*)targetInBinary = (INT)(A + S);
 				break;
 			default:
-				TerminalPrintf("Unknown relocation type %d\n", ELF64_R_TYPE(rela->Info));
-				Panic("Unable to load module.");
+				Panic("Unable to load module: Unknown relocation type %d\n", ELF64_R_TYPE(rela->Info));
 				break;
 			}
 		}
@@ -234,7 +234,7 @@ static void PatchRelocatableElf(BYTE* binary, const UINT_PTR* bases)
 
 			if (!bases[symbol[j].SectionIndex])
 			{
-				Panic("Unexpected symbol section index from unloaded section.");
+				Panic("Unexpected symbol section index from unloaded section.", symbol[j].SectionIndex);
 			}
 
 			symbol[j].Value = symbol[j].Value + bases[symbol[j].SectionIndex];
@@ -286,7 +286,7 @@ SSIZE_T LoadKernelElf(BYTE* binary, OUT UINT_PTR* entry)
 		size = MAX(size, (SSIZE_T)loadSize);
 		if (ph[i].Type == ELFPROG_LOAD)
 		{
-//			TerminalPrintf(
+//			LogDebug(
 //					"Loading segment %d, type %d, offset %p, vaddr %p, paddr %p, filesz %p, memsz %p, align %p\n",
 //					i, ph[i].Type, ph[i].Offset, ph[i].VirtualAddress, ph[i].PhysicalAddress, ph[i].FileSize,
 //					ph[i].MemorySize, ph[i].Alignment);

@@ -5,6 +5,7 @@
 #include "acpi.h"
 #include "utils.h"
 #include "terminal.h"
+#include "log.h"
 
 #include "lai/core.h"
 
@@ -50,7 +51,7 @@ void InitializeAcpi(void)
 	// checksum verification
 	if (ACPIChecksum((BYTE*)gRSDP, gRSDP->Length) != 0)
 	{
-		Panic("ACPI RSDP is invalid.");
+		Panic("ACPI RSDP checksum is invalid.");
 	}
 
 	TerminalPrintf("ACPI(v%d) detected.\n", gRSDP->Revision);

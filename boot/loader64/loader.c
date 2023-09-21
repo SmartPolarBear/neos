@@ -9,6 +9,7 @@
 #include "elf.h"
 #include "mem.h"
 #include "param.h"
+#include "log.h"
 #include "terminal.h"
 
 BYTE* loadMemory = (BYTE*)KERNEL_LOAD_ADDR;

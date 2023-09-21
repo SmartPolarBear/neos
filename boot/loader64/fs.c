@@ -24,7 +24,7 @@ void InitializeBootFs(PARTTABLEITEM* ap)
 		fs = &ext2Fs;
 		break;
 	default:
-		Panic("Unknown file system");
+		Panic("Unknown file system %d\n", ap->SystemID);
 	}
 
 	fs->Initialize(ap);

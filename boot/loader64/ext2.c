@@ -6,6 +6,7 @@
 #include "ext2.h"
 #include "mem.h"
 #include "disk.h"
+#include "log.h"
 #include "terminal.h"
 #include "utils.h"
 #include "error.h"
@@ -25,7 +26,7 @@ DWORD BASE_LBA = 0;
 
 static inline void DebugDumpInode(EXT2INODE* node)
 {
-	TerminalPrintf("\nInode: 0x%x, %d, %d, %d, %d, %d\n",
+	LogDebug("\nInode: 0x%x, %d, %d, %d, %d, %d\n",
 			node->TypeAndPerms,
 			node->UserID, node->SizeLower, node->LastAccessTime,
 			node->CreationTime, node->LastModificationTime);
@@ -104,7 +105,7 @@ void InitializeExt2()
 
 	if (superBlock.Magic != EXT2_SB_MAGIC)
 	{
-		Panic("Invalid EXT2 superblock magic");
+		Panic("Invalid EXT2 superblock magic %d", superBlock.Magic);
 	}
 
 	BG_COUNT = (superBlock.BlockCount / superBlock.BlocksPerGroup) + 1;
@@ -133,7 +134,7 @@ void InitializeExt2()
 	EXT2INODE* rootInode = (EXT2INODE*)(inodeTableBuf + sizeof(EXT2INODE)); // skip inode 1 to get inode 2
 	if ((rootInode->TypeAndPerms & 0x4000) == 0)
 	{
-		Panic("Invalid root inode.");
+		Panic("Invalid root inode with %d.", rootInode->TypeAndPerms);
 	}
 
 	if (!(l1IndirectBuf = AllocateLowBytes(BLOCK_SIZE)))
@@ -173,11 +174,11 @@ static EXT2INODE* FindInode(const char* path)
 		{
 			p++;
 		}
-//		TerminalPrintf("Searching for %s %s\n", name, p);
+//		LogDebug("Searching for %s %s\n", name, p);
 		EXT2DIRENT* dirent = buf;
 		while (dirent->Inode != 0 && dirent->RecordLength != 0)
 		{
-//			TerminalPrintf("Ent %s %d %d\n", dirent->Name, dirent->NameLength, dirent->RecordLength);
+//			LogDebug("Ent %s %d %d\n", dirent->Name, dirent->NameLength, dirent->RecordLength);
 			if (dirent->NameLength == p - name && MemCmp(dirent->Name, name, p - name) == 0)
 			{
 				const DWORD blockGroup = (dirent->Inode - 1) / superBlock.InodesPerGroup;
@@ -191,7 +192,7 @@ static EXT2INODE* FindInode(const char* path)
 
 				if (dirent->FileType == EXT2DIRENT_TYPE_DIRECTORY)
 				{
-//					TerminalPrintf("Found directory %s, inode %d\n", dirent->Name, dirent->Inode);
+//					LogDebug("Found directory %s, inode %d\n", dirent->Name, dirent->Inode);
 //					DebugDumpInode(node);
 					ReadInode(node, (BYTE*)buf);
 				}
