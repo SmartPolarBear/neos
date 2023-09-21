@@ -8,4 +8,6 @@
 
 UINT_PTR LoadKernel();
 
+void LoadHal();
+
 void LoadDriver(const char* name);

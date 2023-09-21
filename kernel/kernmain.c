@@ -12,6 +12,8 @@
 
 BOOTPARAM* gBootParam = NULL;
 
+void FuckKernel(char* one);
+
 void NO_RETURN KernelMain(
 		BOOTPARAM* bootParam
 )
@@ -26,13 +28,20 @@ void NO_RETURN KernelMain(
 	halEntry(gBootParam); // Start the hardware abstraction layer
 
 	HALOPS* ops = (HALOPS*)bootParam->NeosExecutive.HalOpAddr;
-	bootParam->BootService.TerminalService.TerminalPrintf("HAL (%d.%d) build %d.\n",
+	bootParam->BootService.TerminalService.TerminalPrintf("HAL (Version %d.%d) build %d.\n",
 			ops->Version.Major, ops->Version.Minor, ops->Version.Build);
 
 	gBootParam->BootService.TerminalService.TerminalPrintf("Hal hello is at %p\n", ops->Hello);
 	ops->Hello();    // Test if HAL really works.
 
+	FuckKernel("kernel itself");
+
 	gBootParam->BootService.ExitBootServices();
 
 	for (;;);
+}
+
+void FuckKernel(char* one)
+{
+	gBootParam->BootService.TerminalService.TerminalPrintf("Kernel is fucked by %s!\n", one);
 }

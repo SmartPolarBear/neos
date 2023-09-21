@@ -5,6 +5,7 @@
 
 BOOTPARAM* gBootParam = NULL;
 
+extern void FuckKernel(char* one);
 
 void HalEntry(
 		BOOTPARAM* bootParam
@@ -15,4 +16,8 @@ void HalEntry(
 	HalOps.Version.Build = 100;
 
 	gBootParam = bootParam;
+
+	gBootParam->BootService.TerminalService.TerminalWriteString("HalEntry is called!\n");
+	gBootParam->BootService.TerminalService.TerminalPrintf("FuckKernel is resolved at %p\n", FuckKernel);
+	FuckKernel("the hal");
 }

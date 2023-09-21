@@ -13,7 +13,7 @@ target_compile_options(neosknl BEFORE
         PRIVATE -fno-pie
         PRIVATE -m64
         PRIVATE -MD
-        PRIVATE  -fno-common
+        PRIVATE -fno-common
         PRIVATE -mcmodel=kernel
         PRIVATE -fno-omit-frame-pointer
         PRIVATE -mtls-direct-seg-refs
@@ -37,7 +37,8 @@ target_link_options(neosknl BEFORE
 
 add_custom_command(TARGET neosknl POST_BUILD
         COMMAND objdump -S $<TARGET_FILE:neosknl> > ${CMAKE_CURRENT_BINARY_DIR}/neosknl.asm
-        COMMAND readelf -a $<TARGET_FILE:neosknl> > ${CMAKE_CURRENT_BINARY_DIR}/neosknl.dump
-        BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/neosknl.asm ${CMAKE_CURRENT_BINARY_DIR}/neosknl.dump
+        COMMAND objdump -s $<TARGET_FILE:neosknl> > ${CMAKE_CURRENT_BINARY_DIR}/neosknl.dump
+        COMMAND readelf -a $<TARGET_FILE:neosknl> > ${CMAKE_CURRENT_BINARY_DIR}/neosknl.txt
+        BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/neosknl.asm ${CMAKE_CURRENT_BINARY_DIR}/neosknl.dump ${CMAKE_CURRENT_BINARY_DIR}/neosknl.txt
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )

@@ -207,6 +207,7 @@ typedef enum
 
 #define ELF64_ST_BIND(i)((i) >> 4)
 #define ELF64_ST_TYPE(i)((i) & 0xf)
+#define ELF64_ST_INFO(b, t)(((b) << 4) + ((t) & 0xf))
 
 typedef enum
 {

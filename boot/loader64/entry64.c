@@ -51,8 +51,9 @@ UINT_PTR LoaderMain64(UINT_PTR bufferTop, UINT_PTR activePartAddr)
 	// ACPI
 	InitializeAcpi();
 
-	// NeosExecutive kernel
+	// NeosExecutive kernel and HAL
 	UINT_PTR kernEntry = LoadKernel();
+	LoadHal();
 
 	// Place memory pages
 	InitializeMemoryPages();

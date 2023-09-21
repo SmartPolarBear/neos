@@ -75,8 +75,62 @@ static inline BOOL ALWAYS_INLINE ShouldLoadModuleSection(const ELFSECTIONHEADER6
 	return TRUE;
 }
 
+static void ResolveExternalSymbolAgainstSource(BYTE* binary, BYTE* source)
+{
+	ELFHEADER64* header = (ELFHEADER64*)binary;
+	ELFSECTIONHEADER64* sh = (ELFSECTIONHEADER64*)(binary + header->SectionHeaderOffset);
 
-static void PatchRelocatableElf(BYTE* binary, UINT_PTR* bases)
+	// process symbol tables
+	for (QWORD i = 0; i < header->SectionHeaderCount; i++)
+	{
+		if (sh[i].Type != SHT_SYMTAB)
+		{
+			continue;
+		}
+
+		ELFSECTIONHEADER64* strtab = &sh[sh[i].Link];
+		BYTE* strtabData = binary + strtab->Offset;
+
+		ELFSYMBOL64* symbol = (ELFSYMBOL64*)(binary + sh[i].Offset);
+		for (QWORD j = 0; j < sh[i].Size / sh[i].EntrySize; j++)
+		{
+			if (symbol[j].Name == 0)
+			{
+				continue;
+			}
+
+			if (ELF64_ST_BIND(symbol[j].Info) != STB_GLOBAL)
+			{
+				continue;
+			}
+
+			if (symbol[j].SectionIndex != SHN_UNDEF)
+			{
+				continue;
+			}
+
+			const char* symbolName = (const char*)(strtabData + symbol[j].Name);
+
+			ELFSYMBOL64* sourceSymbol = LocateSymbolElf(source, symbolName, STB_GLOBAL,
+					STT_FUNC); // resolve function first
+			if (!sourceSymbol)
+			{
+				sourceSymbol = LocateSymbolElf(source, symbolName, STB_GLOBAL, STT_OBJECT); // resolve object then
+				if (!sourceSymbol)
+				{
+					continue;
+				}
+			}
+
+			symbol[j].Value = sourceSymbol->Value;
+			symbol[j].Info = sourceSymbol->Info;
+
+			TerminalPrintf("Resolved symbol %s to %p\n", symbolName, symbol[j].Value);
+		}
+	}
+}
+
+static void PatchRelocatableElf(BYTE* binary, const UINT_PTR* bases)
 {
 	ELFHEADER64* header = (ELFHEADER64*)binary;
 	ELFSECTIONHEADER64* sh = (ELFSECTIONHEADER64*)(binary + header->SectionHeaderOffset);
@@ -109,16 +163,11 @@ static void PatchRelocatableElf(BYTE* binary, UINT_PTR* bases)
 		{
 			ELFRELA64* rela = (ELFRELA64*)p;
 			ELFSYMBOL64* sym = &symbol[ELF64_R_SYM(rela->Info)];
-			if (sym->SectionIndex == SHN_UNDEF)
-			{
-				// TODO: handle undefined symbol by looking up in kernel symbol table
-				continue;
-			}
-
-			if (!bases[sym->SectionIndex])
+			if (sym->SectionIndex != SHN_UNDEF &&!bases[sym->SectionIndex])
 			{
 				Panic("Unexpected symbol section index from unloaded section.");
 			}
+
 
 			BYTE* targetInBinary = targetSecBinary + rela->Offset;
 
@@ -255,7 +304,7 @@ SSIZE_T LoadKernelElf(BYTE* binary, OUT UINT_PTR* entry)
 	return size;
 }
 
-SSIZE_T LoadModuleElf(BYTE* binary, UINT_PTR base, OUT UINT_PTR* entry)
+SSIZE_T LoadModuleElf(BYTE* binary, IN BYTE* kernBinary, IN BYTE* halBinary, UINT_PTR base, OUT UINT_PTR* entry)
 {
 	ELFHEADER64* header = (ELFHEADER64*)binary;
 
@@ -288,6 +337,17 @@ SSIZE_T LoadModuleElf(BYTE* binary, UINT_PTR base, OUT UINT_PTR* entry)
 		}
 
 		bases[i] = secBase;
+	}
+
+	// resolve extern symbols
+	if (kernBinary)
+	{
+		ResolveExternalSymbolAgainstSource(binary, kernBinary);
+	}
+
+	if (halBinary)
+	{
+		ResolveExternalSymbolAgainstSource(binary, halBinary);
 	}
 
 	// patch the executable based on .rela and .rel sections

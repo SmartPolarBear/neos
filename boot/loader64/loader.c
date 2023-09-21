@@ -24,19 +24,19 @@ static inline void AllocateLoadMemory(UINT_PTR size)
 	loadMemory = (BYTE*)PGROUNDUP((UINT_PTR)loadMemory);
 }
 
+BYTE* kernBin = NULL;
+BYTE* halBin = NULL;
 
 UINT_PTR LoadKernel()
 {
-	BYTE* binary = NULL;
-
-	// NeosExecutive kernel binary
-	SSIZE_T fileSize = BootFsLoadKernel(&binary);
+	// NeosExecutive kernel
+	SSIZE_T fileSize = BootFsLoadKernel(&kernBin);
 	if (fileSize < 0)
 	{
 		Panic("Cannot load kernel.");
 	}
 	UINT_PTR kernEntryPoint = 0;
-	SSIZE_T loadSize = LoadKernelElf(binary, &kernEntryPoint);
+	SSIZE_T loadSize = LoadKernelElf(kernBin, &kernEntryPoint);
 	if (loadSize < 0)
 	{
 		Panic("Invalid kernel format.");
@@ -48,20 +48,30 @@ UINT_PTR LoadKernel()
 
 	TerminalPrintf("Loaded kernel " KERNEL_PATH " (%d bytes in file, %d bytes in mem).\n", fileSize, loadSize);
 
+	return kernEntryPoint;
+}
+
+void LoadHal()
+{
+	if (!kernBin)
+	{
+		Panic("Cannot load HAL: kernel is not loaded.");
+	}
+
 	// NeosExecutive HAL
-	fileSize = BootFsLoadModule(HAL_PATH, &binary);
-	if (fileSize < 0)
+	SSIZE_T halFileSize = BootFsLoadModule(HAL_PATH, &halBin);
+	if (halFileSize < 0)
 	{
 		Panic("Cannot load the HAL.");
 	}
 	BYTE* halLoadAddress = GetLoadAddr();
 	UINT_PTR halEntryPoint = 0;
-	loadSize = LoadModuleElf(binary, (UINT_PTR)halLoadAddress, &halEntryPoint);
+	SSIZE_T loadSize = LoadModuleElf(halBin, kernBin, NULL, (UINT_PTR)halLoadAddress, &halEntryPoint);
 	if (loadSize < 0)
 	{
 		Panic("Invalid HAL format.");
 	}
-	ELFSYMBOL64* halOpsSymbol = LocateSymbolElf(binary, "HalOps", STB_GLOBAL, STT_OBJECT);
+	ELFSYMBOL64* halOpsSymbol = LocateSymbolElf(halBin, "HalOps", STB_GLOBAL, STT_OBJECT);
 	if (!halOpsSymbol)
 	{
 		Panic("Invalid HAL format: HalOps is missing.");
@@ -70,20 +80,27 @@ UINT_PTR LoadKernel()
 	gBootParam.NeosExecutive.HalOpAddr = halOpsSymbol->Value;
 	gBootParam.NeosExecutive.HalEntryAddr = halEntryPoint;
 	gBootParam.NeosExecutive.HalMemSize = loadSize;
-	gBootParam.NeosExecutive.HalFileSize = fileSize;
+	gBootParam.NeosExecutive.HalFileSize = halFileSize;
 	AllocateLoadMemory(loadSize);
 
 	TerminalPrintf("Loaded HAL " HAL_PATH " (%d bytes, %d bytes in mem). HALOPS is at %p. Hal entry point is at %p.\n",
-			fileSize, loadSize,
+			halFileSize, loadSize,
 			halOpsSymbol->Value,
 			halEntryPoint);
-
-
-	return kernEntryPoint;
 }
 
 void LoadDriver(const char* name)
 {
+	if (!kernBin)
+	{
+		Panic("Cannot load device driver: kernel is not loaded.");
+	}
+
+	if (!halBin)
+	{
+		Panic("Cannot load device driver: HAL is not loaded.");
+	}
+
 	if (loadMemory < (BYTE*)DRIVER_LINK_ADDR)
 	{
 		loadMemory = (BYTE*)DRIVER_LINK_ADDR;
@@ -96,7 +113,7 @@ void LoadDriver(const char* name)
 		Panic("Cannot load device driver.");
 	}
 	UINT_PTR driverEntryPoint = 0;
-	SSIZE_T ret = LoadModuleElf(binary, (UINT_PTR)loadMemory, &driverEntryPoint);
+	SSIZE_T ret = LoadModuleElf(binary, kernBin, halBin, (UINT_PTR)loadMemory, &driverEntryPoint);
 	if (ret < 0)
 	{
 		Panic("Invalid driver executable format.");
