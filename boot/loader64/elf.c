@@ -76,7 +76,7 @@ static inline BOOL ALWAYS_INLINE ShouldLoadModuleSection(const ELFSECTIONHEADER6
 }
 
 
-static void RelocateElf(BYTE* binary, UINT_PTR* bases)
+static void PatchRelocatableElf(BYTE* binary, UINT_PTR* bases)
 {
 	ELFHEADER64* header = (ELFHEADER64*)binary;
 	ELFSECTIONHEADER64* sh = (ELFSECTIONHEADER64*)(binary + header->SectionHeaderOffset);
@@ -97,7 +97,7 @@ static void RelocateElf(BYTE* binary, UINT_PTR* bases)
 
 		ELFSECTIONHEADER64* targetSec = &sh[sh[i].Info];
 		ELFSECTIONHEADER64* targetSecSymTbl = &sh[sh[i].Link];
-		BYTE* targetSecCode = (BYTE*)bases[sh[i].Info];
+		ELFSECTIONHEADER64* targetSecSymStrTbl = &sh[targetSecSymTbl->Link];
 		BYTE* targetSecBinary = binary + targetSec->Offset;
 		ELFSYMBOL64* symbol = (ELFSYMBOL64*)(binary + targetSecSymTbl->Offset);
 
@@ -120,13 +120,17 @@ static void RelocateElf(BYTE* binary, UINT_PTR* bases)
 				Panic("Unexpected symbol section index from unloaded section.");
 			}
 
-			BYTE* target = targetSecCode + rela->Offset;
 			BYTE* targetInBinary = targetSecBinary + rela->Offset;
 
-			const QWORD A = sh[i].Type == SHT_RELA ? rela->Addend : 0;
+			QWORD A = sh[i].Type == SHT_RELA ? rela->Addend : 0;
 			// Spec says: for relocatable files, symbol value is the offset from the beginning of the section
-			const QWORD S = sym->Value - sh[sym->SectionIndex].Offset + bases[sym->SectionIndex];
-			const QWORD P = (QWORD)target;
+			const QWORD S = sym->Value;
+			const QWORD P = (QWORD)rela->Offset;
+
+			A += bases[sym->SectionIndex];
+
+			TerminalPrintf("Patch symbol %s, type %d, A %p, S %p, P %p\n",
+					binary + targetSecSymStrTbl->Offset + sym->Name, ELF64_R_TYPE(rela->Info), A, S, P);
 
 			// patch the targets
 			switch (ELF64_R_TYPE(rela->Info))
@@ -135,23 +139,18 @@ static void RelocateElf(BYTE* binary, UINT_PTR* bases)
 				// Do nothing
 				break;
 			case R_X86_64_64:
-				*(QWORD*)target = (QWORD)(A + S);
 				*(QWORD*)targetInBinary = (QWORD)(A + S);
 				break;
 			case R_X86_64_PC64:
-				*(QWORD*)target = (QWORD)(A + S - P);
 				*(QWORD*)targetInBinary = (QWORD)(A + S - P);
 				break;
 			case R_X86_64_PC32:
-				*(DWORD*)target = (DWORD)(A + S - P);
 				*(DWORD*)targetInBinary = (DWORD)(A + S - P);
 				break;
 			case R_X86_64_32:
-				*(DWORD*)target = (DWORD)(A + S);
 				*(DWORD*)targetInBinary = (DWORD)(A + S);
 				break;
 			case R_X86_64_32S:
-				*(INT*)target = (INT)(A + S);
 				*(INT*)targetInBinary = (INT)(A + S);
 				break;
 			default:
@@ -189,7 +188,7 @@ static void RelocateElf(BYTE* binary, UINT_PTR* bases)
 				Panic("Unexpected symbol section index from unloaded section.");
 			}
 
-			symbol[j].Value = symbol[j].Value - sh[symbol[j].SectionIndex].Offset + bases[symbol[j].SectionIndex];
+			symbol[j].Value = symbol[j].Value + bases[symbol[j].SectionIndex];
 		}
 	}
 
@@ -230,13 +229,19 @@ SSIZE_T LoadKernelElf(BYTE* binary, OUT UINT_PTR* entry)
 	for (QWORD i = 0; i < header->ProgramHeaderCount; i++)
 	{
 		SIZE_T loadSize = ph[i].VirtualAddress + ph[i].MemorySize;
-		if (ph[i].VirtualAddress > KERNEL_LINK_ADDR)
+
+		if (ph[i].VirtualAddress >= KERNEL_LINK_ADDR)
 		{
 			loadSize -= KERNEL_LINK_ADDR;
 		}
 		size = MAX(size, (SSIZE_T)loadSize);
 		if (ph[i].Type == ELFPROG_LOAD)
 		{
+//			TerminalPrintf(
+//					"Loading segment %d, type %d, offset %p, vaddr %p, paddr %p, filesz %p, memsz %p, align %p\n",
+//					i, ph[i].Type, ph[i].Offset, ph[i].VirtualAddress, ph[i].PhysicalAddress, ph[i].FileSize,
+//					ph[i].MemorySize, ph[i].Alignment);
+
 			MemCpy((BYTE*)ph[i].VirtualAddress, binary + ph[i].Offset, ph[i].FileSize);
 
 			if (ph[i].FileSize < ph[i].MemorySize)
@@ -253,8 +258,6 @@ SSIZE_T LoadKernelElf(BYTE* binary, OUT UINT_PTR* entry)
 SSIZE_T LoadModuleElf(BYTE* binary, UINT_PTR base, OUT UINT_PTR* entry)
 {
 	ELFHEADER64* header = (ELFHEADER64*)binary;
-	UINT_PTR bases[header->SectionHeaderCount];
-	MemSet(bases, 0, sizeof(bases));
 
 	ERRORCODE ret = CheckElfCommon(header);
 	if (ret < 0)
@@ -262,46 +265,55 @@ SSIZE_T LoadModuleElf(BYTE* binary, UINT_PTR base, OUT UINT_PTR* entry)
 		return ret;
 	}
 
-	if (header->Type != ELFTYPE_REL && header->Type != ELFTYPE_EXEC)
+	if (header->Type != ELFTYPE_REL && header->Type != ELFTYPE_DYN)
 	{
 		return -E_INVALID;
 	}
 
-
-	SSIZE_T size = 0;
-
-	BYTE* loadMemory = (BYTE*)base;
-
+	// for every loadable section, calculate the load address
+	UINT_PTR bases[header->SectionHeaderCount];
 	ELFSECTIONHEADER64* sh = (ELFSECTIONHEADER64*)(binary + header->SectionHeaderOffset);
 	for (QWORD i = 0; i < header->SectionHeaderCount; i++)
 	{
 		if (!ShouldLoadModuleSection(&sh[i]))
 		{
+			bases[i] = 0;
 			continue;
 		}
 
-		BYTE* beforeLoad = loadMemory;
-
+		UINT_PTR secBase = base + (sh[i].VirtualAddress - MODULE_LINK_ADDR);
 		if (sh[i].Alignment != 0 && sh[i].Alignment != 1)
 		{
-			loadMemory = (BYTE*)ROUNDUP((UINT_PTR)loadMemory, sh[i].Alignment);
+			secBase = ROUNDUP(secBase, sh[i].Alignment);
+		}
+
+		bases[i] = secBase;
+	}
+
+	// patch the executable based on .rela and .rel sections
+	PatchRelocatableElf(binary, bases);
+
+	// load the sections
+	SSIZE_T size = 0;
+	for (QWORD i = 0; i < header->SectionHeaderCount; i++)
+	{
+		if (!bases[i])
+		{
+			continue;
 		}
 
 		if (sh[i].Type == SHT_NOBITS)
 		{
-			MemSet(loadMemory, 0, sh[i].Size);
+			MemSet((void*)bases[i], 0, sh[i].Size);
 		}
 		else if (sh[i].Type == SHT_PROGBITS)
 		{
-			MemCpy(loadMemory, binary + sh[i].Offset, sh[i].Size);
+			MemCpy((void*)bases[i], binary + sh[i].Offset, sh[i].Size);
 		}
 
-		bases[i] = (UINT_PTR)loadMemory;
-		loadMemory += sh[i].Size;
-		size += (SSIZE_T)(loadMemory - beforeLoad);
+		size = MAX(size, (SSIZE_T)(bases[i] + sh[i].Size - base));
 	}
 
-	RelocateElf(binary, bases);
 
 	*entry = header->Entry;
 	return size;

@@ -8,7 +8,12 @@
 
 typedef struct
 {
+	struct
+	{
+		DWORD Major, Minor, Build;
+	} Version;
+
 	// Test function to say hello
-	void (*Hello)(void);
+	void (* Hello)(void);
 } HALOPS;
 

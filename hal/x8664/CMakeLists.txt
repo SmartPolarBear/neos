@@ -7,34 +7,41 @@ add_executable(halx8664
         ops.c
 )
 
+
 target_include_directories(halx8664 PRIVATE include)
 
 target_compile_options(halx8664 BEFORE
         PRIVATE -ffreestanding
         PRIVATE -fno-pie
+        PRIVATE -fno-pic
+        PRIVATE  -fno-common
+        PRIVATE -fno-omit-frame-pointer
+        PRIVATE -fno-strict-aliasing
         PRIVATE -m64
         PRIVATE -MD
-        PRIVATE  -fno-common
+        PRIVATE -O0
         PRIVATE -mcmodel=large
-        PRIVATE -fno-omit-frame-pointer
         PRIVATE -mtls-direct-seg-refs
         PRIVATE -mno-red-zone
-        PRIVATE -fno-pic
-        PRIVATE -O0
-        PRIVATE -static
-        PRIVATE -fno-strict-aliasing
         PRIVATE -nostdlib
         PRIVATE -nodefaultlibs
+        PRIVATE -static
+        PRIVATE -shared
 )
 
 target_link_options(halx8664 BEFORE
-        PRIVATE -Wl,-N
-        PRIVATE -Wl,-z nodefaultlib
-        PRIVATE -Wl,-q
-#        PRIVATE -Wl,-r
+        PRIVATE -nostdlib
+        PRIVATE -fno-pic
         PRIVATE -fno-pie
         PRIVATE -static
-        PRIVATE -nostdlib
+        PRIVATE -r
+        PRIVATE -Bstatic
+        PRIVATE -Bsymbolic
+        PRIVATE -Wl,-r
+        PRIVATE -Wl,-Bstatic
+        PRIVATE -Wl,-Bsymbolic
+        PRIVATE -Wl,-N
+        PRIVATE -Wl,-z nodefaultlib
         PRIVATE -Wl,--build-id=none
         PRIVATE -Wl,-T ${CMAKE_CURRENT_SOURCE_DIR}/hal.ld)
 

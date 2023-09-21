@@ -5,4 +5,4 @@
 
 #include "hal/halops.h"
 
-extern HALOPS gHalOps; // in ops.c
+extern HALOPS HalOps; // in ops.c

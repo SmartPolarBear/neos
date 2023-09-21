@@ -23,10 +23,14 @@ void NO_RETURN KernelMain(
 	bootParam->BootService.TerminalService.TerminalPrintf("Hello, world!\n");
 
 	HalEntry halEntry = (HalEntry)bootParam->NeosExecutive.HalEntryAddr;
-//	halEntry(gBootParam); // Start the hardware abstraction layer
+	halEntry(gBootParam); // Start the hardware abstraction layer
 
 	HALOPS* ops = (HALOPS*)bootParam->NeosExecutive.HalOpAddr;
-	ops->Hello();	// Test if HAL really works.
+	bootParam->BootService.TerminalService.TerminalPrintf("HAL (%d.%d) build %d.\n",
+			ops->Version.Major, ops->Version.Minor, ops->Version.Build);
+
+	gBootParam->BootService.TerminalService.TerminalPrintf("Hal hello is at %p\n", ops->Hello);
+	ops->Hello();    // Test if HAL really works.
 
 	gBootParam->BootService.ExitBootServices();
 

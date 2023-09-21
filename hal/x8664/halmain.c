@@ -5,14 +5,14 @@
 
 BOOTPARAM* gBootParam = NULL;
 
-// global interface symbol for bootloader to read
-HALOPS* HalOps = &gHalOps;
 
-void NO_RETURN HalEntry(
+void HalEntry(
 		BOOTPARAM* bootParam
 )
 {
+	HalOps.Version.Major = 0;
+	HalOps.Version.Minor = 1;
+	HalOps.Version.Build = 100;
+
 	gBootParam = bootParam;
-	gHalOps.Hello = NULL;
-	for (;;);
 }

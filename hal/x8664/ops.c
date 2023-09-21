@@ -9,6 +9,6 @@ void Hello()
 	gBootParam->BootService.TerminalService.TerminalPrintf("Hello from HAL!\n");
 }
 
-HALOPS gHalOps = {
+HALOPS HalOps = {
 		.Hello=Hello
 }; // in ops.c
