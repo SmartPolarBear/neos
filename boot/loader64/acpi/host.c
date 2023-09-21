@@ -7,6 +7,7 @@
 #include "mem.h"
 #include "utils.h"
 #include "acpi.h"
+#include "log.h"
 
 #include "lai/host.h"
 
@@ -18,13 +19,12 @@ void laihost_log(int level, const char* msg)
 	switch (level)
 	{
 	case LAI_DEBUG_LOG:
-		TerminalWriteString("[DEBUG] ");
+		LogDebug((char*)msg);
 		break;
 	case LAI_WARN_LOG:
-		TerminalWriteString("[WARN] ");
+		LogWarning((char*)msg);
 		break;
 	}
-	TerminalWriteString((char*)msg);
 	TerminalWriteCharacter('\n');
 }
 

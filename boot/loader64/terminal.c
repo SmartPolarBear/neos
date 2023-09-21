@@ -65,6 +65,15 @@ void TerminalSetColor(DWORD fgcolor, DWORD bgcolor)
 	bootTerm.bgColor = bgcolor;
 }
 
+void TerminalSetColorR(DWORD fgcolor, DWORD bgcolor,DWORD *oldfg,DWORD *oldbg)
+{
+	*oldfg = bootTerm.fgColor;
+	*oldbg = bootTerm.bgColor;
+	bootTerm.fgColor = fgcolor;
+	bootTerm.bgColor = bgcolor;
+}
+
+
 void TerminalWriteCharacter(char c)
 {
 	// in qemu, this fucking cheesy way outputs bytes to serial even without any setups.
@@ -115,13 +124,11 @@ void TerminalClear()
 
 static char hex[] = "0123456789abcdef";
 
-void TerminalPrintf(char* format, ...)
-{
-	// Initialize the variable argument list using GCC's built-in macros
-	__builtin_va_list args;
-	__builtin_va_start(args, format);
-	char buffer[32];  // Adjust the size as needed for your environment
+static char buffer[64] = { 0 };
 
+void TerminalVPrintf(char* format, VA_LIST args)
+{
+	MemSet(buffer, 0, sizeof(buffer));
 	// Iterate through the format string
 	for (int i = 0; format[i] != '\0'; ++i)
 	{
@@ -129,35 +136,105 @@ void TerminalPrintf(char* format, ...)
 		{
 			++i;  // Move to the next character after '%'
 
+			int j = i;
+			while (format[j] == 'l')j++;
+
+			SIZE_T width = 32;
+			if (j - i == 2 && format[j - 1] == 'l' && format[j - 2] == 'l')
+			{
+				width = 64;
+			}
+			else if (j - i == 1 && format[j - 1] == 'l')
+			{
+				width = 32;
+			}
+
+
 			// Check for format specifiers
-			if (format[i] == 'd')
+			if (format[j] == 'd')
 			{
+				MemSet(buffer, 0, width);
+
 				// Handle %d (decimal integer)
-				int num = __builtin_va_arg(args, int);
-				__builtin_memset(buffer, 0, 32);
-				Itoa(num, buffer, 10);
-				TerminalWriteString(buffer);
+				switch (width)
+				{
+				default:
+				case 32:
+				{
+					int num = VA_ARG(args, int);
+					Itoa(num, buffer, 10);
+					TerminalWriteString(buffer);
+					break;
+				}
+				case 64:
+				{
+					long long num = VA_ARG(args, long long);
+					Lltoa(num, buffer, 10);
+					TerminalWriteString(buffer);
+					break;
+				}
+				}
 			}
-			else if (format[i] == 'x')
+			else if (format[j] == 'x')
 			{
-				// Handle %x (hexadecimal integer)
-				int num = __builtin_va_arg(args, int);
-				__builtin_memset(buffer, 0, 32);
-				Itoa(num, buffer, 16);
-				TerminalWriteString(buffer);
+				MemSet(buffer, 0, width);
+
+				// Handle %x (hexadecimal integer, !unsigned according to C99 standard!)
+				switch (width)
+				{
+				default:
+				case 32:
+				{
+					unsigned int num = __builtin_va_arg(args, unsigned int);
+					Utoa(num, buffer, 16);
+					TerminalWriteString(buffer);
+					break;
+				}
+				case 64:
+				{
+					unsigned long long num = __builtin_va_arg(args, unsigned long long);
+					Ulltoa(num, buffer, 16);
+					TerminalWriteString(buffer);
+					break;
+				}
+				}
 			}
-			else if (format[i] == 'p')
+			else if (format[j] == 'u')
 			{
-				UINT_PTR num = __builtin_va_arg(args, UINT_PTR);
-				for (int i = 0; i < (sizeof(UINT_PTR) << 1); i++, num <<= 4)
+				MemSet(buffer, 0, width);
+
+				// Handle %u (unsigned integer)
+				switch (width)
+				{
+				default:
+				case 32:
+				{
+					unsigned int num = VA_ARG(args, unsigned int);
+					Utoa(num, buffer, 10);
+					TerminalWriteString(buffer);
+					break;
+				}
+				case 64:
+				{
+					unsigned long long num = VA_ARG(args, unsigned long long);
+					Ulltoa(num, buffer, 10);
+					TerminalWriteString(buffer);
+					break;
+				}
+				}
+			}
+			else if (format[j] == 'p')
+			{
+				UINT_PTR num = VA_ARG(args, UINT_PTR);
+				for (int j = 0; j < (sizeof(UINT_PTR) << 1); j++, num <<= 4)
 				{
 					TerminalWriteCharacter(hex[(num >> ((sizeof(UINT_PTR) << 3) - 4)) & 0xf]);
 				}
 			}
-			else if (format[i] == 's')
+			else if (format[j] == 's')
 			{
 				// Handle %s (string)
-				char* str = __builtin_va_arg(args, char*);
+				char* str = VA_ARG(args, char*);
 				TerminalWriteString(str);
 			}
 		}
@@ -167,6 +244,16 @@ void TerminalPrintf(char* format, ...)
 			TerminalWriteCharacter(format[i]);
 		}
 	}
+}
+
+
+void TerminalPrintf(char* format, ...)
+{
+	// Initialize the variable argument list using GCC's built-in macros
+	__builtin_va_list args;
+	__builtin_va_start(args, format);
+
+	TerminalVPrintf(format, args);
 
 	// Clean up the variable argument list
 	__builtin_va_end(args);

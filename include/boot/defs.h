@@ -15,6 +15,12 @@
 #define IN
 #define OUT
 
+#define VA_LIST __builtin_va_list
+#define VA_START __builtin_va_start
+#define VA_ARG __builtin_va_arg
+#define VA_END __builtin_va_end
+
+
 #define MMAP_ADDR 0x8000
 #define VGA_FONT_ADDR 0x6000
 #define VESA_MODEINFO_ADDR 0x9000

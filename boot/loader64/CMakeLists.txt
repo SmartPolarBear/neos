@@ -14,6 +14,7 @@ add_executable(neldr
         acpi.c
         elf.c
         loader.c
+        log.c
         $<TARGET_OBJECTS:LAI>
 )
 
