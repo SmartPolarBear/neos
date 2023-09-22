@@ -31,8 +31,8 @@ void MakeKernelBootParams()
 
 // NELDR do following things:
 // 0) Initialize memory stuffs
-// 1) first, load kernel binaries, as well as smp initialization code
-// 2) place physical memory pages just after kernel binaries. Also initialize other processors.
+// 1) first, load kernel binaries and HAL binaries into memory.
+// 2) place physical memory pages just after kernel binaries.
 // 3) scan hardware and place information after pages with ACPI
 // 4) jmp to kernel entry
 UINT_PTR LoaderMain64(UINT_PTR bufferTop, UINT_PTR activePartAddr)
@@ -51,17 +51,16 @@ UINT_PTR LoaderMain64(UINT_PTR bufferTop, UINT_PTR activePartAddr)
 	// ACPI
 	InitializeAcpi();
 
-	// NeosExecutive kernel and HAL
+	// NeosExecutive (kernal, HAL, etc.).
+	// HAL will be responsible for initializing SMP.
 	UINT_PTR kernEntry = LoadKernel();
 	LoadHal();
 
-	// Place memory pages
-	InitializeMemoryPages();
-
 	// NeosExecutive drivers based on ACPI information
 	AcpiLoadDriverForDevices();
-	// Initialize other processors, but not start them, leaving works to kernel.
-	AcpiInitializeProcessors();
+
+	// Place memory pages
+	InitializeMemoryPages();
 
 	// Memory post-initialization
 	PostInitializeMemory();

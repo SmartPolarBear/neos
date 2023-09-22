@@ -59,6 +59,9 @@ typedef struct
 		void (* ExitBootServices)();
 	} BootService;
 
+	UINT_PTR PhysicalPages;
+	SIZE_T PhysicalPageCount;
+
 	DRIVERLOAD DriverLoad[0];
 } ALIGN(8) BOOTPARAM;
 

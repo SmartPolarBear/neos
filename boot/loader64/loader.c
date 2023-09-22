@@ -84,8 +84,10 @@ void LoadHal()
 	gBootParam.NeosExecutive.HalFileSize = halFileSize;
 	AllocateLoadMemory(loadSize);
 
-	TerminalPrintf("Loaded HAL " HAL_PATH " (%d bytes, %d bytes in mem). HALOPS is at %p. Hal entry point is at %p.\n",
-			halFileSize, loadSize,
+	TerminalPrintf("Loaded HAL " HAL_PATH " (%d bytes, %d bytes in mem). \n",
+			halFileSize, loadSize);
+
+	LogDebug("HALOPS is at %p. Hal entry point is at %p.\n",
 			halOpsSymbol->Value,
 			halEntryPoint);
 }

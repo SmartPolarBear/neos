@@ -5,19 +5,12 @@
 #include "mem.h"
 #include "terminal.h"
 
-// Define constants for memory types
-#define MEM_TYPE_USABLE 1
-#define MEM_TYPE_RESERVED 2
-#define MEM_TYPE_ACPI 3
-#define MEM_TYPE_ACPI_NVS 4
-#define MEM_TYPE_UNUSABLE 5
 
 void BriefMemoryMap(void)
 {
 	// Start by casting MMAP_ADDR to the correct pointer type
 	DWORD mmapCount = *(DWORD*)MMAP_ADDR;
 	E820MEMMAP* e820Map = (E820MEMMAP*)(MMAP_ADDR + sizeof(DWORD));
-
 
 	// Iterate through the E820 memory map until we reach an entry with a length of 0
 	for (int i = 0; i < mmapCount; i++)
@@ -56,4 +49,6 @@ void BriefMemoryMap(void)
 				e820Map[i].Type,
 				typeStr);
 	}
+
+//	for (;;);
 }

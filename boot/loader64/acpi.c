@@ -163,8 +163,3 @@ void AcpiLoadDriverForDevices()
 {
 
 }
-
-void AcpiInitializeProcessors()
-{
-	
-}
