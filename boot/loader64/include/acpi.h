@@ -25,10 +25,12 @@ void InitializeAcpi(void);
 
 void* AcpiLocateTable(char* sig, SIZE_T n);
 
-typedef void (* AcpiEnumerationEnterFunction)(INT depth, lai_nsnode_t* node);
-typedef void (* AcpiEnumerationLeftFunction)(INT depth, INT childCount, lai_nsnode_t* node);
+// the return value will be pass to left callback
+typedef void* (* AcpiEnumerationEnterCallback)(INT depth, lai_nsnode_t* node);
 
-INT AcpiEnumerateDevices(AcpiEnumerationEnterFunction beforeNode, AcpiEnumerationLeftFunction afterNode);
+typedef void (* AcpiEnumerationLeftCallback)(INT depth, INT childCount, lai_nsnode_t* node, void* enterReturn);
+
+INT AcpiEnumerateDevices(AcpiEnumerationEnterCallback beforeNode, AcpiEnumerationLeftCallback afterNode);
 
 void AcpiLoadDriverForDevices();
 

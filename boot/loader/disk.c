@@ -34,6 +34,7 @@ static inline void ALWAYS_INLINE WaitDisk(void)
 		/* do nothing */;
 }
 
+
 /* ReadSect - read a single sector at @secno into @dst */
 void ReadSects(void* dst, DWORD secno, DWORD secs)
 {

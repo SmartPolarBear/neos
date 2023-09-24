@@ -136,30 +136,72 @@ void* AcpiLocateTable(char* sig, SIZE_T n)
 }
 
 static inline INT AcpiEnumerateDeviceNode(lai_nsnode_t* n,
-		INT depth,
-		AcpiEnumerationEnterFunction bn,
-		AcpiEnumerationLeftFunction an)
+	INT depth,
+	AcpiEnumerationEnterCallback enter,
+	AcpiEnumerationLeftCallback left)
 {
-	bn(depth, n);
+	void* enterParam = enter(depth, n);
 
 	INT children = 0;
 	struct lai_ns_child_iterator iter = LAI_NS_CHILD_ITERATOR_INITIALIZER(n);
 	for (lai_nsnode_t* p = lai_ns_child_iterate(&iter); p; p = lai_ns_child_iterate(&iter))
 	{
-		children += AcpiEnumerateDeviceNode(p, depth + 1, bn, an);
+		children += AcpiEnumerateDeviceNode(p, depth + 1, enter, left);
 	}
-	an(depth, children, n);
 
-	return children;
+	left(depth, children, n, enterParam);
+
+	return children + 1;
 }
 
-INT AcpiEnumerateDevices(AcpiEnumerationEnterFunction beforeNode, AcpiEnumerationLeftFunction afterNode)
+INT AcpiEnumerateDevices(AcpiEnumerationEnterCallback beforeNode, AcpiEnumerationLeftCallback afterNode)
 {
 	lai_nsnode_t* root = lai_ns_get_root();
 	return AcpiEnumerateDeviceNode(root, 0, beforeNode, afterNode);
 }
 
+SSIZE_T deviceDriverCount = 0;
+SSIZE_T processorCount = 0;
+
+// count, and log if needed
+static inline void* AcpiLoadDriverEnterCallback(INT depth, lai_nsnode_t* node)
+{
+	if (node->type != LAI_NAMESPACE_DEVICE && node->type != LAI_NAMESPACE_PROCESSOR)
+	{
+		return NULL;
+	}
+
+	switch (node->type)
+	{
+	default:
+	case LAI_NAMESPACE_DEVICE:
+		deviceDriverCount++;
+		TerminalPrintf("Name: %s at depth %d\n", node->name, depth);
+		// TODO: allocate a slot for driver, which will be return for left callback
+		
+		break;
+
+	case LAI_NAMESPACE_PROCESSOR:
+		processorCount++;
+		TerminalPrintf("Processor: %s at depth %d\n", node->name, depth);
+		break;
+	}
+
+	return NULL;
+}
+
+// load driver
+static inline void AcpiLoadDriverLeftCallback(INT depth, INT childCount, lai_nsnode_t* node, void* enterReturn)
+{
+	if (!enterReturn)
+	{
+		return;
+	}
+}
+
 void AcpiLoadDriverForDevices()
 {
-
+	TerminalPrintf("Loading device drivers...\n");
+	INT count = AcpiEnumerateDevices(AcpiLoadDriverEnterCallback, AcpiLoadDriverLeftCallback);
+	TerminalPrintf("ACPI: %d nodes enumerated, %d drivers loaded.\n", count, deviceDriverCount);
 }
