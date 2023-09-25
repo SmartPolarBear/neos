@@ -20,13 +20,6 @@ stat $STAGE1
 dd if=$STAGE1 of=$DISK conv=notrunc bs=446 count=1
 dd if=$STAGE1 of=$DISK conv=notrunc bs=1 count=2 skip=510 seek=510 # 55 AA mark
 
-# ext2 stage 2 bootloader
-echo "Copy ext2 bootloader"
-EXT2BOOT=$PREFIX/boot/ext2boot/ext2bootsecbin
-stat $EXT2BOOT
-dd if=$EXT2BOOT of=$DISK conv=notrunc bs=1 count=1024 seek=$offset
-
-
 # stage 2 bootloader
 echo "Copy stage 2 bootloader"
 STAGE2=$PREFIX/boot/loader/osldrbin
