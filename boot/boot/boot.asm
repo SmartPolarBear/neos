@@ -8,6 +8,9 @@ Entry:
     MOV ES, AX
     MOV SS, AX
 
+    ; Setup a stack
+    MOV SP, 0x7C00
+
 
     ; Clear the screen
     MOV AH, 0x06
@@ -54,6 +57,7 @@ Entry:
         JMP NOBOOTPART
     FOUNDEXT2:
         ; Stage 2 bootloader from ext2 partition to memory address 0x1000
+        PUSH DI         ; Save the boot partition table item address
         MOV DH, BYTE ES:[DI+1]; Byte 1: Starting head
         MOV CX, WORD ES:[DI+2]; Byte 2: Starting sector and cylinder
         XOR AX, AX
@@ -64,6 +68,16 @@ Entry:
         MOV DL, 0x80     ; Drive 0
 
         INT 0x13         ; Call BIOS interrupt
+        JC READFAIL      ; Read failure
+        JNC JumpToStage2
+    
+
+    JumpToStage2:
+        ; Verify LBA INT13 extensions are supported
+        MOV AH, 0x41
+        MOV BX, 0x55AA
+        MOV DL, 0x80
+        INT 0x13
         JC READFAIL      ; Read failure
 
         ; Jump to stage 2 bootloader (0x1000)

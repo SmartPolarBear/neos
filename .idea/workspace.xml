@@ -20,6 +20,12 @@
   <component name="ChangeListManager">
     <list default="true" id="e494f59e-73b1-4167-8153-44dd5db88936" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/boot/boot/boot.asm" beforeDir="false" afterPath="$PROJECT_DIR$/boot/boot/boot.asm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/boot/ext2boot/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/boot/ext2boot/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/boot/ext2boot/bootsec.S" beforeDir="false" afterPath="$PROJECT_DIR$/boot/ext2boot/bootsec.S" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/boot/ext2boot/debug.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/boot/ext2boot/ext2fs.c" beforeDir="false" afterPath="$PROJECT_DIR$/boot/ext2boot/ext2fs.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/boot/ext2boot/vesa.c" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -68,6 +74,13 @@
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
+  <component name="RunManager">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -87,6 +100,7 @@
       <workItem from="1695537120308" duration="94000" />
       <workItem from="1695560145791" duration="115000" />
       <workItem from="1695625672344" duration="77000" />
+      <workItem from="1695709792246" duration="52000" />
     </task>
     <servers />
   </component>

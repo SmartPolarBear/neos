@@ -14,6 +14,9 @@ SECTIONS
         *(.bss)
 	}
 
+	# provide a symbol for the end of the loader
+	PROVIDE(Ext2BootEnd = .);
+
 	/DISCARD/ : {
 		*(.eh_frame .note.GNU-stack .debug_* .comment)
 	}

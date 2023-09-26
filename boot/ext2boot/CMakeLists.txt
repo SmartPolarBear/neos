@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 3.15)
 
-add_executable(ext2bootsec bootsec.S ext2fs.c vesa.c debug.c)
+add_executable(ext2bootsec bootsec.S utils.S ext2fs.c)
 
 set_property(SOURCE bootsec.S PROPERTY LANGUAGE C)
+set_property(SOURCE utils.S PROPERTY LANGUAGE C)
 
 target_include_directories(ext2bootsec PRIVATE include)
 
@@ -38,7 +39,8 @@ target_link_options(ext2bootsec BEFORE
 
 add_custom_command(TARGET ext2bootsec POST_BUILD
         COMMAND objdump -S $<TARGET_FILE:ext2bootsec> > ${CMAKE_CURRENT_BINARY_DIR}/ext2bootsec.asm
+        COMMAND readelf -a $<TARGET_FILE:ext2bootsec> > ${CMAKE_CURRENT_BINARY_DIR}/ext2bootsec.dump
         COMMAND objcopy -S -O binary -j .text $<TARGET_FILE:ext2bootsec> ${CMAKE_CURRENT_BINARY_DIR}/ext2bootsecbin
-        BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/ext2bootsec.asm ${CMAKE_CURRENT_BINARY_DIR}/ext2bootsecbin
+        BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/ext2bootsec.asm ${CMAKE_CURRENT_BINARY_DIR}/ext2bootsecbin ${CMAKE_CURRENT_BINARY_DIR}/ext2bootsec.dump
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
