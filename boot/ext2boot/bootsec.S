@@ -2,11 +2,10 @@
 
 .section .text
 
-// This bootsector parse the ext2 fuckers and find neldr file:
-// 1) load first 1024bit of neldr to 0x2000. 
-//    It is 16bit code which will fuck with things must done in real mode with BIOS
-//    It will finally switch to protected mode and call the rest of neldr
-// 2) the rest of neldr is load to HIGHMEM(1MB+64KB), which do other fucking good things and enter long mode
+// This bootsector parse the ext2 fuckers and find boot files:
+// 1) load boot.ini file
+// 2) load neldr at HIGHMEM
+
 .code16
 .globl Ext2BootEntry
 Ext2BootEntry:
@@ -132,10 +131,9 @@ SetA20.2:
     push %bp
     mov %bp, %dx
     add BlockSize, %dx // dx points to a block
-    mov $12, %cx // 12 is the number of direct blocks
+    xor %cx, %cx
 SearchRootDir:
-    mov %cx, %si // si = 12, 11, 10, ..., 1, 0
-    sub $12, %si // si = 12 - cx = 0, 1, 2, ..., 11
+    mov %cx, %si // si = 0, 1, 2, ..., 11
     shl $2, %si // si = 0, 4, 8, ..., 44
     mov 40(%bx,%si), %eax
     cmp $0, %eax
@@ -153,13 +151,16 @@ SearchRootDir:
 IterateEntries:
     movl 0(%di), %eax // inode number
     cmp $0, %eax
-    je NextIterateEntries
+    je ContinueIterateEntries // do not exit the loop, because there may be empty entries
     movw 4(%di), %ax // total size of the entry
     cmp $0, %ax
-    je NextIterateEntries
+    je ContinueIterateEntries
+
     movb 7(%di), %al // type indicator
     cmp $2, %al // regular file
     jne ContinueIterateEntries
+
+    // search for Neldr
     movb 6(%di), %al // name length
     push %ax
     mov %di, %ax
@@ -168,19 +169,35 @@ IterateEntries:
     lea NeldrName, %ax
     push %ax
     call MemCmp
-    add $0x6, %sp // pop 3 arguments
+    add $0x2, %sp // just pop NeldrName.
     cmp $0, %ax
-    jne ContinueIterateEntries
+    je FoundNeldr
+    // search for boot.ini
+    lea BootIniName, %ax
+    push %ax
+    call MemCmp
+    add $0x6, %sp // pop all arguments
+    cmp $0, %ax
+    je FoundBootIni
+    jmp ContinueIterateEntries
+FoundBootIni:
+    movl 0(%di), %eax // save the inode number of boot.ini
+    mov %eax, BootIniInode
+    jmp ContinueIterateEntries
+FoundNeldr:
+    add $0x4, %sp // pop another arguments
     movl 0(%di), %eax // save the inode number of neldr
     mov %eax, NeldrInode
-    jne NextIterateEntries
+    jmp ContinueIterateEntries
 ContinueIterateEntries:
     movw 4(%di), %ax // total size of the entry
     add %ax, %di // di points to the next entry
     cmp %dx, %di // if di reaches the end of the block
     jae IterateEntries
 NextIterateEntries:
-    loop SearchRootDir
+    inc %cx
+    cmp $12, %cx // if we have searched all direct blocks
+    jb SearchRootDir   // loop inst. won't work, because the body of loop is too long
 NextSearchRootDir:
     add $0x4, %sp // pop 2 arguments that pushed before loop
 
@@ -188,6 +205,11 @@ NextSearchRootDir:
     mov NeldrInode, %eax
     cmp $0, %eax
     je NeldrNotFound
+
+    // if we found boot.ini?
+    mov BootIniInode, %eax
+    cmp $0, %eax
+    je BootIniNotFound
 
 Spin:
     hlt
@@ -202,6 +224,10 @@ BadFileSystem:
     jmp Spin
 NeldrNotFound:
     lea NeldrNotFoundStr, %si
+    call PutStr
+    jmp Spin
+BootIniNotFound:
+    lea BootIniNotFoundStr, %si
     call PutStr
     jmp Spin
 
@@ -253,7 +279,6 @@ ErrorReadLBA:
     mov $1, %ax
     ret
 
-
 .section .data
     .align 4
 
@@ -264,6 +289,9 @@ BlockSize:
     .long 0
 
 SectorPerBlock:
+    .long 0
+
+BootIniInode:
     .long 0
 
 NeldrInode:
@@ -288,6 +316,14 @@ NeldrNotFoundStr:
     .ascii "neldr not found."
     .byte 0
 
+BootIniNotFoundStr:
+    .ascii "boot.ini not found."
+    .byte 0
+
 NeldrName:
     .ascii "neldr"
+    .byte 0
+
+BootIniName:
+    .ascii "boot.ini"
     .byte 0

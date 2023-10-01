@@ -49,6 +49,10 @@ CopyToExt2() {
 NELDR=$PREFIX/boot/loader64/neldrbin
 CopyToExt2 $NELDR neldr "Copy neldr to neldr2 on ext2 partition"
 
+# boot.ini: OS boot configuration
+BOOTINI=boot.ini
+CopyToExt2 $BOOTINI boot.ini "Copy boot.ini to boot.ini on ext2 partition"
+
 # kernel
 NEOSKNL=$PREFIX/kernel/neosknl
 sudo mkdir -p $MNTDIR/neos
