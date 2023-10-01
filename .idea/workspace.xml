@@ -10,7 +10,16 @@
     <option name="reloaded" value="true" />
   </component>
   <component name="CMakeRunConfigurationManager">
-    <generated />
+    <generated>
+      <config projectName="neos" targetName="ext2bootsec" />
+      <config projectName="neos" targetName="neldr" />
+      <config projectName="neos" targetName="halx8664" />
+      <config projectName="neos" targetName="osldr" />
+      <config projectName="neos" targetName="neosknl" />
+      <config projectName="neos" targetName="LAI" />
+      <config projectName="neos" targetName="image" />
+      <config projectName="neos" targetName="bootsector" />
+    </generated>
   </component>
   <component name="CMakeSettings">
     <configurations>
@@ -18,14 +27,14 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e494f59e-73b1-4167-8153-44dd5db88936" name="Changes" comment="">
+    <list default="true" id="2fbcb9c2-307b-4042-86ad-f5080a1d17cd" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/boot/boot/boot.asm" beforeDir="false" afterPath="$PROJECT_DIR$/boot/boot/boot.asm" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vscode/c_cpp_properties.json" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/boot/ext2boot/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/boot/ext2boot/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/boot/ext2boot/bootsec.S" beforeDir="false" afterPath="$PROJECT_DIR$/boot/ext2boot/bootsec.S" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/boot/ext2boot/debug.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/boot/ext2boot/ext2fs.c" beforeDir="false" afterPath="$PROJECT_DIR$/boot/ext2boot/ext2fs.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/boot/ext2boot/vesa.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/boot/ext2boot/ext2fs.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/boot/ext2boot/utils.S" beforeDir="false" afterPath="$PROJECT_DIR$/boot/ext2boot/utils.S" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/mkdisk.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/mkdisk.sh" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,14 +44,18 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug-WSL" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="HighlightingSettingsPerFile">
-    <setting file="file://$PROJECT_DIR$/CMakeLists.txt" root0="FORCE_HIGHLIGHTING" />
-  </component>
+  <component name="KubernetesApiProvider"><![CDATA[{
+  "isMigrated": true
+}]]></component>
   <component name="MacroExpansionManager">
-    <option name="directoryName" value="j0amso9w" />
+    <option name="directoryName" value="r78sjqi8" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
   </component>
   <component name="ProjectApplicationVersion">
     <option name="ide" value="CLion" />
@@ -50,9 +63,9 @@
     <option name="minorVersion" value="3" />
   </component>
   <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 3
+  &quot;associatedIndex&quot;: 5
 }</component>
-  <component name="ProjectId" id="2VmqOagofWMQQCOTrx1dBTxWNlZ" />
+  <component name="ProjectId" id="2W1rziinATxl9AiBxIguxojZYj7" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -62,45 +75,90 @@
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
     &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/bear/Downloads/github-copilot-intellij-1.3.0.3340-nightly.zip&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
-  <component name="RunManager">
-    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+  <component name="RunManager" selected="CMake Application.image">
+    <configuration name="LAI" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="neos" TARGET_NAME="LAI" CONFIG_NAME="Debug-WSL">
       <method v="2">
-        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
+    <configuration name="bootsector" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="neos" TARGET_NAME="bootsector" CONFIG_NAME="Debug-WSL">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ext2bootsec" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="neos" TARGET_NAME="ext2bootsec" CONFIG_NAME="Debug-WSL" RUN_TARGET_PROJECT_NAME="neos" RUN_TARGET_NAME="ext2bootsec">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="halx8664" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="neos" TARGET_NAME="halx8664" CONFIG_NAME="Debug-WSL" RUN_TARGET_PROJECT_NAME="neos" RUN_TARGET_NAME="halx8664">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="image" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="neos" TARGET_NAME="image" CONFIG_NAME="Debug-WSL">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="neldr" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="neos" TARGET_NAME="neldr" CONFIG_NAME="Debug-WSL" RUN_TARGET_PROJECT_NAME="neos" RUN_TARGET_NAME="neldr">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="neosknl" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="neos" TARGET_NAME="neosknl" CONFIG_NAME="Debug-WSL" RUN_TARGET_PROJECT_NAME="neos" RUN_TARGET_NAME="neosknl">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="osldr" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="neos" TARGET_NAME="osldr" CONFIG_NAME="Debug-WSL" RUN_TARGET_PROJECT_NAME="neos" RUN_TARGET_NAME="osldr">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="CMake Application.image" />
+      <item itemvalue="CMake Application.bootsector" />
+      <item itemvalue="CMake Application.ext2bootsec" />
+      <item itemvalue="CMake Application.neldr" />
+      <item itemvalue="CMake Application.osldr" />
+      <item itemvalue="CMake Application.halx8664" />
+      <item itemvalue="CMake Application.neosknl" />
+      <item itemvalue="CMake Application.LAI" />
+    </list>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="e494f59e-73b1-4167-8153-44dd5db88936" name="Changes" comment="" />
-      <created>1695451574492</created>
+      <changelist id="2fbcb9c2-307b-4042-86ad-f5080a1d17cd" name="Changes" comment="" />
+      <created>1695911191955</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1695451574492</updated>
-      <workItem from="1695451576431" duration="177000" />
-      <workItem from="1695451763843" duration="54000" />
-      <workItem from="1695451819621" duration="332000" />
-      <workItem from="1695452168031" duration="304000" />
-      <workItem from="1695452518969" duration="262000" />
-      <workItem from="1695454078082" duration="594000" />
-      <workItem from="1695473004348" duration="596000" />
-      <workItem from="1695536704228" duration="72000" />
-      <workItem from="1695537120308" duration="94000" />
-      <workItem from="1695560145791" duration="115000" />
-      <workItem from="1695625672344" duration="77000" />
-      <workItem from="1695709792246" duration="52000" />
+      <updated>1695911191955</updated>
+      <workItem from="1695911193090" duration="11000" />
+      <workItem from="1695911299136" duration="121000" />
+      <workItem from="1695911432367" duration="139000" />
+      <workItem from="1695911582708" duration="193000" />
+      <workItem from="1695911792417" duration="81000" />
+      <workItem from="1695911889875" duration="65000" />
+      <workItem from="1695912273241" duration="88000" />
+      <workItem from="1695912372493" duration="5815000" />
+      <workItem from="1696058278297" duration="3840000" />
     </task>
     <servers />
   </component>
@@ -108,8 +166,9 @@
     <option name="version" value="3" />
   </component>
   <component name="VCPKGProject">
+    <isAutomaticEditVcpkgJson value="false" />
     <isAutomaticCheckingOnLaunch value="false" />
     <isAutomaticFoundErrors value="true" />
-    <isAutomaticReloadCMake value="true" />
+    <isAutomaticFoundErrors value="true" />
   </component>
 </project>

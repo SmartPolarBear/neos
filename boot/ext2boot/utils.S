@@ -32,7 +32,26 @@ ExitPrint:
     ret
 
 .globl MemCmp
+// same as memcmp in C
 MemCmp:
-    ret
+    push %ebp
+    mov %esp, %ebp
+    pusha
 
-    
+    mov 6(%ebp), %cx
+    mov 8(%ebp), %si
+    mov 10(%ebp), %di
+
+    cld
+    repe cmpsb
+
+    popa
+Equ:
+    xor %eax, %eax
+    jmp End
+NotEqu:
+    mov %esi, %eax
+    sub %edi, %eax
+End:
+    pop %ebp
+    ret

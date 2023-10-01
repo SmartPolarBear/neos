@@ -1,7 +1,7 @@
 DISK=disk.img
 #PREFIX=../cmake-build-debug-wsl-clang
-# PREFIX=../cmake-build-debug-wsl
-PREFIX=../cmake-build
+PREFIX=../cmake-build-debug-wsl
+#PREFIX=../cmake-build
 
 # create disk
 dd if=/dev/zero of=$DISK bs=1M count=128

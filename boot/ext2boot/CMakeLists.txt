@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 
-add_executable(ext2bootsec bootsec.S utils.S ext2fs.c)
+add_executable(ext2bootsec bootsec.S utils.S)
 
 set_property(SOURCE bootsec.S PROPERTY LANGUAGE C)
 set_property(SOURCE utils.S PROPERTY LANGUAGE C)
