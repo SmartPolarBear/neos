@@ -55,11 +55,6 @@ SetA20.2:
     mov $0x2, %cx   // 2 is the size of superblock (measured in sectors)
     lea Ext2BootEnd, %bp // put superblock right after this loader
 
-    // re-zero es
-    xor %ax, %ax
-    mov %ax, %ds
-    mov %ax, %es
-
     // load the ext2 superblock
     push %cx
     push %ds
@@ -143,6 +138,11 @@ NextSaveInodeSize:
     add $0x80, %bp // third entry and so on can be overwritten, they are literally free memory
 
     // this things do not change in the loop, so just push in advance
+    // re-zero es
+    xor %ax, %ax
+    mov %ax, %ds
+    mov %ax, %es
+
     movl SectorPerBlock, %ecx
     push %cx
     push %ds
@@ -203,11 +203,9 @@ FoundBootIni:
     mov %eax, BootIniInode
     jmp ContinueIterateEntries
 FoundNeldr:
-    add $0x4, %sp // pop another arguments
+    add $0x4, %sp // pop other arguments
     movl 0(%di), %eax // save the inode number of neldr
     mov %eax, NeldrInode
-    movw 4(%di), %ax // total size of the entry
-    add %ax, %di // di points to the next entry
     jmp ContinueIterateEntries
 ContinueIterateEntries:
     movw 4(%di), %ax // total size of the entry

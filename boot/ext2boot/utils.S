@@ -43,7 +43,6 @@ MemCmp:
     mov 6(%ebp), %di
     mov 8(%ebp), %si
     mov 10(%ebp), %cx
-    hlt
 
     cld
     repe cmpsb
