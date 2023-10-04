@@ -55,14 +55,18 @@ SetA20.2:
     mov $0x2, %cx   // 2 is the size of superblock (measured in sectors)
     lea Ext2BootEnd, %bp // put superblock right after this loader
 
+    // re-zero es
+    xor %ax, %ax
+    mov %ax, %ds
+    mov %ax, %es
+
     // load the ext2 superblock
     push %cx
+    push %ds
     push %bp
     push %eax
     call ReadLBA
     add $0x8, %sp // pop 3 arguments
-    cmp $0, %ax
-    jne FailRead
 
     // calculate block size of ext2 partition
     movl 24(%bp), %ecx // block size
@@ -70,10 +74,22 @@ SetA20.2:
     shl %ecx, %eax
     movl %eax, BlockSize
 
+    // save inode size
+    movl 76(%bp), %eax
+    cmp $1, %eax // if inode size is 128 (version 0)
+    jb MajorVersion0
+    movw 88(%bp), %ax
+    movw %ax, InodeSize
+    jmp NextSaveInodeSize
+MajorVersion0:
+    movw $128, InodeSize
+NextSaveInodeSize:
+
     // read group descriptor table
     mov $0x2, %cx // 2 is the size of group descriptor table (measured in sectors)
     push %cx
     add $0x400, %bp // bp points to the end of superblock
+    push %ds
     push %bp
     movl BlockSize, %ecx
     shr $9, %ecx // divide by 512, which results in the number of sectors
@@ -83,15 +99,11 @@ SetA20.2:
     push %eax
     call ReadLBA
     add $0x8, %sp // pop 3 arguments
-    cmp $0, %ax
-    jne FailRead
     movw %bp, BlockGroupPtr // save the pointer to group descriptor table
 
     // read inode table starting address and compute the LBA
     movl 8(%bp), %eax // inode table starting address
-    dec %eax // inode table starts from 0
-    mull SectorPerBlock
-    add StartLBA, %eax
+    call BlockNumToLBA
     movl %eax, %edi
 
     // compute block group count
@@ -100,17 +112,22 @@ SetA20.2:
     divl %ecx // eax = total number of groups
     add $1, %eax // add 1 to total number of groups
     shl $5, %eax // multiply by 32
-    add %eax, %ebp // bp = end of group descriptor table
+    add %ax, %bp // bp = end of group descriptor table
+
+    // store inodes per group and blocks per group
+    movl 40(%bp), %eax // inodes per group
+    movl %eax, InodesPerGroup
+    movl 32(%bp), %eax // blocks per group
+    movl %eax, BlocksPerGroup
 
     // read inode table
     movl SectorPerBlock, %ecx
     push %cx
+    push %ds
     push %bp
     push %edi
     call ReadLBA
     add $0x8, %sp // pop 3 arguments
-    cmp $0, %ax
-    jne FailRead
 
     // we use the second entry, which is root directory
     add $0x80, %bp // bp points to the second entry
@@ -128,6 +145,7 @@ SetA20.2:
     // this things do not change in the loop, so just push in advance
     movl SectorPerBlock, %ecx
     push %cx
+    push %ds
     push %bp
     mov %bp, %dx
     add BlockSize, %dx // dx points to a block
@@ -138,15 +156,10 @@ SearchRootDir:
     mov 40(%bx,%si), %eax
     cmp $0, %eax
     je NextSearchRootDir
-    dec %eax // inode number starts from 0
-    mull SectorPerBlock
-    add StartLBA, %eax
+    call BlockNumToLBA
     push %eax
     call ReadLBA
     add $0x4, %sp // pop 1 argument
-    cmp $0, %ax
-    jne FailRead
-
     mov %bp, %di // di points to the first entry of the block
 IterateEntries:
     movl 0(%di), %eax // inode number
@@ -155,10 +168,15 @@ IterateEntries:
     movw 4(%di), %ax // total size of the entry
     cmp $0, %ax
     je ContinueIterateEntries
-
     movb 7(%di), %al // type indicator
-    cmp $2, %al // regular file
+    cmp $1, %al // regular file
     jne ContinueIterateEntries
+
+        pusha
+        mov %di, %si
+        add $8, %si // si points to the name
+        call PutStr
+        popa
 
     // search for Neldr
     movb 6(%di), %al // name length
@@ -188,12 +206,14 @@ FoundNeldr:
     add $0x4, %sp // pop another arguments
     movl 0(%di), %eax // save the inode number of neldr
     mov %eax, NeldrInode
+    movw 4(%di), %ax // total size of the entry
+    add %ax, %di // di points to the next entry
     jmp ContinueIterateEntries
 ContinueIterateEntries:
     movw 4(%di), %ax // total size of the entry
     add %ax, %di // di points to the next entry
     cmp %dx, %di // if di reaches the end of the block
-    jae IterateEntries
+    jb IterateEntries
 NextIterateEntries:
     inc %cx
     cmp $12, %cx // if we have searched all direct blocks
@@ -201,49 +221,50 @@ NextIterateEntries:
 NextSearchRootDir:
     add $0x4, %sp // pop 2 arguments that pushed before loop
 
+    // if we found boot.ini?
+    mov $0x3000, %di // di points to the boot.ini buffer
+    mov BootIniInode, %eax
+    cmp $0, %eax
+    je BootIniNotFound
+    call ReadInode
+
     // if we found neldr?
     mov NeldrInode, %eax
     cmp $0, %eax
     je NeldrNotFound
-
-    // if we found boot.ini?
-    mov BootIniInode, %eax
-    cmp $0, %eax
-    je BootIniNotFound
 
 Spin:
     hlt
     jmp Spin
 FailRead:
     lea ReadFailStr, %si
-    call PutStr
-    jmp Spin
+    jmp PrintErrMsg
 BadFileSystem:
     lea BadFileSystemStr, %si
-    call PutStr
-    jmp Spin
+    jmp PrintErrMsg
 NeldrNotFound:
     lea NeldrNotFoundStr, %si
-    call PutStr
-    jmp Spin
+    jmp PrintErrMsg
 BootIniNotFound:
     lea BootIniNotFoundStr, %si
+    jmp PrintErrMsg
+PrintErrMsg:
     call PutStr
     jmp Spin
 
 ReadLBA:
     // read using LBA in extened mode
-    // ReadLBA(DWORD LBA, WORD buffer, WORD size)
+    // ReadLBA(DWORD LBA, DWORD buffer, WORD size) // buffer = seg:offset
     push %bp
     mov %sp, %bp
     pusha
 
     // LBA to eax
     movl 4(%bp), %eax
-    // buffer to bx
-    movw 8(%bp), %bx
+    // buffer to ebx
+    movl 8(%bp), %ebx
     // size to cx
-    movw 10(%bp), %cx
+    movw 12(%bp), %cx
 
     // fill a disk address packet in stack
     mov %sp, %di // preserve stack pointer
@@ -251,13 +272,13 @@ ReadLBA:
     mov %sp, %si
 
     movw %cx, 2(%si) // number of sector
-    movw %bx, 4(%si) // offset of buffer
+    movl %ebx, 4(%si) // offset of buffer
     movl %eax, 8(%si) // low 32bit of relative sector
 
     xor %dx, %dx
     movw %dx, 6(%si) // segment of buffer is always 0
     movw %dx, 12(%si)
-    movw %dx, 14(%si) // upper 16bit of 48bit LBA is always 0
+    movw %dx, 14(%si) // upper 16bit of LBA is always 0
 
     movb $0x42, %ah // read using LBA in extened mode
     movb $0x80, %dl // drive number
@@ -265,18 +286,134 @@ ReadLBA:
     int $0x13
     mov %di, %sp // restore stack pointer
 
-    jc ErrorReadLBA
+    jc FailRead
     cmp $0x0, %ah // double check success
-    jne ErrorReadLBA
+    jne FailRead
 
     popa
     pop %bp
-    mov $0, %ax // return 0 if success
     ret
-ErrorReadLBA:
+
+CalcInodeIndexes:
+    // EAX: inode number
+    // returns:
+    //   EBX: BGDT index
+    //   ECX: inode index
+    push %eax
+    push %edx
+
+    xor %edx, %edx
+    dec %eax // inode number starts from 0
+    divl InodesPerGroup
+    mov %edx, %ecx // inode index is remainder
+    mov %eax, %ebx // BGDT index is result
+
+    pop %edx
+    pop %eax
+    ret
+
+BlockNumToLBA:
+    // EAX: block number
+    // returns:
+    //   EAX: LBA
+    push %edx
+    dec %eax // block number starts from 0
+    mull SectorPerBlock
+    add StartLBA, %eax
+    pop %edx
+    ret
+
+ReadInode:
+    // EAX: inode number
+    // DS:BP: buffer
+    // ES:DI: destination
+    pusha
+
+    push %eax
+    mov SectorPerBlock, %eax
+    mull BlocksPerGroup
+    movl %eax, %ecx // ecx = number of sectors per group
+    pop %eax
+
+    push %cx
+    push %ds
+    push %bp
+    call CalcInodeIndexes
+
+    movl BlockGroupPtr, %esi
+    shl $5, %ebx // multiply by 32
+    add %ebx, %esi // si points to the BGDT entry
+    movl 8(%esi), %eax // inode table starting address
+    call BlockNumToLBA
+    push %eax
+
+    call ReadLBA
+    add $0x8, %sp // pop 3 arguments
+
+    mov %ecx, %eax // eax = inode index
+    mulw InodeSize
+    add %ax, %bp
+    mov %bp, %si // si points to the inode
+    add InodeSize, %bp // bp points to the end of inode
+
+    // get inode size (only low 32bit)
+    movl 4(%esi), %eax
+    divl BlockSize
+    inc %eax // add 1 to round up
+    mov %eax, %edx
+
+    mov $12, %ecx // 12 is the number of direct blocks
+ReadDirect:
+    mov SectorPerBlock, %eax
+    push %ax
+    push %es
+    push %di
+    // 88+si+4*ecx points to the direct block numbers
+    mov %ecx, %eax
+    shl $2, %eax // multiply by 4
+    add $88, %eax
+    add %esi, %eax
+    movl (%eax), %eax // eax = direct block number
+    call BlockNumToLBA
+    push %eax
+    call ReadLBA
+    add $0x8, %sp // pop 3 arguments
+    add BlockSize, %di // di points to the end of buffer
+    dec %edx
+    jz ExitReadInode
+    loop ReadDirect
+
+    // handle l1 indirect block
+    movl SectorPerBlock, %eax
+    push %ax
+    push %ds
+    push %bp
+    movl 88(%esi), %eax // l1 indirect block number
+    call BlockNumToLBA
+    push %eax
+    call ReadLBA
+    add $0x8, %sp // pop 3 arguments
+
+    mov %bp, %si // si points to the l1 indirect block
+    mov %edx, %ecx // rest of the blocks
+ReadL1:
+    mov SectorPerBlock, %eax
+    push %ax
+    push %es
+    push %di
+    mov %edx, %eax
+    sub %ecx, %eax // eax = 0, 1, 2, ...
+    shl $2, %eax // multiply by 4
+    add %esi, %eax
+    movl (%eax), %eax // eax = block number
+    call BlockNumToLBA
+    push %eax
+    call ReadLBA
+    add $0x8, %sp // pop 3 arguments
+    add BlockSize, %di // di points to the end of buffer
+    loop ReadL1
+ExitReadInode:
     popa
-    pop %bp
-    mov $1, %ax
     ret
 
 .section .data
@@ -288,7 +425,16 @@ StartLBA:
 BlockSize:
     .long 0
 
+InodeSize:
+    .word 0
+
 SectorPerBlock:
+    .long 0
+
+InodesPerGroup:
+    .long 0
+
+BlocksPerGroup:
     .long 0
 
 BootIniInode:

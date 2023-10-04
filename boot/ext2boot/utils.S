@@ -36,16 +36,18 @@ ExitPrint:
 MemCmp:
     push %ebp
     mov %esp, %ebp
-    pusha
+    push %ecx
+    push %esi
+    push %edi
 
-    mov 6(%ebp), %cx
+    mov 6(%ebp), %di
     mov 8(%ebp), %si
-    mov 10(%ebp), %di
+    mov 10(%ebp), %cx
+    hlt
 
     cld
     repe cmpsb
-
-    popa
+    jne NotEqu
 Equ:
     xor %eax, %eax
     jmp End
@@ -53,5 +55,8 @@ NotEqu:
     mov %esi, %eax
     sub %edi, %eax
 End:
+    pop %edi
+    pop %esi
+    pop %ecx
     pop %ebp
     ret
