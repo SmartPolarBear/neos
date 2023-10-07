@@ -27,10 +27,9 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2fbcb9c2-307b-4042-86ad-f5080a1d17cd" name="Changes" comment="feat(ext2loader): fix various fucking errors">
+    <list default="true" id="2fbcb9c2-307b-4042-86ad-f5080a1d17cd" name="Changes" comment="feat(ext2loader): it finally find two fucking files good.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/boot/ext2boot/bootsec.S" beforeDir="false" afterPath="$PROJECT_DIR$/boot/ext2boot/bootsec.S" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/boot/ext2boot/utils.S" beforeDir="false" afterPath="$PROJECT_DIR$/boot/ext2boot/utils.S" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -157,7 +156,8 @@
       <workItem from="1696058278297" duration="9031000" />
       <workItem from="1696318322725" duration="2545000" />
       <workItem from="1696407139685" duration="50000" />
-      <workItem from="1696407238751" duration="9222000" />
+      <workItem from="1696407238751" duration="13151000" />
+      <workItem from="1696595274968" duration="4129000" />
     </task>
     <task id="LOCAL-00001" summary="feat(ext2loader): it successfully find neldr inode">
       <option name="closed" value="true" />
@@ -183,7 +183,15 @@
       <option name="project" value="LOCAL" />
       <updated>1696427334898</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="feat(ext2loader): it finally find two fucking files good.">
+      <option name="closed" value="true" />
+      <created>1696428018436</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1696428018436</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -199,6 +207,7 @@
     <MESSAGE value="feat(ext2loader): it successfully find neldr inode" />
     <MESSAGE value="feat(ext2loader): it successfully find boot.ini inode" />
     <MESSAGE value="feat(ext2loader): fix various fucking errors" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(ext2loader): fix various fucking errors" />
+    <MESSAGE value="feat(ext2loader): it finally find two fucking files good." />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(ext2loader): it finally find two fucking files good." />
   </component>
 </project>

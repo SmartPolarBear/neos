@@ -69,6 +69,12 @@ SetA20.2:
     shl %ecx, %eax
     movl %eax, BlockSize
 
+    // store inodes per group and blocks per group
+    movl 40(%bp), %eax // inodes per group
+    movl %eax, InodesPerGroup
+    movl 32(%bp), %eax // blocks per group
+    movl %eax, BlocksPerGroup
+
     // save inode size
     movl 76(%bp), %eax
     cmp $1, %eax // if inode size is 128 (version 0)
@@ -108,12 +114,6 @@ NextSaveInodeSize:
     add $1, %eax // add 1 to total number of groups
     shl $5, %eax // multiply by 32
     add %ax, %bp // bp = end of group descriptor table
-
-    // store inodes per group and blocks per group
-    movl 40(%bp), %eax // inodes per group
-    movl %eax, InodesPerGroup
-    movl 32(%bp), %eax // blocks per group
-    movl %eax, BlocksPerGroup
 
     // read inode table
     movl SectorPerBlock, %ecx
@@ -172,12 +172,6 @@ IterateEntries:
     cmp $1, %al // regular file
     jne ContinueIterateEntries
 
-        pusha
-        mov %di, %si
-        add $8, %si // si points to the name
-        call PutStr
-        popa
-
     // search for Neldr
     movb 6(%di), %al // name length
     push %ax
@@ -208,8 +202,7 @@ FoundNeldr:
     mov %eax, NeldrInode
     jmp ContinueIterateEntries
 ContinueIterateEntries:
-    movw 4(%di), %ax // total size of the entry
-    add %ax, %di // di points to the next entry
+    addw 4(%di), %di // di points to the next entry
     cmp %dx, %di // if di reaches the end of the block
     jb IterateEntries
 NextIterateEntries:
@@ -225,6 +218,8 @@ NextSearchRootDir:
     cmp $0, %eax
     je BootIniNotFound
     call ReadInode
+
+    hlt
 
     // if we found neldr?
     mov NeldrInode, %eax
@@ -327,34 +322,33 @@ ReadInode:
     // ES:DI: destination
     pusha
 
-    push %eax
-    mov SectorPerBlock, %eax
-    mull BlocksPerGroup
-    movl %eax, %ecx // ecx = number of sectors per group
-    pop %eax
-
+    mov SectorPerBlock, %ecx
     push %cx
     push %ds
     push %bp
+
     call CalcInodeIndexes
 
-    movl BlockGroupPtr, %esi
+    xor %edx, %edx
+    mov %ecx, %eax // eax = inode index
+    mulw InodeSize
+    divl BlockSize // eax = block offset of inode entry, edx = offset of inode entry
+
+    movw BlockGroupPtr, %si
     shl $5, %ebx // multiply by 32
-    add %ebx, %esi // si points to the BGDT entry
-    movl 8(%esi), %eax // inode table starting address
+    add %bx, %si // si points to the BGDT entry
+    addl 8(%si), %eax // inode table starting address + block offset of inode entry
     call BlockNumToLBA
     push %eax
-
     call ReadLBA
     add $0x8, %sp // pop 3 arguments
 
-    mov %ecx, %eax // eax = inode index
-    mulw InodeSize
-    add %ax, %bp
+    add %dx, %bp
     mov %bp, %si // si points to the inode
     add InodeSize, %bp // bp points to the end of inode
 
     // get inode size (only low 32bit)
+    xor %edx, %edx
     movl 4(%esi), %eax
     divl BlockSize
     inc %eax // add 1 to round up
@@ -366,11 +360,12 @@ ReadDirect:
     push %ax
     push %es
     push %di
-    // 88+si+4*ecx points to the direct block numbers
-    mov %ecx, %eax
-    shl $2, %eax // multiply by 4
-    add $88, %eax
+    // 88 + si -4
+    mov $88, %eax
     add %esi, %eax
+    mov %ecx, %ebx
+    shl $2, %ebx // multiply by 4
+    sub %ebx, %eax
     movl (%eax), %eax // eax = direct block number
     call BlockNumToLBA
     push %eax
@@ -393,6 +388,7 @@ ReadDirect:
     add $0x8, %sp // pop 3 arguments
 
     mov %bp, %si // si points to the l1 indirect block
+    add BlockSize, %bp // bp points to the end of l1 indirect block
     mov %edx, %ecx // rest of the blocks
 ReadL1:
     mov SectorPerBlock, %eax
@@ -407,7 +403,7 @@ ReadL1:
     call BlockNumToLBA
     push %eax
     call ReadLBA
-    add $0x8, %sp // pop 3 arguments
+    add $0x10, %sp // pop 3 arguments
     add BlockSize, %di // di points to the end of buffer
     loop ReadL1
 ExitReadInode:
