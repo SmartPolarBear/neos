@@ -27,24 +27,9 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2fbcb9c2-307b-4042-86ad-f5080a1d17cd" name="Changes" comment="feat(ext2loader): it in theorem work.">
+    <list default="true" id="2fbcb9c2-307b-4042-86ad-f5080a1d17cd" name="Changes" comment="feat(ext2loader): it jumps to neldr! but too large.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/boot/ext2boot/bootsec.S" beforeDir="false" afterPath="$PROJECT_DIR$/boot/ext2boot/bootsec.S" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/boot/loader/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/boot/loader/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/boot/loader/disk.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/boot/loader/draw.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/boot/loader/entry.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/boot/loader/ext2.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/boot/loader/fs.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/boot/loader/loader.ld" beforeDir="false" afterPath="$PROJECT_DIR$/boot/loader/loader.ld" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/boot/loader/loaderhead.S" beforeDir="false" afterPath="$PROJECT_DIR$/boot/loader/loaderhead.S" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/boot/loader/mem.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/boot/loader/terminal.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/boot/loader/vgafont.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/boot/loader64/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/boot/loader64/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/boot/loader64/loader64.ld" beforeDir="false" afterPath="$PROJECT_DIR$/boot/loader64/loader64.ld" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/mkdisk.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/mkdisk.sh" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -183,7 +168,7 @@
       <workItem from="1696407139685" duration="50000" />
       <workItem from="1696407238751" duration="13151000" />
       <workItem from="1696595274968" duration="9456000" />
-      <workItem from="1696741894696" duration="4728000" />
+      <workItem from="1696741894696" duration="4959000" />
     </task>
     <task id="LOCAL-00001" summary="feat(ext2loader): it successfully find neldr inode">
       <option name="closed" value="true" />
@@ -233,7 +218,15 @@
       <option name="project" value="LOCAL" />
       <updated>1696742470210</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="feat(ext2loader): it jumps to neldr! but too large.">
+      <option name="closed" value="true" />
+      <created>1696752927906</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1696752927906</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -252,6 +245,7 @@
     <MESSAGE value="feat(ext2loader): it finally find two fucking files good." />
     <MESSAGE value="feat(ext2loader): it may work." />
     <MESSAGE value="feat(ext2loader): it in theorem work." />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(ext2loader): it in theorem work." />
+    <MESSAGE value="feat(ext2loader): it jumps to neldr! but too large." />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(ext2loader): it jumps to neldr! but too large." />
   </component>
 </project>

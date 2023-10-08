@@ -215,7 +215,6 @@ NextSearchRootDir:
     // if we found boot.ini?
     mov $0x3000, %di // di points to the boot.ini buffer
     mov BootIniInode, %eax
-    hlt
     cmp $0, %eax
     je BootIniNotFound
     call ReadInode
@@ -482,17 +481,13 @@ BadFileSystemStr:
     .byte 0
 
 NeldrNotFoundStr:
-    .ascii "neldr not found."
-    .byte 0
-
-BootIniNotFoundStr:
-    .ascii "boot.ini not found."
-    .byte 0
-
+    .ascii "Missing "
 NeldrName:
     .ascii "neldr"
     .byte 0
 
+BootIniNotFoundStr:
+    .ascii "Missing "
 BootIniName:
     .ascii "boot.ini"
     .byte 0
