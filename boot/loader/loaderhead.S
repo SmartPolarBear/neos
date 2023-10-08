@@ -5,6 +5,7 @@
 .code16
 .globl OSLoaderEntry
 OSLoaderEntry:
+    fuck:jmp fuck
     cli
 
     xor %ax, %ax
@@ -36,24 +37,6 @@ EnterMsg:
     mov $0x0e, %ah
     mov $0x0d, %al
     int $0x10
-
-    // Physical address line A20 is tied to zero so that the first PCs
-    // with 2 MB would run software that assumed 1 MB.  Undo that.
-SetA20.1:
-    inb     $0x64,%al               # Wait for not busy
-    testb   $0x2,%al
-    jnz     SetA20.1
-
-    movb    $0xd1,%al               # 0xd1 -> port 0x64
-    outb    %al,$0x64
-
-SetA20.2:
-    inb     $0x64,%al               # Wait for not busy
-    testb   $0x2,%al
-    jnz     SetA20.2
-
-    movb    $0xdf,%al               # 0xdf -> port 0x60
-    outb    %al,$0x60
 
     // Save memory map at 0x8000
 ProbeMem:
@@ -119,7 +102,7 @@ OSLoaderEntry32:
     // avoid disturb from previous eax values
     mov $0xdeadbeef, %eax
 
-    call LoaderMain32               # Different from other loaders, this **MAY** return, so use call instead of jmp
+    // call LoaderMain32               # Different from other loaders, this **MAY** return, so use call instead of jmp
 
     // check return value of LoaderMain32
     cmp $0, %eax

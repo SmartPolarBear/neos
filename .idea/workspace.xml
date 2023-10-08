@@ -14,11 +14,11 @@
       <config projectName="neos" targetName="ext2bootsec" />
       <config projectName="neos" targetName="neldr" />
       <config projectName="neos" targetName="halx8664" />
-      <config projectName="neos" targetName="osldr" />
       <config projectName="neos" targetName="neosknl" />
       <config projectName="neos" targetName="LAI" />
       <config projectName="neos" targetName="image" />
       <config projectName="neos" targetName="bootsector" />
+      <config projectName="neos" targetName="loader16" />
     </generated>
   </component>
   <component name="CMakeSettings">
@@ -27,10 +27,24 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2fbcb9c2-307b-4042-86ad-f5080a1d17cd" name="Changes" comment="feat(ext2loader): it may work.">
-      <change afterPath="$PROJECT_DIR$/scripts/start-debug.sh" afterDir="false" />
+    <list default="true" id="2fbcb9c2-307b-4042-86ad-f5080a1d17cd" name="Changes" comment="feat(ext2loader): it in theorem work.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/boot/ext2boot/bootsec.S" beforeDir="false" afterPath="$PROJECT_DIR$/boot/ext2boot/bootsec.S" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/boot/loader/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/boot/loader/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/boot/loader/disk.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/boot/loader/draw.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/boot/loader/entry.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/boot/loader/ext2.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/boot/loader/fs.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/boot/loader/loader.ld" beforeDir="false" afterPath="$PROJECT_DIR$/boot/loader/loader.ld" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/boot/loader/loaderhead.S" beforeDir="false" afterPath="$PROJECT_DIR$/boot/loader/loaderhead.S" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/boot/loader/mem.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/boot/loader/terminal.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/boot/loader/vgafont.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/boot/loader64/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/boot/loader64/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/boot/loader64/loader64.ld" beforeDir="false" afterPath="$PROJECT_DIR$/boot/loader64/loader64.ld" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/mkdisk.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/mkdisk.sh" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -92,6 +106,11 @@
     </key>
   </component>
   <component name="RunManager" selected="CMake Application.image">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="LAI" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="neos" TARGET_NAME="LAI" CONFIG_NAME="Debug-WSL">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -117,6 +136,11 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
+    <configuration name="loader16" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="neos" TARGET_NAME="loader16" CONFIG_NAME="Debug-WSL" RUN_TARGET_PROJECT_NAME="neos" RUN_TARGET_NAME="loader16">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="neldr" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="neos" TARGET_NAME="neldr" CONFIG_NAME="Debug-WSL" RUN_TARGET_PROJECT_NAME="neos" RUN_TARGET_NAME="neldr">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -127,17 +151,12 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="osldr" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="neos" TARGET_NAME="osldr" CONFIG_NAME="Debug-WSL" RUN_TARGET_PROJECT_NAME="neos" RUN_TARGET_NAME="osldr">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
     <list>
       <item itemvalue="CMake Application.image" />
       <item itemvalue="CMake Application.bootsector" />
       <item itemvalue="CMake Application.ext2bootsec" />
       <item itemvalue="CMake Application.neldr" />
-      <item itemvalue="CMake Application.osldr" />
+      <item itemvalue="CMake Application.loader16" />
       <item itemvalue="CMake Application.halx8664" />
       <item itemvalue="CMake Application.neosknl" />
       <item itemvalue="CMake Application.LAI" />
@@ -164,7 +183,7 @@
       <workItem from="1696407139685" duration="50000" />
       <workItem from="1696407238751" duration="13151000" />
       <workItem from="1696595274968" duration="9456000" />
-      <workItem from="1696741894696" duration="537000" />
+      <workItem from="1696741894696" duration="4728000" />
     </task>
     <task id="LOCAL-00001" summary="feat(ext2loader): it successfully find neldr inode">
       <option name="closed" value="true" />
@@ -206,7 +225,15 @@
       <option name="project" value="LOCAL" />
       <updated>1696665904516</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="feat(ext2loader): it in theorem work.">
+      <option name="closed" value="true" />
+      <created>1696742470210</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1696742470210</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -224,6 +251,7 @@
     <MESSAGE value="feat(ext2loader): fix various fucking errors" />
     <MESSAGE value="feat(ext2loader): it finally find two fucking files good." />
     <MESSAGE value="feat(ext2loader): it may work." />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(ext2loader): it may work." />
+    <MESSAGE value="feat(ext2loader): it in theorem work." />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(ext2loader): it in theorem work." />
   </component>
 </project>

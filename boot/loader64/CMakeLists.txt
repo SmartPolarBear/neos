@@ -53,9 +53,19 @@ target_link_options(neldr BEFORE
 
 target_link_libraries(neldr PRIVATE LAI)
 
+add_dependencies(neldr loader16)
+
+# create flat binary and combine with loader16 for neldr file
+# use dd:
+#   1) the loader16bin will be the first 0x1000 bytes of neldr
+#   2) the neldrbin, starting at 0x1000, will be the rest of neldr
 add_custom_command(TARGET neldr POST_BUILD
         COMMAND objdump -S $<TARGET_FILE:neldr> > ${CMAKE_CURRENT_BINARY_DIR}/neldr.asm
         COMMAND objcopy -S -O binary -j .text $<TARGET_FILE:neldr> ${CMAKE_CURRENT_BINARY_DIR}/neldrbin
-        BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/neldr.asm ${CMAKE_CURRENT_BINARY_DIR}/neldrbin
+        COMMAND objcopy -S -O binary -j .text $<TARGET_FILE:loader16> ${CMAKE_CURRENT_BINARY_DIR}/loader16bin
+        COMMAND dd if=${CMAKE_CURRENT_BINARY_DIR}/loader16bin of=${CMAKE_CURRENT_BINARY_DIR}/neldr bs=1 count=4096 conv=notrunc
+        COMMAND dd if=${CMAKE_CURRENT_BINARY_DIR}/neldrbin of=${CMAKE_CURRENT_BINARY_DIR}/neldr bs=1 seek=4096 conv=notrunc
+        BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/neldr.asm ${CMAKE_CURRENT_BINARY_DIR}/neldrbin ${CMAKE_CURRENT_BINARY_DIR}/loader16bin ${CMAKE_CURRENT_BINARY_DIR}/neldr
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
+

@@ -4,16 +4,17 @@ ENTRY(OSLoaderEntry)
 
 SECTIONS
 {
-	. = 0x1000;
+	. = 0x4000;
 
     # everything in .text for objcopy
-	.text : AT(0x1000) {
+	.text : AT(0x4000) {
 		*(.text)
 		*(.data)
         *(.rodata)
         *(.bss)
 	}
 
+	# discard everything else
 	/DISCARD/ : {
 		*(.eh_frame .note.GNU-stack .debug_* .comment)
 	}

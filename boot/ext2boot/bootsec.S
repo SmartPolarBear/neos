@@ -215,6 +215,7 @@ NextSearchRootDir:
     // if we found boot.ini?
     mov $0x3000, %di // di points to the boot.ini buffer
     mov BootIniInode, %eax
+    hlt
     cmp $0, %eax
     je BootIniNotFound
     call ReadInode
@@ -229,6 +230,19 @@ NextSearchRootDir:
     je NeldrNotFound
     call ReadInode
 
+    // copy first 0x1000 bytes of neldr to 0x4000
+    xor %ax, %ax
+    mov %ax, %es
+    mov $0x1000, %ax
+    mov %ax, %ds
+    mov $0x1000, %cx
+    mov $0x4000, %di
+    mov $0x0, %si
+    cld
+    rep movsb
+
+    // jump to neldr low part (0x4000)
+    jmp 0x4000
 Spin:
     hlt
     jmp Spin
@@ -262,7 +276,6 @@ ReadLBA:
     // size to cx
     movw 12(%bp), %cx
 
-    // fixme: these values seems corrupted.
     // fill a disk address packet in stack
     mov %sp, %di // preserve stack pointer
     sub $0x20, %sp
@@ -366,6 +379,11 @@ ReadDirect:
     push %es
     push %di
     add BlockSize, %di // di points to the end of buffer
+    jno ReadDirectNoOverflow
+    mov %es, %ax
+    add $0x1000, %ax
+    mov %ax, %es
+ReadDirectNoOverflow:
     // 88 + si - 4ecx
     mov $88, %eax
     add %esi, %eax
@@ -380,6 +398,7 @@ ReadDirect:
     dec %edx
     jz ExitReadInode
     loop ReadDirect
+
 
     // handle l1 indirect block
     movl SectorPerBlock, %eax
@@ -401,6 +420,11 @@ ReadL1:
     push %es
     push %di
     add BlockSize, %di // di points to the end of buffer
+    jno ReadL1NoOverflow
+    mov %es, %ax
+    add $0x1000, %ax
+    mov %ax, %es
+ReadL1NoOverflow:
     mov %edx, %eax
     sub %ecx, %eax // eax = 0, 1, 2, ...
     shl $2, %eax // multiply by 4
