@@ -17,4 +17,4 @@ add_subdirectory(hal)
 add_custom_target(image
     COMMAND sh "${CMAKE_SOURCE_DIR}/scripts/mkdisk.sh"
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/scripts"
-    DEPENDS bootsector ext2bootsec loader16 neldr neosknl halx8664)
+    DEPENDS bootsector ext2bootsec neldr neosknl halx8664)

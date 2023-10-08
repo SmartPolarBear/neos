@@ -39,6 +39,7 @@ target_link_options(loader16 BEFORE
 
 add_custom_command(TARGET loader16 POST_BUILD
         COMMAND objdump -S $<TARGET_FILE:loader16> > ${CMAKE_CURRENT_BINARY_DIR}/loader16.asm
+        COMMAND objcopy -S -O binary -j .text $<TARGET_FILE:loader16> ${CMAKE_CURRENT_BINARY_DIR}/loader16bin
         BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/loader16.asm ${CMAKE_CURRENT_BINARY_DIR}/loader16bin
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )

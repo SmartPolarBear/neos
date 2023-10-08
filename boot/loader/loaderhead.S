@@ -5,9 +5,7 @@
 .code16
 .globl OSLoaderEntry
 OSLoaderEntry:
-    fuck:jmp fuck
     cli
-
     xor %ax, %ax
     mov %ax, %ds
     mov %ax, %es
