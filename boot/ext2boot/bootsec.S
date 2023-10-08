@@ -61,7 +61,7 @@ SetA20.2:
     push %bp
     push %eax
     call ReadLBA
-    add $0x8, %sp // pop 3 arguments
+    add $0xA, %sp // pop 4 arguments
 
     // calculate block size of ext2 partition
     movl 24(%bp), %ecx // block size
@@ -99,7 +99,7 @@ NextSaveInodeSize:
     add %ecx, %eax // add the number of sectors to start LBA
     push %eax
     call ReadLBA
-    add $0x8, %sp // pop 3 arguments
+    add $0xA, %sp // pop 3 arguments
     movw %bp, BlockGroupPtr // save the pointer to group descriptor table
 
     // read inode table starting address and compute the LBA
@@ -122,7 +122,7 @@ NextSaveInodeSize:
     push %bp
     push %edi
     call ReadLBA
-    add $0x8, %sp // pop 3 arguments
+    add $0xA, %sp // pop 4 arguments
 
     // we use the second entry, which is root directory
     add $0x80, %bp // bp points to the second entry
@@ -210,7 +210,7 @@ NextIterateEntries:
     cmp $12, %cx // if we have searched all direct blocks
     jb SearchRootDir   // loop inst. won't work, because the body of loop is too long
 NextSearchRootDir:
-    add $0x4, %sp // pop 2 arguments that pushed before loop
+    add $0x6, %sp // pop 3 arguments that pushed before loop
 
     // if we found boot.ini?
     mov $0x3000, %di // di points to the boot.ini buffer
@@ -219,12 +219,15 @@ NextSearchRootDir:
     je BootIniNotFound
     call ReadInode
 
-    hlt
-
+    // reference to 0x10000 use es:di
+    mov $0x1000, %ax
+    mov %ax, %es
+    mov $0x0, %di
     // if we found neldr?
     mov NeldrInode, %eax
     cmp $0, %eax
     je NeldrNotFound
+    call ReadInode
 
 Spin:
     hlt
@@ -259,22 +262,24 @@ ReadLBA:
     // size to cx
     movw 12(%bp), %cx
 
+    // fixme: these values seems corrupted.
     // fill a disk address packet in stack
     mov %sp, %di // preserve stack pointer
-    sub $0x10, %sp
+    sub $0x20, %sp
     mov %sp, %si
 
     movw %cx, 2(%si) // number of sector
-    movl %ebx, 4(%si) // offset of buffer
+    movl %ebx, 4(%si) // address of buffer
     movl %eax, 8(%si) // low 32bit of relative sector
 
-    xor %dx, %dx
-    movw %dx, 6(%si) // segment of buffer is always 0
-    movw %dx, 12(%si)
-    movw %dx, 14(%si) // upper 16bit of LBA is always 0
+    movb $0x10, 0(%si) // size of packet
+    xor %edx, %edx
+    movb %dl, 1(%si) // always 0 field
+    movl %edx, 12(%si) // upper 16bit of LBA is always 0
 
     movb $0x42, %ah // read using LBA in extened mode
     movb $0x80, %dl // drive number
+    movw $0x55aa, %bx // signature
 
     int $0x13
     mov %di, %sp // restore stack pointer
@@ -341,7 +346,7 @@ ReadInode:
     call BlockNumToLBA
     push %eax
     call ReadLBA
-    add $0x8, %sp // pop 3 arguments
+    add $0xA, %sp // pop 4 arguments
 
     add %dx, %bp
     mov %bp, %si // si points to the inode
@@ -360,7 +365,8 @@ ReadDirect:
     push %ax
     push %es
     push %di
-    // 88 + si -4
+    add BlockSize, %di // di points to the end of buffer
+    // 88 + si - 4ecx
     mov $88, %eax
     add %esi, %eax
     mov %ecx, %ebx
@@ -370,8 +376,7 @@ ReadDirect:
     call BlockNumToLBA
     push %eax
     call ReadLBA
-    add $0x8, %sp // pop 3 arguments
-    add BlockSize, %di // di points to the end of buffer
+    add $0xA, %sp // pop 4 arguments
     dec %edx
     jz ExitReadInode
     loop ReadDirect
@@ -385,7 +390,7 @@ ReadDirect:
     call BlockNumToLBA
     push %eax
     call ReadLBA
-    add $0x8, %sp // pop 3 arguments
+    add $0xA, %sp // pop 4 arguments
 
     mov %bp, %si // si points to the l1 indirect block
     add BlockSize, %bp // bp points to the end of l1 indirect block
@@ -395,6 +400,7 @@ ReadL1:
     push %ax
     push %es
     push %di
+    add BlockSize, %di // di points to the end of buffer
     mov %edx, %eax
     sub %ecx, %eax // eax = 0, 1, 2, ...
     shl $2, %eax // multiply by 4
@@ -403,8 +409,7 @@ ReadL1:
     call BlockNumToLBA
     push %eax
     call ReadLBA
-    add $0x10, %sp // pop 3 arguments
-    add BlockSize, %di // di points to the end of buffer
+    add $0xA, %sp // pop 4 arguments
     loop ReadL1
 ExitReadInode:
     popa

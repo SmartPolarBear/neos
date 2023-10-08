@@ -27,7 +27,8 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2fbcb9c2-307b-4042-86ad-f5080a1d17cd" name="Changes" comment="feat(ext2loader): it finally find two fucking files good.">
+    <list default="true" id="2fbcb9c2-307b-4042-86ad-f5080a1d17cd" name="Changes" comment="feat(ext2loader): it may work.">
+      <change afterPath="$PROJECT_DIR$/scripts/start-debug.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/boot/ext2boot/bootsec.S" beforeDir="false" afterPath="$PROJECT_DIR$/boot/ext2boot/bootsec.S" afterDir="false" />
     </list>
@@ -75,7 +76,7 @@
     &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
     &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/bear/Downloads/github-copilot-intellij-1.3.0.3340-nightly.zip&quot;,
+    &quot;last_opened_file_path&quot;: &quot;//wsl$/Ubuntu/home/bear/source/neos/scripts&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -85,6 +86,11 @@
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="\\wsl$\Ubuntu\home\bear\source\neos\scripts" />
+    </key>
+  </component>
   <component name="RunManager" selected="CMake Application.image">
     <configuration name="LAI" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="neos" TARGET_NAME="LAI" CONFIG_NAME="Debug-WSL">
       <method v="2">
@@ -157,7 +163,8 @@
       <workItem from="1696318322725" duration="2545000" />
       <workItem from="1696407139685" duration="50000" />
       <workItem from="1696407238751" duration="13151000" />
-      <workItem from="1696595274968" duration="4129000" />
+      <workItem from="1696595274968" duration="9456000" />
+      <workItem from="1696741894696" duration="537000" />
     </task>
     <task id="LOCAL-00001" summary="feat(ext2loader): it successfully find neldr inode">
       <option name="closed" value="true" />
@@ -191,7 +198,15 @@
       <option name="project" value="LOCAL" />
       <updated>1696428018436</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="feat(ext2loader): it may work.">
+      <option name="closed" value="true" />
+      <created>1696665904516</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1696665904516</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -208,6 +223,7 @@
     <MESSAGE value="feat(ext2loader): it successfully find boot.ini inode" />
     <MESSAGE value="feat(ext2loader): fix various fucking errors" />
     <MESSAGE value="feat(ext2loader): it finally find two fucking files good." />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(ext2loader): it finally find two fucking files good." />
+    <MESSAGE value="feat(ext2loader): it may work." />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(ext2loader): it may work." />
   </component>
 </project>
