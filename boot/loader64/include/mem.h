@@ -15,12 +15,8 @@ void InitializeMemory(VOID* lowTop);
 
 void* AllocateLow(int nPages);
 
-void* AllocateHigh(int nPages);
-
 // Do not enforce alignment on memory buffers, but enforce above kernel load address
 void* AllocateLowBytes(SIZE_T nBytes);
-
-void* AllocateHighBytes(SIZE_T nBytes);
 
 // Initialize memory pages
 void InitializeMemoryPages();

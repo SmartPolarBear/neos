@@ -4,10 +4,10 @@ ENTRY(OSLoaderEntry)
 
 SECTIONS
 {
-	. = 0x10000;
+	. = 0x11000;
 
     # everything in .text for objcopy
-	.text : AT(0x10000) {
+	.text : AT(0x11000) {
 		*(.text)
 		*(.data)
         *(.rodata)

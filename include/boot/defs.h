@@ -20,13 +20,11 @@
 #define VA_ARG __builtin_va_arg
 #define VA_END __builtin_va_end
 
-
-#define MMAP_ADDR 0x8000
 #define VGA_FONT_ADDR 0x6000
+#define MMAP_ADDR 0x8000
 #define VESA_MODEINFO_ADDR 0x9000
-#define BUFFER_START 0x10000
-#define NELDR_LOAD_ADDR 0x100000
-#define NELDR_HIGH_BUFFER 0x200000
+#define NELDR_HIGH_ADDR 0x11000
+#define BUFFER_START 0x80000
 
 // 16MB, to give all low memory to the stupid DMA devices.
 #define KERNEL_LOAD_ADDR 0x1000000

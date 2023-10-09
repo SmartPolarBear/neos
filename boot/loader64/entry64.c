@@ -7,6 +7,7 @@
 #include "fs.h"
 #include "mem.h"
 #include "acpi.h"
+#include "draw.h"
 #include "terminal.h"
 #include "param.h"
 #include "loader.h"
@@ -14,18 +15,16 @@
 #include "boot/fs.h"
 
 BOOTPARAMBUF gBootParamBuf;
-_Static_assert(((VOID*)&gBootParamBuf.BootParamBuf) == ((VOID*)&gBootParamBuf.BootParam),
-		"BootParamBuf and BootParam are not at the same address.");
+_Static_assert(((VOID *) &gBootParamBuf.BootParamBuf) == ((VOID *) &gBootParamBuf.BootParam),
+               "BootParamBuf and BootParam are not at the same address.");
 
-void ExitBootServices()
-{
-	TerminalWriteString("Exiting boot services...");
+void ExitBootServices() {
+    TerminalWriteString("Exiting boot services...");
 }
 
 
-void MakeKernelBootParams()
-{
-	gBootParam.BootService.ExitBootServices = ExitBootServices;
+void MakeKernelBootParams() {
+    gBootParam.BootService.ExitBootServices = ExitBootServices;
 }
 
 
@@ -35,45 +34,51 @@ void MakeKernelBootParams()
 // 2) place physical memory pages just after kernel binaries.
 // 3) scan hardware and place information after pages with ACPI
 // 4) jmp to kernel entry
-UINT_PTR LoaderMain64(UINT_PTR bufferTop, UINT_PTR activePartAddr)
-{
-	// boot-time terminal
-	InitializeTerminal();
-	TerminalClear();
-	TerminalWriteString("NELOS is scanning hardware...");
+char *testText = "FUCK YOU! TEST FUCK!";
+char *testText2 = "Your mother dead!";
 
-	// boot-time memory allocator
-	InitializeMemory((BYTE*)bufferTop);
+// TODO: .data seems corrupted or not loaded correctly.
+UINT_PTR LoaderMain64(UINT_PTR bufferTop, UINT_PTR activePartAddr) {
+    // boot-time terminal
+    InitializeTerminal();
+    TerminalClear();
+    FillScreen(R(BLUE), G(BLUE), B(BLUE));
+    TerminalWriteString("NEOS is scanning hardware...");
+    for (;;);
 
-	// Boot-time file system
-	InitializeBootFs((PARTTABLEITEM*)activePartAddr);
+    // boot-time memory allocator
+    InitializeMemory((BYTE *) bufferTop);
 
-	// ACPI
-	InitializeAcpi();
+    // Boot-time file system
+    InitializeBootFs((PARTTABLEITEM *) activePartAddr);
 
-	// NeosExecutive (kernal, HAL, etc.).
-	// HAL will be responsible for initializing SMP.
-	UINT_PTR kernEntry = LoadKernel();
-	LoadHal();
+    // ACPI
+    InitializeAcpi();
 
-	// NeosExecutive drivers based on ACPI information
-	AcpiLoadDriverForDevices();
+    // NeosExecutive (kernal, HAL, etc.).
+    // HAL will be responsible for initializing SMP.
+    UINT_PTR kernEntry = LoadKernel();
+    LoadHal();
 
-	// Place memory pages
-	InitializeMemoryPages();
+    // NeosExecutive drivers based on ACPI information
+    AcpiLoadDriverForDevices();
 
-	// Memory post-initialization
-	PostInitializeMemory();
+    // Place memory pages
+    InitializeMemoryPages();
 
-	// Make kernel boot parameters
-	MakeKernelBootParams();
+    // Memory post-initialization
+    PostInitializeMemory();
 
-	// kernel entry point will be saved to register rax, where head64.S will jmp to.
-	// head64.S will also save the address of boot parameters to register rdi.
-	return kernEntry;
+    // Make kernel boot parameters
+    MakeKernelBootParams();
+
+    // kernel entry point will be saved to register rax, where head64.S will jmp to.
+    // head64.S will also save the address of boot parameters to register rdi.
+    return kernEntry;
 }
 
 void NO_RETURN FailToGotoKernel() // will be called by head64.S if kernel loading failed.
 {
-	Panic("Cannot jump to kernel.");
+    Panic("Cannot jump to kernel.");
 }
+

@@ -58,8 +58,9 @@ add_dependencies(loader64 loader16)
 # create flat binary
 add_custom_command(TARGET loader64 POST_BUILD
         COMMAND objdump -S $<TARGET_FILE:loader64> > ${CMAKE_CURRENT_BINARY_DIR}/loader64.asm
-        COMMAND objcopy -S -O binary -j .text $<TARGET_FILE:loader64> ${CMAKE_CURRENT_BINARY_DIR}/loader64bin
-        BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/loader64.asm ${CMAKE_CURRENT_BINARY_DIR}/loader64bin
+        COMMAND objcopy -S -O binary -j .text -j .data -j .rodata -j .bss $<TARGET_FILE:loader64> ${CMAKE_CURRENT_BINARY_DIR}/loader64bin
+        COMMAND readelf -a $<TARGET_FILE:loader64> > ${CMAKE_CURRENT_BINARY_DIR}/loader64.dump
+        BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/loader64.asm ${CMAKE_CURRENT_BINARY_DIR}/loader64bin ${CMAKE_CURRENT_BINARY_DIR}/loader64.dump
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 

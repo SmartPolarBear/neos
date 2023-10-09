@@ -18,7 +18,6 @@ BYTE* lowTop, * highTop;
 void InitializeMemory(VOID* low)
 {
 	lowTop = (BYTE*)PGROUNDUP((UINT_PTR)low);
-	highTop = (BYTE*)NELDR_HIGH_BUFFER;
 }
 
 void* AllocateLow(int nPages)
@@ -37,27 +36,6 @@ void* AllocateLowBytes(SIZE_T nBytes)
 	return ret;
 }
 
-void* AllocateHigh(int nPages)
-{
-	BYTE* ret = highTop;
-	highTop += 0x1000 * nPages;
-	if (highTop >= (BYTE*)KERNEL_LOAD_ADDR)
-	{
-		return NULL;
-	}
-	return ret;
-}
-
-void* AllocateHighBytes(SIZE_T nBytes)
-{
-	BYTE* ret = highTop;
-	highTop += nBytes;
-	if (highTop >= (BYTE*)KERNEL_LOAD_ADDR)
-	{
-		return NULL;
-	}
-	return ret;
-}
 
 extern BYTE* loadMemory; // defined in loader.c
 

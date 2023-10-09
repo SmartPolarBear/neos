@@ -225,7 +225,7 @@ SSIZE_T LoadKernelExt2(PARTTABLEITEM* part, BYTE** binary)
 	}
 //	DebugDumpInode(inode);
 	// Also ignore upper size
-	BYTE* kernBinary = AllocateHighBytes(inode->SizeLower);
+	BYTE* kernBinary = AllocateLowBytes(inode->SizeLower);
 	if (!kernBinary)
 	{
 		TerminalWriteString("Cannot allocate memory for the kernel binary");
@@ -250,7 +250,7 @@ SSIZE_T LoadDriverExt2(PARTTABLEITEM* part, const char* name, BYTE** binary)
 		return -E_NOT_FOUND;
 	}
 //	DebugDumpInode(inode);
-	BYTE* drvBinary = AllocateHighBytes(inode->SizeLower);
+	BYTE* drvBinary = AllocateLowBytes(inode->SizeLower);
 	if (!drvBinary)
 	{
 		TerminalPrintf("Cannot allocate memory of %d bytes for the driver %s.", inode->SizeLower, name);

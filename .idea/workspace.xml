@@ -28,13 +28,17 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2fbcb9c2-307b-4042-86ad-f5080a1d17cd" name="Changes" comment="feat(ext2loader): completely works!">
+    <list default="true" id="2fbcb9c2-307b-4042-86ad-f5080a1d17cd" name="Changes" comment="feat(neldr): tackle the problem that auto-update handled by cmake would not work if only loader16's sources are updated">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/boot/loader/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/boot/loader/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/boot/loader/loaderhead.S" beforeDir="false" afterPath="$PROJECT_DIR$/boot/loader/loaderhead.S" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/boot/loader64/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/boot/loader64/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/boot/loader64/acpi/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/boot/loader64/acpi/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/boot/loader64/entry64.c" beforeDir="false" afterPath="$PROJECT_DIR$/boot/loader64/entry64.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/boot/loader64/ext2.c" beforeDir="false" afterPath="$PROJECT_DIR$/boot/loader64/ext2.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/boot/loader64/head64.S" beforeDir="false" afterPath="$PROJECT_DIR$/boot/loader64/head64.S" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/boot/loader64/include/mem.h" beforeDir="false" afterPath="$PROJECT_DIR$/boot/loader64/include/mem.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/boot/loader64/loader64.ld" beforeDir="false" afterPath="$PROJECT_DIR$/boot/loader64/loader64.ld" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/boot/loader64/mem.c" beforeDir="false" afterPath="$PROJECT_DIR$/boot/loader64/mem.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/include/boot/defs.h" beforeDir="false" afterPath="$PROJECT_DIR$/include/boot/defs.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -179,7 +183,7 @@
       <workItem from="1696407139685" duration="50000" />
       <workItem from="1696407238751" duration="13151000" />
       <workItem from="1696595274968" duration="9456000" />
-      <workItem from="1696741894696" duration="6361000" />
+      <workItem from="1696741894696" duration="13706000" />
     </task>
     <task id="LOCAL-00001" summary="feat(ext2loader): it successfully find neldr inode">
       <option name="closed" value="true" />
@@ -245,7 +249,15 @@
       <option name="project" value="LOCAL" />
       <updated>1696753224075</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="feat(neldr): tackle the problem that auto-update handled by cmake would not work if only loader16's sources are updated">
+      <option name="closed" value="true" />
+      <created>1696754510011</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1696754510011</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -266,6 +278,7 @@
     <MESSAGE value="feat(ext2loader): it in theorem work." />
     <MESSAGE value="feat(ext2loader): it jumps to neldr! but too large." />
     <MESSAGE value="feat(ext2loader): completely works!" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(ext2loader): completely works!" />
+    <MESSAGE value="feat(neldr): tackle the problem that auto-update handled by cmake would not work if only loader16's sources are updated" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(neldr): tackle the problem that auto-update handled by cmake would not work if only loader16's sources are updated" />
   </component>
 </project>

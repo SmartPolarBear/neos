@@ -125,6 +125,7 @@ entry64high:
     mov %ax, %fs
     mov %ax, %gs
 
+
     mov $0xdeadbeef, %rax
     call LoaderMain64
 
