@@ -229,6 +229,8 @@ NextSearchRootDir:
     je NeldrNotFound
     call ReadInode
 
+    hlt
+
     // copy first 0x1000 bytes of neldr to 0x4000
     xor %ax, %ax
     mov %ax, %es
@@ -378,10 +380,11 @@ ReadDirect:
     push %es
     push %di
     add BlockSize, %di // di points to the end of buffer
-    jno ReadDirectNoOverflow
+    jnc ReadDirectNoOverflow
     mov %es, %ax
     add $0x1000, %ax
     mov %ax, %es
+    clc
 ReadDirectNoOverflow:
     // 88 + si - 4ecx
     mov $88, %eax
@@ -397,7 +400,6 @@ ReadDirectNoOverflow:
     dec %edx
     jz ExitReadInode
     loop ReadDirect
-
 
     // handle l1 indirect block
     movl SectorPerBlock, %eax
@@ -419,10 +421,11 @@ ReadL1:
     push %es
     push %di
     add BlockSize, %di // di points to the end of buffer
-    jno ReadL1NoOverflow
+    jnc ReadL1NoOverflow
     mov %es, %ax
     add $0x1000, %ax
     mov %ax, %es
+    clc
 ReadL1NoOverflow:
     mov %edx, %eax
     sub %ecx, %eax // eax = 0, 1, 2, ...

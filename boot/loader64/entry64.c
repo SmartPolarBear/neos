@@ -35,7 +35,7 @@ void MakeKernelBootParams() {
 // 3) scan hardware and place information after pages with ACPI
 // 4) jmp to kernel entry
 char *testText = "FUCK YOU! TEST FUCK!";
-char *testText2 = "Your mother dead!";
+char testText2[] = "Your mother dead!";
 
 // TODO: .data seems corrupted or not loaded correctly.
 UINT_PTR LoaderMain64(UINT_PTR bufferTop, UINT_PTR activePartAddr) {

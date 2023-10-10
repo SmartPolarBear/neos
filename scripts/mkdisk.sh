@@ -47,7 +47,7 @@ CopyToExt2() {
 
 # neldr: OS boot manager
 NELDR=$PREFIX/boot/loader64/neldr
-CopyToExt2 $NELDR neldr "Copy neldr to neldr2 on ext2 partition"
+CopyToExt2 $NELDR neldr "Copy neldr to neldr on ext2 partition"
 
 # boot.ini: OS boot configuration
 BOOTINI=boot.ini
