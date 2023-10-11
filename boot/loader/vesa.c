@@ -8,10 +8,27 @@
 #include "draw.h"
 
 // 16bit code
-__asm__(".code16gcc");
+__asm__(".code16");
+//__asm__(".code16gcc"); do not use this, it will cause the code to be use 32bit things, which is bad
 
 VBEINFO vbeInfo;
 VBEMODEINFO vbeModeInfo;
+
+static inline INT MemCmp(const void* ptr1, const void* ptr2, DWORD size)
+{
+	const BYTE* p1 = (const BYTE*)ptr1;
+	const BYTE* p2 = (const BYTE*)ptr2;
+
+	for (DWORD i = 0; i < size; i++)
+	{
+		if (p1[i] != p2[i])
+		{
+			return p1[i] - p2[i];
+		}
+	}
+
+	return 0;
+}
 
 // In 16bit code, we cannot call BootPanic() directly, so we use this function to panic
 static inline void ALWAYS_INLINE NO_RETURN PanicVesa(void)
@@ -70,7 +87,6 @@ void InitializeVesa()
 		__asm__ __volatile__ ("int $0x10" : : "a" (0x4F02), "b" (*mode) : "memory");
 		break;
 	}
-
 
 	if (!foundMode)
 	{

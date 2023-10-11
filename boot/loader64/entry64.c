@@ -34,17 +34,12 @@ void MakeKernelBootParams() {
 // 2) place physical memory pages just after kernel binaries.
 // 3) scan hardware and place information after pages with ACPI
 // 4) jmp to kernel entry
-char *testText = "FUCK YOU! TEST FUCK!";
-char testText2[] = "Your mother dead!";
 
-// TODO: .data seems corrupted or not loaded correctly.
 UINT_PTR LoaderMain64(UINT_PTR bufferTop, UINT_PTR activePartAddr) {
     // boot-time terminal
     InitializeTerminal();
     TerminalClear();
-    FillScreen(R(BLUE), G(BLUE), B(BLUE));
     TerminalWriteString("NEOS is scanning hardware...");
-    for (;;);
 
     // boot-time memory allocator
     InitializeMemory((BYTE *) bufferTop);

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 
-add_executable(loader16 loaderhead.S vesa.c utils.c)
+add_executable(loader16 loaderhead.S vesa.c)
 
 set_property(SOURCE loaderhead.S PROPERTY LANGUAGE C)
 

@@ -28,12 +28,16 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2fbcb9c2-307b-4042-86ad-f5080a1d17cd" name="Changes" comment="feat(neldr): it should work. but the problem may be related to objcpy and things.">
+    <list default="true" id="2fbcb9c2-307b-4042-86ad-f5080a1d17cd" name="Changes" comment="fix(ext2bootsec): fix a problem that the routines use jno by mistake, resulting in unexpected messing up the memory.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/boot/ext2boot/bootsec.S" beforeDir="false" afterPath="$PROJECT_DIR$/boot/ext2boot/bootsec.S" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/boot/loader64/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/boot/loader64/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/boot/loader/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/boot/loader/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/boot/loader/include/utils.h" beforeDir="false" afterPath="$PROJECT_DIR$/boot/loader/include/utils.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/boot/loader/loaderhead.S" beforeDir="false" afterPath="$PROJECT_DIR$/boot/loader/loaderhead.S" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/boot/loader/utils.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/boot/loader/vesa.c" beforeDir="false" afterPath="$PROJECT_DIR$/boot/loader/vesa.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/boot/loader64/entry64.c" beforeDir="false" afterPath="$PROJECT_DIR$/boot/loader64/entry64.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/mkdisk.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/mkdisk.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/boot/loader64/head64.S" beforeDir="false" afterPath="$PROJECT_DIR$/boot/loader64/head64.S" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -85,7 +89,7 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "CMakeSettings",
+    "settings.editor.selected.configurable": "preferences.sourceCode.C/C++",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -178,7 +182,7 @@
       <workItem from="1696407139685" duration="50000" />
       <workItem from="1696407238751" duration="13151000" />
       <workItem from="1696595274968" duration="9456000" />
-      <workItem from="1696741894696" duration="18275000" />
+      <workItem from="1696741894696" duration="23512000" />
     </task>
     <task id="LOCAL-00001" summary="feat(ext2loader): it successfully find neldr inode">
       <option name="closed" value="true" />
@@ -260,7 +264,15 @@
       <option name="project" value="LOCAL" />
       <updated>1696845749847</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="fix(ext2bootsec): fix a problem that the routines use jno by mistake, resulting in unexpected messing up the memory.">
+      <option name="closed" value="true" />
+      <created>1696924070488</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1696924070488</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -283,6 +295,11 @@
     <MESSAGE value="feat(ext2loader): completely works!" />
     <MESSAGE value="feat(neldr): tackle the problem that auto-update handled by cmake would not work if only loader16's sources are updated" />
     <MESSAGE value="feat(neldr): it should work. but the problem may be related to objcpy and things." />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(neldr): it should work. but the problem may be related to objcpy and things." />
+    <MESSAGE value="fix(ext2bootsec): fix a problem that the routines use jno by mistake, resulting in unexpected messing up the memory." />
+    <option name="LAST_COMMIT_MESSAGE" value="fix(ext2bootsec): fix a problem that the routines use jno by mistake, resulting in unexpected messing up the memory." />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>

@@ -3,6 +3,7 @@
 #include "mmu.h"
 
 .code16
+
 .globl OSLoaderEntry
 OSLoaderEntry:
     cli
@@ -11,30 +12,15 @@ OSLoaderEntry:
     mov %ax, %es
     mov %ax, %ss
 
-    // set boot stack
-    mov 0x7c00, %sp
+    // reset boot stack
+    pop %di
+    mov $0x7c00, %sp
+    push %edi
 
     // make BIOS happy: we are 32bit/64bit hybrid kernel
     mov $0xec00, %ax
     mov $0x3, %bl
     int $0x15
-
-    // print a message "..."
-    mov $0x03, %si
-EnterMsg:
-    mov $0x0e, %ah
-    mov $'.', %al
-    int $0x10
-    dec %si
-    jnz EnterMsg
-
-    // new line
-    mov $0x0e, %ah
-    mov $0x0a, %al
-    int $0x10
-    mov $0x0e, %ah
-    mov $0x0d, %al
-    int $0x10
 
     // Save memory map at 0x8000
 ProbeMem:
@@ -98,6 +84,7 @@ OSLoaderEntry32:
     movw    %ax, %gs                # -> GS
 
     // jump to kernel
+    pop %ebx  // ebx is active boot drive
     mov $NELDR_HIGH_ADDR, %eax
     jmp *%eax
 FailSpin:

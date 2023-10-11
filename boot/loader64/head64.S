@@ -91,6 +91,7 @@ ptbl_loop:
     add $0x1000, %edi
 
     pop %esi # restore esi, and rsi will be second argument for C code
+    add $0x7c00, %esi
 
 # shift to 64bit segment
     ljmp $8,$(entry64low)
@@ -124,7 +125,6 @@ entry64high:
     mov %ax, %es
     mov %ax, %fs
     mov %ax, %gs
-
 
     mov $0xdeadbeef, %rax
     call LoaderMain64

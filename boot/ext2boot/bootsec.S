@@ -52,6 +52,8 @@ SetA20.2:
     add $0x2, %eax // skip the first 2 sectors
     movl %eax, StartLBA // save the start LBA of ext2 partition
 
+    push %di
+
     mov $0x2, %cx   // 2 is the size of superblock (measured in sectors)
     lea Ext2BootEnd, %bp // put superblock right after this loader
 
@@ -228,8 +230,6 @@ NextSearchRootDir:
     cmp $0, %eax
     je NeldrNotFound
     call ReadInode
-
-    hlt
 
     // copy first 0x1000 bytes of neldr to 0x4000
     xor %ax, %ax
