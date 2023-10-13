@@ -13,7 +13,6 @@
 
 BYTE* lowTop, * highTop;
 
-#define LOW_LIMIT 0x80000
 
 void InitializeMemory(VOID* low)
 {
@@ -28,7 +27,7 @@ void* AllocateLow(int nPages)
 void* AllocateLowBytes(SIZE_T nBytes)
 {
 	BYTE* ret = lowTop;
-	if (ret >= (BYTE*)LOW_LIMIT)
+	if (ret >= (BYTE*)KERNEL_LOAD_ADDR)
 	{
 		return NULL;
 	}
